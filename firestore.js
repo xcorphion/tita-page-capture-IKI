@@ -1,21 +1,15 @@
 const admin = require('firebase-admin');
-const path = require('path');
 
-// Assuming the service account file is in the root directory
-const serviceAccountPath = path.join(__dirname, 'firebase-service-account.json');
-
-try {
-    const serviceAccount = require(serviceAccountPath);
-    admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount)
-    });
-    console.log('Firebase initialized successfully.');
-} catch (error) {
-    console.error('Error initializing Firebase:', error.message);
-    console.log('Falling back to default credentials or environment variables.');
-    // Fallback for environments where service account is provided via env
-    if (!admin.apps.length) {
-        admin.initializeApp();
+if (!admin.apps.length) {
+    try {
+        // Na Vercel: configure a env var FIREBASE_SERVICE_ACCOUNT com o JSON do service account
+        const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+        admin.initializeApp({
+            credential: admin.credential.cert(serviceAccount)
+        });
+        console.log('Firebase initialized via environment variable.');
+    } catch (error) {
+        console.error('Error initializing Firebase:', error.message);
     }
 }
 
