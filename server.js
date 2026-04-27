@@ -2,6 +2,7 @@
 This server.js is maintained ONLY for LOCAL DEVELOPMENT (npm run dev / start).
 Vercel's production environment uses /api/index.js as configured in vercel.json.
 */
+require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const apiApp = require('./api/index');
