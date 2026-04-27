@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="login-container" class="center-container">
+        <h1>LOGIN</h1>
+        <p>Insira seu código de participante:</p>
+        <input type="text" id="participant-code" maxlength="5" placeholder="XXXXX">
+        <button id="btn-login">ENTRAR</button>
+        <p id="login-msg"></p>
+    </div>
+
+    <div id="study-container" class="hidden">
+        <div id="prompt-box">
+            <p id="prompt-text"></p>
+        </div>
+        
+        <textarea id="writing-area" placeholder="Comece a digitar aqui..."></textarea>
+        
+        <div id="ema-overlay" class="hidden">
+            <div id="ema-box">
+                <h3>Como você se sente agora?</h3>
+                
+                <div class="slider-group">
+                    <label>Valência</label>
+                    <div class="slider-labels">
+                        <span>Muito Negativo</span>
+                        <span>Muito Positivo</span>
+                    </div>
+                    <input type="range" id="valence-slider" min="0" max="100" value="50">
+                </div>
+
+                <div class="slider-group">
+                    <label>Arousal</label>
+                    <div class="slider-labels">
+                        <span>Muito Calmo</span>
+                        <span>Muito Agitado</span>
+                    </div>
+                    <input type="range" id="arousal-slider" min="0" max="100" value="50">
+                </div>
+
+                <button id="btn-ema-submit">CONTINUAR</button>
+            </div>
+        </div>
+
+        <div id="end-overlay" class="hidden">
+            <div id="end-box">
+                <p>Você estava genuinamente engajado ao escrever?</p>
+                <div class="btn-group">
+                    <button id="btn-engaged-yes">SIM</button>
+                    <button id="btn-engaged-no">NÃO</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="final-screen" class="hidden">
+            <h2>Sessão Concluída</h2>
+            <p>Obrigado pela sua participação.</p>
+        </div>
+    </div>
+
+    <script src="client.js"></script>
+</body>
+</html>
