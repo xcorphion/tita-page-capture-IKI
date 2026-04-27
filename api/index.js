@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const { db } = require('./firestore');
+const { connectToDatabase } = require('./mongodb');
 const { randomUUID } = require('crypto');
 
 const app = express();
@@ -9,27 +9,25 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-// Helper
-const getParticipantRef = (code) => db.collection('participants').doc(code);
-
 // GET /participant/:code
 app.get('/participant/:code', async (req, res) => {
     const { code } = req.params;
     try {
-        const participantRef = getParticipantRef(code);
-        const doc = await participantRef.get();
+        const db = await connectToDatabase();
+        const participants = db.collection('participants');
+        let doc = await participants.findOne({ participant_id: code });
 
-        if (!doc.exists) {
-            await participantRef.set({
+        if (!doc) {
+            const newParticipant = {
                 participant_id: code,
                 sessions_completed: 0,
                 created_at: new Date()
-            });
+            };
+            await participants.insertOne(newParticipant);
             return res.json({ participant_id: code, sessions_completed: 0, next_prompt_id: 1 });
         }
 
-        const data = doc.data();
-        const sessionsCompleted = data.sessions_completed || 0;
+        const sessionsCompleted = doc.sessions_completed || 0;
 
         res.json({
             participant_id: code,
@@ -50,8 +48,12 @@ app.post('/session/start', async (req, res) => {
     const promptText = "Descreva uma decisão difícil que você tomou recentemente — o que você sentiu enquanto decidia, não apenas o que decidiu.";
 
     try {
-        const sessionRef = getParticipantRef(participant_code).collection('sessions').doc(sessionId);
-        await sessionRef.set({
+        const db = await connectToDatabase();
+        const sessions = db.collection('sessions');
+
+        await sessions.insertOne({
+            session_id: sessionId,
+            participant_id: participant_code,
             prompt_id,
             session_start_epoch_ms: sessionStartEpochMs,
             jitter_benchmark_ms,
@@ -69,19 +71,23 @@ app.post('/session/start', async (req, res) => {
 app.post('/events/batch', async (req, res) => {
     const { session_id, participant_code, events } = req.body;
     try {
-        const batch = db.batch();
-        const eventsRef = getParticipantRef(participant_code).collection('sessions').doc(session_id).collection('events');
+        if (!events || events.length === 0) {
+            return res.json({ received: 0 });
+        }
 
-        events.forEach(event => {
-            const docRef = eventsRef.doc();
-            batch.set(docRef, {
-                event_type: event.event_type,
-                key_code: event.key_code,
-                timestamp_rel_ms: event.timestamp_rel_ms
-            });
-        });
+        const db = await connectToDatabase();
+        const eventsCol = db.collection('events');
 
-        await batch.commit();
+        const docs = events.map(event => ({
+            session_id,
+            participant_id: participant_code,
+            event_type: event.event_type,
+            key_code: event.key_code,
+            timestamp_rel_ms: event.timestamp_rel_ms,
+            inserted_at: new Date()
+        }));
+
+        await eventsCol.insertMany(docs);
         res.json({ received: events.length });
     } catch (error) {
         console.error(error);
@@ -93,15 +99,18 @@ app.post('/events/batch', async (req, res) => {
 app.post('/ema', async (req, res) => {
     const { session_id, participant_code, character_count, valence, arousal } = req.body;
     try {
-        const emaRef = getParticipantRef(participant_code)
-            .collection('sessions').doc(session_id)
-            .collection('emas').doc();
-        await emaRef.set({
+        const db = await connectToDatabase();
+        const emasCol = db.collection('emas');
+
+        await emasCol.insertOne({
+            session_id,
+            participant_id: participant_code,
             character_count,
             valence,
             arousal,
             timestamp_rel_ms: Date.now()
         });
+
         res.json({ ok: true });
     } catch (error) {
         console.error(error);
@@ -113,21 +122,19 @@ app.post('/ema', async (req, res) => {
 app.post('/session/end', async (req, res) => {
     const { session_id, participant_code, engagement_rating, text_final } = req.body;
     try {
-        const participantRef = getParticipantRef(participant_code);
-        const sessionRef = participantRef.collection('sessions').doc(session_id);
+        const db = await connectToDatabase();
 
-        await sessionRef.update({
-            engagement_rating,
-            text_final,
-            status: 'completed',
-            completed_at: new Date()
-        });
+        // Update Session
+        await db.collection('sessions').updateOne(
+            { session_id: session_id },
+            { $set: { engagement_rating, text_final, status: 'completed', completed_at: new Date() } }
+        );
 
-        const doc = await participantRef.get();
-        const currentCompleted = doc.data().sessions_completed || 0;
-        await participantRef.update({
-            sessions_completed: currentCompleted + 1
-        });
+        // Update Participant incrementing completed sessions
+        await db.collection('participants').updateOne(
+            { participant_id: participant_code },
+            { $inc: { sessions_completed: 1 } }
+        );
 
         res.json({ ok: true });
     } catch (error) {
