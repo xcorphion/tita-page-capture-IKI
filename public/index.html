@@ -4,22 +4,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Study</title>
+    <title>Study V2 - Tita</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="icon" href="data:,">
+    <link rel="icon" href="favicon.ico">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        .icon-text {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .icon-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+    </style>
 </head>
 
 <body>
     <div id="login-container" class="center-container">
-        <h1>LOGIN</h1>
+        <h1 class="icon-text"><i class="ph ph-fingerprint"></i> LOGIN</h1>
         <p>Insira seu código de participante:</p>
-        <input type="text" id="participant-code" maxlength="5" placeholder="XXXXX">
-        <button id="btn-login">ENTRAR</button>
+        <div style="position: relative; display: inline-flex; align-items: center;">
+            <i class="ph ph-identification-card"
+                style="position: absolute; left: 10px; font-size: 20px; color: #555;"></i>
+            <input type="text" id="participant-code" maxlength="5" placeholder="XXXXX" style="padding-left: 36px;">
+        </div>
+        <button id="btn-login" class="icon-btn"><i class="ph ph-sign-in"></i> ENTRAR</button>
         <p id="login-msg"></p>
     </div>
 
     <div id="study-container" class="hidden">
         <div id="prompt-box">
+            <h3 class="icon-text" style="margin-bottom: 10px;"><i class="ph ph-brain"></i> Tema de Hoje</h3>
             <p id="prompt-text"></p>
         </div>
 
@@ -27,10 +48,11 @@
 
         <div id="ema-overlay" class="hidden">
             <div id="ema-box">
-                <h3>Como você se sente agora?</h3>
+                <h3 class="icon-text"><i class="ph ph-heart-beat"></i> Como você se sente agora?</h3>
 
                 <div class="slider-group">
-                    <label>Valência</label>
+                    <label class="icon-text"><i class="ph ph-smiley-sad"></i> Valência <i
+                            class="ph ph-smiley"></i></label>
                     <div class="slider-labels">
                         <span>Muito Negativo</span>
                         <span>Muito Positivo</span>
@@ -39,7 +61,7 @@
                 </div>
 
                 <div class="slider-group">
-                    <label>Arousal</label>
+                    <label class="icon-text"><i class="ph ph-moon"></i> Arousal <i class="ph ph-lightning"></i></label>
                     <div class="slider-labels">
                         <span>Muito Calmo</span>
                         <span>Muito Agitado</span>
@@ -47,22 +69,23 @@
                     <input type="range" id="arousal-slider" min="0" max="100" value="50">
                 </div>
 
-                <button id="btn-ema-submit">CONTINUAR</button>
+                <button id="btn-ema-submit" class="icon-btn">CONTINUAR <i class="ph ph-arrow-right"></i></button>
             </div>
         </div>
 
         <div id="end-overlay" class="hidden">
             <div id="end-box">
-                <p>Você estava genuinamente engajado ao escrever?</p>
+                <p class="icon-text" style="margin-bottom: 20px;"><i class="ph ph-question"></i> Você estava
+                    genuinamente engajado ao escrever?</p>
                 <div class="btn-group">
-                    <button id="btn-engaged-yes">SIM</button>
-                    <button id="btn-engaged-no">NÃO</button>
+                    <button id="btn-engaged-yes" class="icon-btn"><i class="ph ph-check-circle"></i> SIM</button>
+                    <button id="btn-engaged-no" class="icon-btn"><i class="ph ph-x-circle"></i> NÃO</button>
                 </div>
             </div>
         </div>
 
         <div id="final-screen" class="hidden">
-            <h2>Sessão Concluída</h2>
+            <h2 class="icon-text"><i class="ph ph-confetti"></i> Sessão Concluída</h2>
             <p>Obrigado pela sua participação.</p>
         </div>
     </div>

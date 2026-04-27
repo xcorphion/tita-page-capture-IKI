@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const path = require('path');
 const { connectToDatabase } = require('./mongodb');
 const { randomUUID } = require('crypto');
 
@@ -8,6 +9,7 @@ const app = express();
 
 app.use(cors());
 app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, '../public')));
 
 // GET /participant/:code
 app.get('/participant/:code', async (req, res) => {

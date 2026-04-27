@@ -1,24 +1,9 @@
 {
+    "version": 2,
     "rewrites": [
         {
-            "source": "/participant/:code",
-            "destination": "/api/index.js"
-        },
-        {
-            "source": "/session/:path*",
-            "destination": "/api/index.js"
-        },
-        {
-            "source": "/events/:path*",
-            "destination": "/api/index.js"
-        },
-        {
-            "source": "/ema",
-            "destination": "/api/index.js"
-        },
-        {
             "source": "/(.*)",
-            "destination": "/index.html"
+            "destination": "/api/index.js"
         }
     ]
 }
