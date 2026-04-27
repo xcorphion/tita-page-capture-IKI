@@ -3,13 +3,14 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const { db } = require('./firestore');
 const { randomUUID } = require('crypto');
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(bodyParser.json());
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Helper to get participant ref
 const getParticipantRef = (code) => db.collection('participants').doc(code);
@@ -141,6 +142,9 @@ app.post('/session/end', async (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-});
+if (require.main === module) {
+    app.listen(PORT, () => {
+        console.log(`Server running on http://localhost:${PORT}`);
+    });
+}
+module.exports = app;
