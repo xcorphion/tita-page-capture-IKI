@@ -9,7 +9,6 @@ const app = express();
 
 app.use(cors());
 app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, '../public')));
 
 // GET /participant/:code
 app.get('/participant/:code', async (req, res) => {
