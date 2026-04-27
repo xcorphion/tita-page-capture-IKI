@@ -15,6 +15,7 @@ app.use(express.static('public'));
 const getParticipantRef = (code) => db.collection('participants').doc(code);
 
 // Routes
+app.get('/favicon.ico', (req, res) => res.status(204).end());
 
 // GET /participant/:code
 app.get('/participant/:code', async (req, res) => {
