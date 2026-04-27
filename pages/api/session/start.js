@@ -1,0 +1,22 @@
+import { connectToDatabase } from '../../../lib/mongodb';
+import { randomUUID } from 'crypto';
+
+export default async function handler(req, res) {
+    if (req.method !== 'POST') return res.status(405).end();
+    const { participant_code, prompt_id, jitter_benchmark_ms } = req.body;
+    const sessionId = randomUUID();
+    const sessionStartEpochMs = Date.now();
+    const promptText = "Descreva uma decisão difícil que você tomou recentemente — o que você sentiu enquanto decidia, não apenas o que decidiu.";
+    try {
+        const db = await connectToDatabase();
+        await db.collection('sessions').insertOne({
+            session_id: sessionId, participant_id: participant_code,
+            prompt_id, session_start_epoch_ms: sessionStartEpochMs,
+            jitter_benchmark_ms, status: 'started'
+        });
+        res.json({ session_id: sessionId, session_start_epoch_ms: sessionStartEpochMs, prompt_text: promptText });
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ error: 'Failed to start session' });
+    }
+}
