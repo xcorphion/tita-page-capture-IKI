@@ -6,7 +6,7 @@ export default async function handler(req, res) {
     const { participant_code, prompt_id, jitter_benchmark_ms } = req.body;
     const sessionId = randomUUID();
     const sessionStartEpochMs = Date.now();
-    const promptText = "Descreva uma decisão difícil que você tomou recentemente — o que você sentiu enquanto decidia, não apenas o que decidiu.";
+    const promptText = "Escreva sobre algo que você fez recentemente e que deixou uma marca. Foque no que fez e no que sentiu — não precisa explicar o contexto.";
     try {
         const db = await connectToDatabase();
         await db.collection('sessions').insertOne({

@@ -30,6 +30,16 @@ app.get('/participant/:code', async (req, res) => {
 
         const sessionsCompleted = doc.sessions_completed || 0;
 
+        // After session 1, block access until admin unlocks
+        if (sessionsCompleted >= 1 && !doc.session2_unlocked) {
+            return res.json({
+                participant_id: code,
+                sessions_completed: sessionsCompleted,
+                next_prompt_id: sessionsCompleted + 1,
+                locked: true
+            });
+        }
+
         res.json({
             participant_id: code,
             sessions_completed: sessionsCompleted,
@@ -46,7 +56,7 @@ app.post('/session/start', async (req, res) => {
     const { participant_code, prompt_id, jitter_benchmark_ms } = req.body;
     const sessionId = randomUUID();
     const sessionStartEpochMs = Date.now();
-    const promptText = "Descreva uma decisão difícil que você tomou recentemente — o que você sentiu enquanto decidia, não apenas o que decidiu.";
+    const promptText = "Escreva sobre algo que você fez recentemente e que deixou uma marca. Foque no que fez e no que sentiu — não precisa explicar o contexto.";
 
     try {
         const db = await connectToDatabase();
@@ -122,6 +132,11 @@ app.post('/ema', async (req, res) => {
 // POST /session/end
 app.post('/session/end', async (req, res) => {
     const { session_id, participant_code, engagement_rating, text_final } = req.body;
+
+    // Capture fingerprint for session-lock identification
+    const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.socket.remoteAddress || 'unknown';
+    const ua = req.headers['user-agent'] || 'unknown';
+
     try {
         const db = await connectToDatabase();
 
@@ -131,16 +146,43 @@ app.post('/session/end', async (req, res) => {
             { $set: { engagement_rating, text_final, status: 'completed', completed_at: new Date() } }
         );
 
+        const participant = await db.collection('participants').findOne({ participant_id: participant_code });
+        const sessionsBeforeEnd = participant?.sessions_completed || 0;
+
+        const participantUpdate = { $inc: { sessions_completed: 1 } };
+        if (sessionsBeforeEnd === 0) {
+            participantUpdate.$set = { fingerprint: { ip, user_agent: ua, captured_at: new Date() } };
+        }
+
         // Update Participant incrementing completed sessions
         await db.collection('participants').updateOne(
             { participant_id: participant_code },
-            { $inc: { sessions_completed: 1 } }
+            participantUpdate
         );
 
         res.json({ ok: true });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Failed to end session' });
+    }
+});
+
+// POST /unlock/:code
+app.post('/unlock/:code', async (req, res) => {
+    const { code } = req.params;
+    const { secret } = req.body || {};
+    const UNLOCK_SECRET = process.env.UNLOCK_SECRET || 'tita-admin';
+    if (secret !== UNLOCK_SECRET) return res.status(403).json({ error: 'Forbidden' });
+    try {
+        const db = await connectToDatabase();
+        const result = await db.collection('participants').updateOne(
+            { participant_id: code },
+            { $set: { session2_unlocked: true, unlocked_at: new Date() } }
+        );
+        if (result.matchedCount === 0) return res.status(404).json({ error: 'Participant not found' });
+        res.json({ ok: true, participant_id: code, session2_unlocked: true });
+    } catch (error) {
+        res.status(500).json({ error: 'DB error' });
     }
 });
 

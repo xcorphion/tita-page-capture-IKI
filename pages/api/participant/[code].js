@@ -12,6 +12,17 @@ export default async function handler(req, res) {
             return res.json({ participant_id: code, sessions_completed: 0, next_prompt_id: 1 });
         }
         const sessionsCompleted = doc.sessions_completed || 0;
+
+        // After session 1, block access until admin unlocks
+        if (sessionsCompleted >= 1 && !doc.session2_unlocked) {
+            return res.json({
+                participant_id: code,
+                sessions_completed: sessionsCompleted,
+                next_prompt_id: sessionsCompleted + 1,
+                locked: true
+            });
+        }
+
         res.json({ participant_id: code, sessions_completed: sessionsCompleted, next_prompt_id: sessionsCompleted + 1 });
     } catch (e) {
         console.error(e);

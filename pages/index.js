@@ -50,6 +50,9 @@ export default function Home() {
             if (eventBuffer.length >= BATCH_SIZE) sendBatch();
             if (e.type === 'keyup') {
                 const currentLen = writingArea.value.length;
+                // Update live character counter
+                const counter = document.getElementById('char-counter');
+                if (counter) counter.innerText = `${currentLen} caracteres`;
                 if (currentLen - charCountAtLastEMA >= EMA_INTERVAL) triggerEMA(currentLen);
             }
         }
@@ -109,6 +112,12 @@ export default function Home() {
                 if (data.sessions_completed >= 3) {
                     document.getElementById('login-msg').innerText = 'Máximo de sessões atingido.'; return;
                 }
+                if (data.locked) {
+                    // Session 2 locked — show locked overlay and reveal fingerprint info
+                    loginContainer.classList.add('hidden');
+                    document.getElementById('locked-overlay').classList.remove('hidden');
+                    return;
+                }
                 startSession(data.next_prompt_id);
             } catch (e) { document.getElementById('login-msg').innerText = 'Erro ao conectar ao servidor.'; }
         });
@@ -145,6 +154,14 @@ export default function Home() {
             </Head>
 
             <div id="login-container" className="center-container">
+                <div style={{ maxWidth: 420, marginBottom: 28, padding: '18px 22px', background: 'rgba(255,255,255,0.05)', borderRadius: 12, borderLeft: '3px solid #7c6fff', textAlign: 'left' }}>
+                    <p style={{ margin: 0, fontSize: '0.78rem', color: '#aaa', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 6 }}>Experimento Anônimo</p>
+                    <p style={{ margin: 0, fontSize: '0.95rem', lineHeight: 1.55 }}>
+                        Você vai escrever por alguns minutos sobre uma experiência pessoal.
+                        Duas vezes durante a escrita, vamos pausar por 10 segundos para você registrar como está se sentindo — ação e emoção, não o enredo.
+                    </p>
+                    <p style={{ margin: '10px 0 0', fontSize: '0.82rem', color: '#888' }}>Nenhum dado identificável é coletado. Seu código é o único vínculo.</p>
+                </div>
                 <h1 className="icon-text"><i className="ph ph-fingerprint"></i> LOGIN</h1>
                 <p>Insira seu código de participante:</p>
                 <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
@@ -162,18 +179,20 @@ export default function Home() {
                 </div>
 
                 <textarea id="writing-area" placeholder="Comece a digitar aqui..."></textarea>
+                <div id="char-counter" style={{ textAlign: 'right', fontSize: '0.8rem', color: '#888', marginTop: 4 }}>0 caracteres</div>
 
                 <div id="ema-overlay" className="hidden">
                     <div id="ema-box">
-                        <h3 className="icon-text"><i className="ph ph-heart-beat"></i> Como você se sente agora?</h3>
+                        <h3 className="icon-text"><i className="ph ph-heart-beat"></i> Pausa rápida — como você está agora?</h3>
+                        <p style={{ fontSize: '0.85rem', color: '#aaa', margin: '-6px 0 14px' }}>Foque no que sente nesse momento. Não pense no contexto.</p>
                         <div className="slider-group">
-                            <label className="icon-text"><i className="ph ph-smiley-sad"></i> Valência <i className="ph ph-smiley"></i></label>
-                            <div className="slider-labels"><span>Muito Negativo</span><span>Muito Positivo</span></div>
+                            <label className="icon-text"><i className="ph ph-smiley-sad"></i> O que sente? <i className="ph ph-smiley"></i></label>
+                            <div className="slider-labels"><span>Ruim / Pesado</span><span>Bom / Leve</span></div>
                             <input type="range" id="valence-slider" min="0" max="100" defaultValue="50" />
                         </div>
                         <div className="slider-group">
-                            <label className="icon-text"><i className="ph ph-moon"></i> Arousal <i className="ph ph-lightning"></i></label>
-                            <div className="slider-labels"><span>Muito Calmo</span><span>Muito Agitado</span></div>
+                            <label className="icon-text"><i className="ph ph-moon"></i> Como está seu corpo? <i className="ph ph-lightning"></i></label>
+                            <div className="slider-labels"><span>Paralisado / Lento</span><span>Agitado / Intenso</span></div>
                             <input type="range" id="arousal-slider" min="0" max="100" defaultValue="50" />
                         </div>
                         <button id="btn-ema-submit" className="icon-btn">CONTINUAR <i className="ph ph-arrow-right"></i></button>
@@ -182,10 +201,11 @@ export default function Home() {
 
                 <div id="end-overlay" className="hidden">
                     <div id="end-box">
-                        <p className="icon-text" style={{ marginBottom: 20 }}><i className="ph ph-question"></i> Você estava genuinamente engajado ao escrever?</p>
+                        <p className="icon-text" style={{ marginBottom: 8 }}><i className="ph ph-question"></i> Enquanto escrevia, você estava presente?</p>
+                        <p style={{ fontSize: '0.85rem', color: '#aaa', marginBottom: 18 }}>Suas palavras vinham de um lugar real — não era só cumprir a tarefa.</p>
                         <div className="btn-group">
-                            <button id="btn-engaged-yes" className="icon-btn"><i className="ph ph-check-circle"></i> SIM</button>
-                            <button id="btn-engaged-no" className="icon-btn"><i className="ph ph-x-circle"></i> NÃO</button>
+                            <button id="btn-engaged-yes" className="icon-btn"><i className="ph ph-check-circle"></i> SIM, estava</button>
+                            <button id="btn-engaged-no" className="icon-btn"><i className="ph ph-x-circle"></i> NÃO, estava no automático</button>
                         </div>
                     </div>
                 </div>
@@ -193,6 +213,13 @@ export default function Home() {
                 <div id="final-screen" className="hidden">
                     <h2 className="icon-text"><i className="ph ph-confetti"></i> Sessão Concluída</h2>
                     <p>Obrigado pela sua participação.</p>
+                </div>
+
+                <div id="locked-overlay" className="hidden">
+                    <div id="end-box">
+                        <h3 className="icon-text"><i className="ph ph-lock"></i> Aguardando Liberação</h3>
+                        <p>Sua 1ª sessão foi concluída. A 2ª sessão será liberada pelo pesquisador. Aguarde.</p>
+                    </div>
                 </div>
             </div>
         </>
