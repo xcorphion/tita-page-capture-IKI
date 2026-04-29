@@ -27,24 +27,20 @@ export default function Home() {
         const endOverlay = document.getElementById('end-overlay');
         const promptText = document.getElementById('prompt-text');
 
-        // ── #5 Jitter Benchmark ──────────────────────────────────────────────────
-        // Runs 10 synthetic keydown dispatches and measures the round-trip time.
-        // Returns average latency in ms (float, rounded to 3 decimals).
+        // ── #3 Jitter Benchmark (Obrigatório) ──────────────────────────────────
+        // Mede a latência do loop de eventos do navegador.
+        // Retorna o desvio médio em ms. Descarte se > 30ms.
         async function runJitterBenchmark() {
-            const times = [];
-            // Temporary no-op listener so the event actually propagates
-            const noop = () => {};
-            document.addEventListener('keydown', noop, { capture: true });
-            for (let i = 0; i < 10; i++) {
-                const t0 = performance.now();
-                document.dispatchEvent(new KeyboardEvent('keydown', { key: 'j', code: 'KeyJ', bubbles: true }));
-                times.push(performance.now() - t0);
-                // Small gap between synthetic events
-                await new Promise(r => setTimeout(r, 5));
+            const timestamps = [];
+            // Simula 12 keydowns sintéticos com espaçamento de 200ms
+            for (let i = 0; i < 12; i++) {
+                await new Promise(r => setTimeout(r, 200));
+                timestamps.push(performance.now());
             }
-            document.removeEventListener('keydown', noop, { capture: true });
-            const avg = times.reduce((a, b) => a + b, 0) / times.length;
-            return Math.round(avg * 1000) / 1000; // 3 decimal places
+            const intervals = timestamps.slice(1).map((t, i) => t - timestamps[i]);
+            const deviations = intervals.map(v => Math.abs(v - 200));
+            const avgJitter = deviations.reduce((a, b) => a + b, 0) / deviations.length;
+            return Math.round(avgJitter);
         }
 
         // ── #7 Batch flush ───────────────────────────────────────────────────────
@@ -89,12 +85,23 @@ export default function Home() {
             eventBuffer.push(event);
             if (eventBuffer.length >= BATCH_SIZE) sendBatch(); // #7
 
+            if (e.type === 'keydown') {
+                // #4.1 — count chars excluding Backspace/Delete for EMA trigger
+                if (e.code !== 'Backspace' && e.code !== 'Delete' && e.key.length === 1) {
+                    charsTypedInCurrentSegment++;
+                }
+            }
+
             if (e.type === 'keyup') {
                 const currentLen = writingArea.value.length;
                 const counter = document.getElementById('char-counter');
                 if (counter) counter.innerText = `${currentLen} caracteres`;
-                // #3 — EMA triggered by character count, not time
-                if (currentLen - charCountAtLastEMA >= EMA_CHAR_INTERVAL) triggerEMA(currentLen);
+                
+                // #4.1 — EMA triggered by every 200 non-correction chars typed
+                if (charsTypedInCurrentSegment >= EMA_CHAR_INTERVAL) {
+                    triggerEMA(currentLen);
+                    charsTypedInCurrentSegment = 0; // Reset for next segment
+                }
             }
         }
 
@@ -112,10 +119,19 @@ export default function Home() {
             endOverlay.classList.remove('hidden');
         }
 
+        let currentPromptIndex = 0;       // #4.3 — track which prompt (0, 1, 2)
+        let charsTypedInCurrentSegment = 0; // #4.1 — count chars excluding Backspace/Delete
+
         // ── Session start ────────────────────────────────────────────────────────
         async function startSession(promptId) {
-            // #5 — run real jitter benchmark before session starts
+            // #3 — run real jitter benchmark before session starts
             const jitter_benchmark_ms = await runJitterBenchmark();
+
+            // #3 — Rule: Descarte se jitter > 30ms
+            if (jitter_benchmark_ms > 30) {
+                alert(`Qualidade de sinal insuficiente (Jitter: ${jitter_benchmark_ms}ms). Por favor, use um dispositivo mais potente ou feche outras abas.`);
+                return;
+            }
 
             try {
                 const res = await fetch('/api/session/start', {
@@ -164,6 +180,57 @@ export default function Home() {
             } catch (e) { console.error(e); }
         }
 
+        // ── #7 Onboarding Logic ──────────────────────────────────────────────
+        function captureDeviceProfile() {
+            return {
+                userAgent: navigator.userAgent,
+                platform: navigator.platform,
+                touchPoints: navigator.maxTouchPoints,
+                screenWidth: window.screen.width,
+                captured_at: new Date()
+            };
+        }
+
+        let wpmStartTime = 0;
+        let wpmInterval = null;
+        const wpmInput = document.getElementById('wpm-input');
+
+        function startWPMTest() {
+            wpmStartTime = Date.now();
+            wpmInterval = setInterval(() => {
+                const elapsed = (Date.now() - wpmStartTime) / 1000;
+                const remaining = Math.max(0, 60 - Math.floor(elapsed));
+                document.getElementById('wpm-timer').innerText = `Tempo: ${remaining}s`;
+
+                // Calculate WPM: (chars / 5) / (minutes)
+                const chars = wpmInput.value.length;
+                const currentWPM = Math.round((chars / 5) / (elapsed / 60)) || 0;
+                document.getElementById('wpm-counter').innerText = `${currentWPM} WPM`;
+
+                if (remaining <= 0) {
+                    clearInterval(wpmInterval);
+                    finishOnboarding(currentWPM);
+                }
+            }, 500);
+        }
+
+        wpmInput?.addEventListener('focus', () => {
+            if (!wpmStartTime) startWPMTest();
+        }, { once: true });
+
+        async function finishOnboarding(wpmBaseline) {
+            const deviceProfile = captureDeviceProfile();
+            try {
+                await fetch(`/api/participant/${participantCode}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ wpm_baseline: wpmBaseline, device_profile: deviceProfile })
+                });
+                document.getElementById('onboarding-container').classList.add('hidden');
+                startSession(1); // Start first session after onboarding
+            } catch (e) { console.error('Onboarding save failed', e); }
+        }
+
         // ── Login ────────────────────────────────────────────────────────────────
         document.getElementById('btn-login').addEventListener('click', async () => {
             const codeInput = document.getElementById('participant-code');
@@ -174,6 +241,7 @@ export default function Home() {
             try {
                 const res = await fetch(`/api/participant/${participantCode}`);
                 const data = await res.json();
+                
                 if (data.sessions_completed >= 3) {
                     document.getElementById('login-msg').innerText = 'Máximo de 3 sessões atingido.'; return;
                 }
@@ -182,8 +250,20 @@ export default function Home() {
                     document.getElementById('locked-overlay').classList.remove('hidden');
                     return;
                 }
-                startSession(data.next_prompt_id);
+
+                // Check if needs onboarding
+                if (data.sessions_completed === 0 && !data.onboarding_complete) {
+                    loginContainer.classList.add('hidden');
+                    document.getElementById('onboarding-container').classList.remove('hidden');
+                } else {
+                    startSession(data.next_prompt_id);
+                }
             } catch (e) { document.getElementById('login-msg').innerText = 'Erro ao conectar ao servidor.'; }
+        });
+
+        document.getElementById('btn-consent-agree').addEventListener('click', () => {
+            document.getElementById('consent-step').classList.add('hidden');
+            document.getElementById('wpm-step').classList.remove('hidden');
         });
 
         writingArea?.addEventListener('keydown', handleKey);
@@ -191,6 +271,8 @@ export default function Home() {
 
         // ── EMA submit ───────────────────────────────────────────────────────────
         // #1 — timestamp_rel_ms is calculated here in the browser and sent to API
+        let emasInCurrentSegment = 0;
+
         document.getElementById('btn-ema-submit').addEventListener('click', async () => {
             const valence = parseInt(document.getElementById('valence-slider').value);
             const arousal = parseInt(document.getElementById('arousal-slider').value);
@@ -206,13 +288,31 @@ export default function Home() {
                         character_count: writingArea.value.length,
                         valence,
                         arousal,
-                        timestamp_rel_ms  // #1 — sent from browser, NOT computed on server
+                        timestamp_rel_ms,
+                        prompt_index: currentPromptIndex // #4.3 — required field
                     })
                 });
                 emaOverlay.classList.add('hidden');
                 writingArea.disabled = false;
                 writingArea.focus();
-                if (writingArea.value.length >= 600) triggerEnd();
+
+                emasInCurrentSegment++;
+                
+                // #4.1 — 3 EMAs per segment (prompt)
+                if (emasInCurrentSegment >= 3) {
+                    emasInCurrentSegment = 0;
+                    currentPromptIndex++;
+                    
+                    if (currentPromptIndex >= 3) {
+                        // All 3 segments (9 EMAs total) completed
+                        triggerEnd();
+                    } else {
+                        // Move to next prompt segment
+                        alert(`Segmento ${currentPromptIndex} concluído. Continue escrevendo sobre o mesmo tema ou aprofunde seu relato.`);
+                        // Note: In a real multi-prompt scenario, we'd update promptText here.
+                        // For now, we'll maintain the current standardized prompt for all segments.
+                    }
+                }
             } catch (e) { console.error(e); }
         });
 
@@ -261,6 +361,36 @@ export default function Home() {
             </div>
 
             {/* ── Study container ── */}
+            {/* ── Onboarding ── */}
+            <div id="onboarding-container" className="hidden center-container" style={{ maxWidth: 600 }}>
+                {/* Step 1: LGPD Consent */}
+                <div id="consent-step">
+                    <h2 className="icon-text"><i className="ph ph-shield-check"></i> Termo de Consentimento</h2>
+                    <div style={{ textAlign: 'left', fontSize: '0.85rem', background: 'rgba(255,255,255,0.05)', padding: 20, borderRadius: 8, margin: '20px 0', lineHeight: 1.6 }}>
+                        <p><strong>1. Finalidade:</strong> Seus dados de digitação serão usados exclusivamente para treinar modelos de ML para detecção de estados emocionais. Não haverá identificação pessoal.</p>
+                        <p><strong>2. Anonimização:</strong> Seu ID é um hash criptográfico sem relação com seus dados pessoais.</p>
+                        <p><strong>3. Retirada:</strong> Você pode solicitar a exclusão dos seus dados a qualquer momento.</p>
+                        <p><strong>4. Uso em ML:</strong> Os dados anonimizados podem ser compartilhados em repositórios científicos públicos.</p>
+                        <p><strong>5. Retenção:</strong> Os dados serão mantidos por até 5 anos para fins de pesquisa.</p>
+                    </div>
+                    <button id="btn-consent-agree" className="icon-btn">ACEITO E DESEJO CONTINUAR</button>
+                </div>
+
+                {/* Step 2: WPM Test */}
+                <div id="wpm-step" className="hidden">
+                    <h2 className="icon-text"><i className="ph ph-keyboard"></i> Teste de Velocidade</h2>
+                    <p style={{ fontSize: '0.9rem', color: '#aaa' }}>Para calibrar o sistema, digite o texto abaixo o mais rápido e preciso que puder por 60 segundos.</p>
+                    <div id="wpm-text-to-copy" style={{ background: '#111', padding: 15, borderRadius: 8, margin: '15px 0', fontStyle: 'italic', border: '1px solid #333' }}>
+                        "A técnica de Keystroke Dynamics estuda o ritmo individual de digitação. Cada pessoa possui um padrão único de pressionamento e liberação de teclas, que pode revelar estados cognitivos e emocionais subjacentes durante o processo de escrita criativa ou técnica."
+                    </div>
+                    <textarea id="wpm-input" placeholder="Comece a digitar aqui para iniciar o cronômetro..." style={{ height: 120, width: '100%' }}></textarea>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 10 }}>
+                        <span id="wpm-timer" style={{ color: '#7c6fff', fontWeight: 'bold' }}>Tempo: 60s</span>
+                        <span id="wpm-counter">0 WPM</span>
+                    </div>
+                </div>
+            </div>
+
             <div id="study-container" className="hidden">
                 {/* #14 — prompt is now set dynamically by the server (standardized text) */}
                 <div id="prompt-box">

@@ -4,12 +4,13 @@ export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).end();
     // #1/#12 — timestamp_rel_ms arrives pre-calculated from the browser.
     // The server NEVER recomputes it. Only persist what the client sends.
-    const { session_id, participant_code, character_count, valence, arousal, timestamp_rel_ms } = req.body;
+    const { session_id, participant_code, character_count, valence, arousal, timestamp_rel_ms, prompt_index } = req.body;
     try {
         const db = await connectToDatabase();
         await db.collection('emas').insertOne({
             session_id,
             participant_id: participant_code,
+            prompt_index: Number(prompt_index), // #4.3 — required field
             character_count,
             valence,
             arousal,
