@@ -2,7 +2,9 @@ import { connectToDatabase } from '../../../lib/mongodb';
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).end();
-    const { session_id, participant_code, engagement_rating, text_final } = req.body;
+    // #2  — engagement_rating is integer 1–5, not boolean
+    // #15 — engagement_genuine is boolean (separate binary question)
+    const { session_id, participant_code, engagement_rating, engagement_genuine, text_final } = req.body;
 
     // Capture fingerprint for session-lock identification
     const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'unknown';
@@ -13,7 +15,15 @@ export default async function handler(req, res) {
 
         await db.collection('sessions').updateOne(
             { session_id },
-            { $set: { engagement_rating, text_final, status: 'completed', completed_at: new Date() } }
+            {
+                $set: {
+                    engagement_rating: Number(engagement_rating),  // #2 — coerce to int
+                    engagement_genuine: Boolean(engagement_genuine), // #15 — explicit boolean
+                    text_final,
+                    status: 'completed',
+                    completed_at: new Date()
+                }
+            }
         );
 
         // Retrieve current sessions count before increment to decide if this is session 1's end
@@ -39,4 +49,3 @@ export default async function handler(req, res) {
         res.status(500).json({ error: 'Failed to end session' });
     }
 }
-

@@ -6,13 +6,21 @@ export default async function handler(req, res) {
     const { participant_code, prompt_id, jitter_benchmark_ms } = req.body;
     const sessionId = randomUUID();
     const sessionStartEpochMs = Date.now();
-    const promptText = "Escreva sobre algo que você fez recentemente e que deixou uma marca. Foque no que fez e no que sentiu — não precisa explicar o contexto.";
+
+    // #14 — Standardized prompt anchored on emotional decision-making
+    const promptText = "Descreva uma decisão difícil que você tomou recentemente — o que você sentiu enquanto decidia, não apenas o que decidiu.";
+
     try {
         const db = await connectToDatabase();
         await db.collection('sessions').insertOne({
-            session_id: sessionId, participant_id: participant_code,
-            prompt_id, session_start_epoch_ms: sessionStartEpochMs,
-            jitter_benchmark_ms, status: 'started'
+            session_id: sessionId,
+            participant_id: participant_code,
+            prompt_id,
+            session_start_epoch_ms: sessionStartEpochMs,
+            // #5 — jitter_benchmark_ms arrives from real microbenchmark, not hardcoded 0
+            jitter_benchmark_ms: jitter_benchmark_ms ?? 0,
+            status: 'started',
+            created_at: new Date()
         });
         res.json({ session_id: sessionId, session_start_epoch_ms: sessionStartEpochMs, prompt_text: promptText });
     } catch (e) {
