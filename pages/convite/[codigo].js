@@ -2,23 +2,66 @@ import Head from 'next/head';
 import { connectToDatabase } from '../../lib/mongodb';
 
 export default function Convite({ participant, error, appUrl }) {
+    const globalStyle = (
+        <style jsx global>{`
+            body, html {
+                display: block !important;
+                height: auto !important;
+                min-height: 100vh;
+                margin: 0;
+                padding: 0;
+                background-color: black;
+                color: white;
+            }
+            .responsive-wrapper {
+                display: flex;
+                min-height: 100vh;
+                padding: 20px;
+            }
+            .responsive-content {
+                margin: auto;
+                max-width: 600px;
+                width: 100%;
+                text-align: left;
+            }
+            .responsive-box {
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid #333;
+                border-radius: 12px;
+                padding: 40px;
+                text-align: center;
+            }
+            @media (max-width: 600px) {
+                .responsive-box {
+                    padding: 20px;
+                }
+            }
+        `}</style>
+    );
+
     if (error) {
         return (
-            <div className="center-container">
-                <div style={{ maxWidth: 600, padding: 40, background: 'rgba(255,255,255,0.05)', borderRadius: 12, textAlign: 'center' }}>
-                    <h2>Código não encontrado.</h2>
+            <>
+                {globalStyle}
+                <div className="responsive-wrapper">
+                    <div className="responsive-content responsive-box">
+                        <h2>Código não encontrado.</h2>
+                    </div>
                 </div>
-            </div>
+            </>
         );
     }
 
     if (participant.status === 'INATIVO') {
         return (
-            <div className="center-container">
-                <div style={{ maxWidth: 600, padding: 40, background: 'rgba(255,255,255,0.05)', borderRadius: 12, textAlign: 'center' }}>
-                    <h2>Esta participação foi encerrada.</h2>
+            <>
+                {globalStyle}
+                <div className="responsive-wrapper">
+                    <div className="responsive-content responsive-box">
+                        <h2>Esta participação foi encerrada.</h2>
+                    </div>
                 </div>
-            </div>
+            </>
         );
     }
 
@@ -72,28 +115,34 @@ export default function Convite({ participant, error, appUrl }) {
         );
     } else if (participant.session_3_status === 'CONCLUIDA') {
         return (
-            <div className="center-container">
-                <div style={{ maxWidth: 600, padding: 40, background: 'rgba(255,255,255,0.05)', borderRadius: 12, textAlign: 'center' }}>
-                    <h2>Esta participação foi encerrada.</h2>
+            <>
+                {globalStyle}
+                <div className="responsive-wrapper">
+                    <div className="responsive-content responsive-box">
+                        <h2>Esta participação foi encerrada.</h2>
+                    </div>
                 </div>
-            </div>
+            </>
         );
     }
 
     if (isWaiting) {
         return (
-            <div className="center-container">
-                <div style={{ maxWidth: 600, padding: 40, background: 'rgba(255,255,255,0.05)', borderRadius: 12, textAlign: 'center' }}>
-                    <h2 style={{ marginBottom: 20 }}>Sua próxima sessão será liberada em breve.</h2>
-                    <p style={{ color: '#aaa', fontSize: '1.1rem' }}>Você não precisa fazer nada — o link permanece o mesmo.</p>
-                    <div style={{ marginTop: 40 }}>
-                        <p style={{ fontSize: '0.9rem', color: '#888', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Seu Código</p>
-                        <div style={{ fontSize: '3rem', fontWeight: 'bold', letterSpacing: '0.1em', background: '#111', padding: '10px 30px', borderRadius: 8, display: 'inline-block', border: '1px solid #333' }}>
-                            {participant_code}
+            <>
+                {globalStyle}
+                <div className="responsive-wrapper">
+                    <div className="responsive-content responsive-box">
+                        <h2 style={{ marginBottom: 20 }}>Sua próxima sessão será liberada em breve.</h2>
+                        <p style={{ color: '#aaa', fontSize: '1.1rem' }}>Você não precisa fazer nada — o link permanece o mesmo.</p>
+                        <div style={{ marginTop: 40 }}>
+                            <p style={{ fontSize: '0.9rem', color: '#888', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Seu Código</p>
+                            <div style={{ fontSize: '3rem', fontWeight: 'bold', letterSpacing: '0.1em', background: '#111', padding: '10px 30px', borderRadius: 8, display: 'inline-block', border: '1px solid #333' }}>
+                                {participant_code}
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </>
         );
     }
 
@@ -102,14 +151,15 @@ export default function Convite({ participant, error, appUrl }) {
             <Head>
                 <title>Convite - Pesquisa Acadêmica</title>
             </Head>
-            <div className="center-container" style={{ padding: '20px' }}>
-                <div style={{ maxWidth: 600, margin: '0 auto', textAlign: 'left' }}>
+            {globalStyle}
+            <div className="responsive-wrapper">
+                <div className="responsive-content">
                     <h1 style={{ fontSize: '2rem', marginBottom: 20, borderBottom: '1px solid #333', paddingBottom: 10 }}>{title}</h1>
                     <div style={{ fontSize: '1.1rem', lineHeight: 1.6, color: '#ccc', marginBottom: 40 }}>
                         {body}
                     </div>
 
-                    <div style={{ textAlign: 'center', background: 'rgba(255,255,255,0.05)', padding: '30px', borderRadius: 12, border: '1px solid #333' }}>
+                    <div className="responsive-box">
                         <p style={{ fontSize: '0.9rem', color: '#888', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10 }}>Seu Código de Acesso</p>
                         <div style={{ fontSize: '3.5rem', fontWeight: 'bold', letterSpacing: '0.1em', color: '#fff', marginBottom: 30 }}>
                             {participant_code}
@@ -137,7 +187,6 @@ export async function getServerSideProps(context) {
 
         const appUrl = process.env.APP_URL || 'http://localhost:3000';
 
-        // Serialize the document explicitly to avoid MongoDB ObjectId serialization issues in Next.js
         const serializedParticipant = {
             participant_id: participant.participant_id || '',
             participant_code: participant.participant_code || participant.participant_id || '',
