@@ -25,11 +25,13 @@ export default function Convite({ participant, error, appUrl }) {
                 text-align: left;
             }
             .responsive-box {
-                background: rgba(255, 255, 255, 0.05);
-                border: 1px solid #333;
+                background: rgba(255, 255, 255, 0.03);
+                border: 1px solid #222;
                 border-radius: 12px;
-                padding: 40px;
+                padding: 30px;
                 text-align: center;
+                max-width: 400px;
+                margin: 0 auto;
             }
             @media (max-width: 768px) {
                 .responsive-content {
@@ -163,11 +165,11 @@ export default function Convite({ participant, error, appUrl }) {
                     </div>
 
                     <div className="responsive-box">
-                        <p style={{ fontSize: '0.9rem', color: '#888', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10 }}>Seu Código de Acesso</p>
-                        <div style={{ fontSize: '3.5rem', fontWeight: 'bold', letterSpacing: '0.1em', color: '#fff', marginBottom: 30 }}>
+                        <p style={{ fontSize: '0.85rem', color: '#666', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 15 }}>Seu Código de Acesso</p>
+                        <div style={{ fontSize: '2.5rem', fontWeight: 'bold', letterSpacing: '0.15em', color: '#eee', marginBottom: 25 }}>
                             {participant_code}
                         </div>
-                        <a href={session_link} style={{ display: 'inline-block', background: '#fff', color: '#000', padding: '15px 40px', borderRadius: 30, fontSize: '1.2rem', fontWeight: 'bold', textDecoration: 'none', transition: 'all 0.2s' }}>
+                        <a href={session_link} style={{ display: 'inline-block', background: '#eee', color: '#000', padding: '12px 30px', borderRadius: 8, fontSize: '1.05rem', fontWeight: 'bold', textDecoration: 'none', transition: 'all 0.2s' }}>
                             Iniciar Sessão {sessionNumber}
                         </a>
                     </div>
