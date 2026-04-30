@@ -20,8 +20,8 @@ export default function Convite({ participant, error, appUrl }) {
             }
             .responsive-content {
                 margin: auto;
-                max-width: 600px;
-                width: 100%;
+                width: 80%;
+                max-width: 1400px;
                 text-align: left;
             }
             .responsive-box {
@@ -31,7 +31,10 @@ export default function Convite({ participant, error, appUrl }) {
                 padding: 40px;
                 text-align: center;
             }
-            @media (max-width: 600px) {
+            @media (max-width: 768px) {
+                .responsive-content {
+                    width: 95%;
+                }
                 .responsive-box {
                     padding: 20px;
                 }
