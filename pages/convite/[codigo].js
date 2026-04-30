@@ -69,7 +69,7 @@ export default function Convite({ participant, error, appUrl }) {
     }
 
     const { participant_name, referrer_name, participant_code } = participant;
-    const session_link = `${appUrl}/`; // Redireciona para raiz
+    const session_link = `/`; // Redireciona para raiz (funciona em local e Vercel)
 
     let sessionNumber = 1;
     let isWaiting = false;
