@@ -18,7 +18,8 @@ export default function AdminPanel() {
                 setIsAuthenticated(true);
                 setError('');
             } else {
-                setError('Senha incorreta');
+                const errData = await res.json().catch(() => ({}));
+                setError(errData.error || 'Senha incorreta');
                 setIsAuthenticated(false);
             }
         } catch (e) {

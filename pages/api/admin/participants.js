@@ -1,9 +1,14 @@
 import { connectToDatabase } from '../../../lib/mongodb';
 
 export default async function handler(req, res) {
-    const password = req.headers['x-admin-password'] || req.headers.authorization || req.body.password;
+    const password = (req.headers['x-admin-password'] || req.headers.authorization || req.body?.password || '').trim();
+    const envPassword = (process.env.ADMIN_PASSWORD || '').trim();
 
-    if (password !== process.env.ADMIN_PASSWORD) {
+    if (!envPassword) {
+        return res.status(500).json({ error: 'Erro de Configuração: A variável ADMIN_PASSWORD não está definida ou está vazia na Vercel.' });
+    }
+
+    if (password !== envPassword) {
         return res.status(401).json({ error: 'Unauthorized' });
     }
 
