@@ -9,7 +9,7 @@ export default async function handler(req, res) {
     }
 
     if (password !== envPassword) {
-        return res.status(401).json({ error: `Incorreta: Você digitou ${password.length} caracteres. O servidor espera ${envPassword.length} caracteres.` });
+        return res.status(401).json({ error: 'Senha incorreta' });
     }
 
     const db = await connectToDatabase();
