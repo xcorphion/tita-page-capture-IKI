@@ -10,7 +10,7 @@ export default function AdminPanel() {
     const fetchParticipants = async (pwd) => {
         try {
             const res = await fetch('/api/admin/participants', {
-                headers: { 'Authorization': pwd }
+                headers: { 'x-admin-password': pwd }
             });
             if (res.ok) {
                 const data = await res.json();

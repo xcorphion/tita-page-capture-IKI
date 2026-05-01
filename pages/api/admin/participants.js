@@ -1,7 +1,7 @@
 import { connectToDatabase } from '../../../lib/mongodb';
 
 export default async function handler(req, res) {
-    const password = req.headers.authorization || req.body.password;
+    const password = req.headers['x-admin-password'] || req.headers.authorization || req.body.password;
 
     if (password !== process.env.ADMIN_PASSWORD) {
         return res.status(401).json({ error: 'Unauthorized' });
