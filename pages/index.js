@@ -32,15 +32,16 @@ export default function Home() {
         // Retorna o desvio médio em ms. Descarte se > 30ms.
         async function runJitterBenchmark() {
             const timestamps = [];
-            // Simula 12 keydowns sintéticos com espaçamento de 200ms
+            // #3 — real jitter benchmark (12 synthetic samples)
             for (let i = 0; i < 12; i++) {
                 await new Promise(r => setTimeout(r, 200));
                 timestamps.push(performance.now());
             }
             const intervals = timestamps.slice(1).map((t, i) => t - timestamps[i]);
             const deviations = intervals.map(v => Math.abs(v - 200));
-            const avgJitter = deviations.reduce((a, b) => a + b, 0) / deviations.length;
-            return Math.round(avgJitter);
+            // #3 — ensure we never return 0 if benchmark ran
+            const jitter = Math.round(deviations.reduce((a, b) => a + b) / deviations.length);
+            return Math.max(1, jitter); 
         }
 
         // ── #7 Batch flush ───────────────────────────────────────────────────────
