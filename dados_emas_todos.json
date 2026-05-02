@@ -1,0 +1,101 @@
+[
+  {
+    "_id": "69f533171638894e496188de",
+    "session_id": "67692c7f-3bf8-49bc-b2ec-625944cd9384",
+    "participant_id": "XCCXU",
+    "prompt_index": 0,
+    "character_count": 187,
+    "valence": 22,
+    "arousal": 34,
+    "timestamp_rel_ms": 167757,
+    "created_at": "2026-05-01T23:11:19.314Z"
+  },
+  {
+    "_id": "69f533511638894e49618a90",
+    "session_id": "67692c7f-3bf8-49bc-b2ec-625944cd9384",
+    "participant_id": "XCCXU",
+    "prompt_index": 0,
+    "character_count": 382,
+    "valence": 67,
+    "arousal": 59,
+    "timestamp_rel_ms": 225611,
+    "created_at": "2026-05-01T23:12:17.153Z"
+  },
+  {
+    "_id": "69f533891638894e49618c52",
+    "session_id": "67692c7f-3bf8-49bc-b2ec-625944cd9384",
+    "participant_id": "XCCXU",
+    "prompt_index": 0,
+    "character_count": 570,
+    "valence": 50,
+    "arousal": 50,
+    "timestamp_rel_ms": 281916,
+    "created_at": "2026-05-01T23:13:13.717Z"
+  },
+  {
+    "_id": "69f533df1638894e49618e1b",
+    "session_id": "67692c7f-3bf8-49bc-b2ec-625944cd9384",
+    "participant_id": "XCCXU",
+    "prompt_index": 1,
+    "character_count": 758,
+    "valence": 26,
+    "arousal": 6,
+    "timestamp_rel_ms": 367538,
+    "created_at": "2026-05-01T23:14:39.087Z"
+  },
+  {
+    "_id": "69f534181638894e49618fd1",
+    "session_id": "67692c7f-3bf8-49bc-b2ec-625944cd9384",
+    "participant_id": "XCCXU",
+    "prompt_index": 1,
+    "character_count": 950,
+    "valence": 76,
+    "arousal": 13,
+    "timestamp_rel_ms": 425112,
+    "created_at": "2026-05-01T23:15:36.912Z"
+  },
+  {
+    "_id": "69f534701638894e496191a6",
+    "session_id": "67692c7f-3bf8-49bc-b2ec-625944cd9384",
+    "participant_id": "XCCXU",
+    "prompt_index": 1,
+    "character_count": 1144,
+    "valence": 78,
+    "arousal": 66,
+    "timestamp_rel_ms": 512482,
+    "created_at": "2026-05-01T23:17:04.041Z"
+  },
+  {
+    "_id": "69f534b81638894e4961939e",
+    "session_id": "67692c7f-3bf8-49bc-b2ec-625944cd9384",
+    "participant_id": "XCCXU",
+    "prompt_index": 2,
+    "character_count": 1316,
+    "valence": 36,
+    "arousal": 19,
+    "timestamp_rel_ms": 584652,
+    "created_at": "2026-05-01T23:18:16.199Z"
+  },
+  {
+    "_id": "69f534fb1638894e49619580",
+    "session_id": "67692c7f-3bf8-49bc-b2ec-625944cd9384",
+    "participant_id": "XCCXU",
+    "prompt_index": 2,
+    "character_count": 1499,
+    "valence": 67,
+    "arousal": 64,
+    "timestamp_rel_ms": 651762,
+    "created_at": "2026-05-01T23:19:23.316Z"
+  },
+  {
+    "_id": "69f535481638894e49619769",
+    "session_id": "67692c7f-3bf8-49bc-b2ec-625944cd9384",
+    "participant_id": "XCCXU",
+    "prompt_index": 2,
+    "character_count": 1692,
+    "valence": 99,
+    "arousal": 5,
+    "timestamp_rel_ms": 729152,
+    "created_at": "2026-05-01T23:20:40.702Z"
+  }
+]
