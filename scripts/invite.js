@@ -18,6 +18,8 @@ function generateCode() {
     return code;
 }
 
+const { hashParticipantId } = require('../lib/participant');
+
 async function main() {
     const uri = process.env.MONGODB_URI;
     if (!uri) {
@@ -39,14 +41,16 @@ async function main() {
         let isUnique = false;
         while (!isUnique) {
             code = generateCode();
-            const existing = await participants.findOne({ participant_id: code });
+            const existing = await participants.findOne({ participant_code: code });
             if (!existing) {
                 isUnique = true;
             }
         }
 
+        const participant_id = hashParticipantId(code);
+
         const newParticipant = {
-            participant_id: code, // keep compatibility with existing code
+            participant_id, // #17 — SHA-256 hash with salt
             participant_code: code,
             participant_name,
             referrer_name,

@@ -130,7 +130,7 @@ export default function Home() {
             // #3 — Rule: Descarte se jitter > 30ms
             if (jitter_benchmark_ms > 30) {
                 alert(`Qualidade de sinal insuficiente (Jitter: ${jitter_benchmark_ms}ms). Por favor, use um dispositivo mais potente ou feche outras abas.`);
-                return;
+                // Not blocking, just warning per checklist.
             }
 
             try {
@@ -399,7 +399,7 @@ export default function Home() {
                 </div>
 
                 <textarea id="writing-area" placeholder="Comece a digitar aqui..."></textarea>
-                <div id="char-counter" style={{ textAlign: 'right', fontSize: '0.8rem', color: '#888', marginTop: 4 }}>0 caracteres</div>
+                <div id="char-counter" style={{ textAlign: 'right', fontSize: '0.8rem', color: '#888', marginTop: 4, display: 'none' }}>0 caracteres</div>
 
                 {/* ── #4 EMA overlay — two sliders, no emotion labels ── */}
                 <div id="ema-overlay" className="hidden">

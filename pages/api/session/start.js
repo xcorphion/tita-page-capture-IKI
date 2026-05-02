@@ -1,9 +1,11 @@
 import { connectToDatabase } from '../../../lib/mongodb';
 import { randomUUID } from 'crypto';
+const { hashParticipantId } = require('../../../lib/participant');
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).end();
     const { participant_code, prompt_id, jitter_benchmark_ms } = req.body;
+    const participant_id = hashParticipantId(participant_code);
     const sessionId = randomUUID();
     const sessionStartEpochMs = Date.now();
 
@@ -14,7 +16,7 @@ export default async function handler(req, res) {
         const db = await connectToDatabase();
         await db.collection('sessions').insertOne({
             session_id: sessionId,
-            participant_id: participant_code,
+            participant_id,
             prompt_id,
             session_start_epoch_ms: sessionStartEpochMs,
             // #5 — jitter_benchmark_ms arrives from real microbenchmark, not hardcoded 0

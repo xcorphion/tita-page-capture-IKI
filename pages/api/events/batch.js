@@ -1,8 +1,10 @@
 import { connectToDatabase } from '../../../lib/mongodb';
+const { hashParticipantId } = require('../../../lib/participant');
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).end();
     const { session_id, participant_code, events } = req.body;
+    const participant_id = hashParticipantId(participant_code);
     if (!events || events.length === 0) return res.json({ received: 0 });
     try {
         const db = await connectToDatabase();
@@ -11,7 +13,7 @@ export default async function handler(req, res) {
         // #11 — schema includes timestamp_abs_ms and event_repeat
         const docs = events.map(e => ({
             session_id,
-            participant_id: participant_code,
+            participant_id,
             event_type: e.event_type,
             key_code: e.key_code,             // #8  — event.code (layout-independent)
             timestamp_rel_ms: e.timestamp_rel_ms, // #12 — pre-calculated on browser

@@ -1,10 +1,12 @@
 import { connectToDatabase } from '../../../lib/mongodb';
+const { hashParticipantId } = require('../../../lib/participant');
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).end();
     // #2  — engagement_rating is integer 1–5, not boolean
     // #15 — engagement_genuine is boolean (separate binary question)
     const { session_id, participant_code, engagement_rating, engagement_genuine, text_final } = req.body;
+    const participant_id = hashParticipantId(participant_code);
 
     // Capture fingerprint for session-lock identification
     const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'unknown';
@@ -12,6 +14,43 @@ export default async function handler(req, res) {
 
     try {
         const db = await connectToDatabase();
+
+        // #19 — normalizer_params gravado por sessão (iki_log_mean, iki_log_std)
+        const allEvents = await db.collection('events')
+            .find({ session_id, event_type: 'keydown' })
+            .sort({ timestamp_rel_ms: 1 })
+            .toArray();
+
+        // FILTRO DE PRÉ-PROCESSAMENTO: Excluir teclas não-textuais para o cálculo de IKI
+        const EXCLUDED_KEYS = [
+            'ShiftLeft', 'ShiftRight', 'AltLeft', 'AltRight',
+            'ControlLeft', 'ControlRight', 'MetaLeft', 'MetaRight',
+            'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+            'Home', 'End', 'PageUp', 'PageDown',
+            'CapsLock', 'Tab', 'Escape',
+            'F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12'
+        ];
+
+        const events = allEvents.filter(e => !EXCLUDED_KEYS.includes(e.key_code));
+
+        let iki_log_mean = 0;
+        let iki_log_std = 0;
+
+        if (events.length > 1) {
+            const ikis = [];
+            for (let i = 1; i < events.length; i++) {
+                const iki = events[i].timestamp_rel_ms - events[i - 1].timestamp_rel_ms;
+                // #19 — Only positive IKIs contribute to the log distribution
+                if (iki > 0) {
+                    ikis.push(Math.log10(iki));
+                }
+            }
+            if (ikis.length > 0) {
+                iki_log_mean = ikis.reduce((a, b) => a + b, 0) / ikis.length;
+                const variance = ikis.reduce((a, b) => a + Math.pow(b - iki_log_mean, 2), 0) / ikis.length;
+                iki_log_std = Math.sqrt(variance);
+            }
+        }
 
         await db.collection('sessions').updateOne(
             { session_id },
@@ -21,13 +60,14 @@ export default async function handler(req, res) {
                     engagement_genuine: Boolean(engagement_genuine), // #15 — explicit boolean
                     text_final,
                     status: 'completed',
-                    completed_at: new Date()
+                    completed_at: new Date(),
+                    normalizer_params: { iki_log_mean, iki_log_std } // #19 — required for calibration
                 }
             }
         );
 
         // Retrieve current sessions count before increment to decide if this is session 1's end
-        const participant = await db.collection('participants').findOne({ participant_id: participant_code });
+        const participant = await db.collection('participants').findOne({ participant_id });
         const sessionsBeforeEnd = participant?.sessions_completed || 0;
         const currentSession = sessionsBeforeEnd + 1; // 1, 2, or 3
 
@@ -64,7 +104,7 @@ export default async function handler(req, res) {
         }
 
         await db.collection('participants').updateOne(
-            { participant_id: participant_code },
+            { participant_id },
             participantUpdate
         );
 
