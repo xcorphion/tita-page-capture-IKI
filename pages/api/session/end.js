@@ -28,8 +28,9 @@ export default async function handler(req, res) {
             'ControlLeft', 'ControlRight', 'MetaLeft', 'MetaRight',
             'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
             'Home', 'End', 'PageUp', 'PageDown',
-            'CapsLock', 'Tab', 'Escape',
-            'F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12'
+            'CapsLock', 'Tab', 'Escape', 'ContextMenu', 'ScrollLock', 'Pause',
+            'Insert', 'Delete', 'F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12',
+            'NumLock', 'AudioVolumeUp', 'AudioVolumeDown', 'AudioVolumeMute', 'MediaTrackNext', 'MediaTrackPrevious', 'MediaPlayPause'
         ];
 
         const events = allEvents.filter(e => !EXCLUDED_KEYS.includes(e.key_code));
@@ -43,7 +44,7 @@ export default async function handler(req, res) {
                 const iki = events[i].timestamp_rel_ms - events[i - 1].timestamp_rel_ms;
                 // #19 — Only positive IKIs contribute to the log distribution
                 if (iki > 0) {
-                    ikis.push(Math.log10(iki));
+                    ikis.push(Math.log1p(iki));
                 }
             }
             if (ikis.length > 0) {
@@ -122,7 +123,6 @@ export default async function handler(req, res) {
 
         res.json({ ok: true });
     } catch (e) {
-        console.error(e);
         res.status(500).json({ error: 'Failed to end session' });
     }
 }
