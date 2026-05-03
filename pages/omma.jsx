@@ -1,7 +1,5 @@
-
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
-import '../src/styles/globals.css';
 
 // Use dynamic import with ssr: false for components that use Three.js / window
 const App = dynamic(() => import('../src/App'), { ssr: false });
