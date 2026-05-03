@@ -90,22 +90,22 @@ const EyeWireframe = () => {
   );
 };
 
-const Particles = () => {
+const Particles = ({ count = 1500 }) => {
   const points = useMemo(() => {
-    const arr = new Float32Array(1500 * 3);
-    for (let i = 0; i < 1500; i++) {
+    const arr = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
       arr[i * 3] = (Math.random() - 0.5) * 20;
       arr[i * 3 + 1] = (Math.random() - 0.5) * 20;
       arr[i * 3 + 2] = (Math.random() - 0.5) * 20;
     }
     return arr;
-  }, []);
+  }, [count]);
 
   const ref = useRef();
   useFrame((state) => {
     const time = state.clock.getElapsedTime();
     if (ref.current) {
-      for (let i = 0; i < 1500; i++) {
+      for (let i = 0; i < count; i++) {
         ref.current.geometry.attributes.position.array[i * 3 + 1] += Math.sin(time + i) * 0.0003;
       }
       ref.current.geometry.attributes.position.needsUpdate = true;
@@ -147,26 +147,33 @@ const Connections = () => {
 }
 
 const HeroCanvas = () => {
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+
   return (
-    <div className="absolute inset-0 z-0">
-      <Canvas dpr={[1, 2]}>
+    <div className="absolute inset-0 z-0 w-full h-full overflow-hidden">
+      <Canvas 
+        dpr={[1, 2]}
+        gl={{ antialias: !isMobile, stencil: false, depth: true }}
+      >
         <PerspectiveCamera makeDefault position={[0, 0, 5]} fov={60} />
         <color attach="background" args={['#000000']} />
         
         <ambientLight intensity={0.5} />
         
         <EyeWireframe />
-        <Particles />
+        <Particles count={isMobile ? 300 : 1500} />
         <Connections />
 
-        <EffectComposer disableNormalPass>
-          <Bloom 
-            intensity={0.8} 
-            luminanceThreshold={0.1} 
-            luminanceSmoothing={0.9} 
-          />
-          <ChromaticAberration offset={[0.002, 0.002]} />
-        </EffectComposer>
+        {!isMobile && (
+          <EffectComposer disableNormalPass>
+            <Bloom 
+              intensity={0.8} 
+              luminanceThreshold={0.1} 
+              luminanceSmoothing={0.9} 
+            />
+            <ChromaticAberration offset={[0.002, 0.002]} />
+          </EffectComposer>
+        )}
       </Canvas>
     </div>
   );

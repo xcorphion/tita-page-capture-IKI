@@ -1,0 +1,66 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-primary:    #000000;
+    --bg-secondary:  #080404;
+    --bg-tertiary:   #0f0505;
+
+    --accent-1:      #8B0000;
+    --accent-2:      #5C0000;
+    --accent-hot:    #B22222;
+    --accent-dim:    #3D0000;
+
+    --text-primary:  #F0EAE8;
+    --text-muted:    rgba(240,234,232,0.45);
+    --text-dim:      rgba(240,234,232,0.2);
+
+    --glass-bg:      rgba(139,0,0,0.04);
+    --glass-border:  rgba(139,0,0,0.12);
+    --glass-hover:   rgba(139,0,0,0.08);
+
+    --glow-primary:  rgba(139,0,0,0.35);
+    --glow-hot:      rgba(178,34,34,0.5);
+
+    --wire-color:    #8B0000;
+    --wire-dim:      #3D0000;
+
+    --mouse-x: 50%;
+    --mouse-y: 50%;
+  }
+
+  html, body {
+    @apply h-full;
+  }
+
+  body {
+    @apply bg-black text-text-primary overflow-x-hidden min-h-screen;
+    font-family: 'Inter', sans-serif;
+  }
+}
+
+.grain-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+  pointer-events: none;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--accent-dim);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-1);
+}

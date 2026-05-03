@@ -77,9 +77,14 @@ const SkullWireframe = () => {
 };
 
 const PipelineCanvas = () => {
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+
   return (
-    <div className="h-[520px] w-full border border-accent-dim">
-      <Canvas dpr={[1, 2]}>
+    <div className="h-[520px] w-full border border-accent-dim relative overflow-hidden">
+      <Canvas 
+        dpr={[1, 2]}
+        gl={{ antialias: !isMobile, stencil: false, depth: true }}
+      >
         <PerspectiveCamera makeDefault position={[0, 0, 5]} fov={50} />
         <color attach="background" args={['#080404']} />
         

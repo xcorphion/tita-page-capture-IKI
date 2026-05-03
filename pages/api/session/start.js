@@ -20,7 +20,7 @@ export default async function handler(req, res) {
             prompt_id,
             session_start_epoch_ms: sessionStartEpochMs,
             // #5 — jitter_benchmark_ms arrives from real microbenchmark, not hardcoded 0
-            jitter_benchmark_ms: jitter_benchmark_ms ?? 0,
+            jitter_benchmark_ms: jitter_benchmark_ms !== undefined ? Number(jitter_benchmark_ms) : null,
             status: 'started',
             created_at: new Date()
         });

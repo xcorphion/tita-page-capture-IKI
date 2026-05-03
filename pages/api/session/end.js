@@ -13,6 +13,7 @@ export default async function handler(req, res) {
     const ua = req.headers['user-agent'] || 'unknown';
 
     try {
+        console.log(`[SessionEnd] Iniciando fim de sessão para ${session_id}`);
         const db = await connectToDatabase();
 
         // #19 — normalizer_params gravado por sessão (iki_log_mean, iki_log_std)
@@ -52,7 +53,7 @@ export default async function handler(req, res) {
             }
         }
 
-        await db.collection('sessions').updateOne(
+        const sessionUpdate = await db.collection('sessions').updateOne(
             { session_id },
             {
                 $set: {
@@ -66,10 +67,19 @@ export default async function handler(req, res) {
             }
         );
 
+        console.log(`[SessionEnd] Update sessions: matched=${sessionUpdate.matchedCount}, modified=${sessionUpdate.modifiedCount}`);
+
         // Retrieve current sessions count before increment to decide if this is session 1's end
         const participant = await db.collection('participants').findOne({ participant_id });
+        if (!participant) {
+            console.error(`[SessionEnd] Participante ${participant_id} não encontrado!`);
+            // Se não encontrar pelo hash, tenta buscar pelo código plano se disponível
+            // Mas o ideal é que o hash funcione.
+        }
+        
         const sessionsBeforeEnd = participant?.sessions_completed || 0;
         const currentSession = sessionsBeforeEnd + 1; // 1, 2, or 3
+        console.log(`[SessionEnd] Participante: ${participant_id}, Sessões antes: ${sessionsBeforeEnd}, Sessão atual: ${currentSession}`);
 
         const participantUpdate = { 
             $inc: { sessions_completed: 1 },
@@ -103,10 +113,12 @@ export default async function handler(req, res) {
             participantUpdate.$set.session_3_status = 'CONCLUIDA';
         }
 
-        await db.collection('participants').updateOne(
+        const partUpdateResult = await db.collection('participants').updateOne(
             { participant_id },
             participantUpdate
         );
+
+        console.log(`[SessionEnd] Update participants: matched=${partUpdateResult.matchedCount}, modified=${partUpdateResult.modifiedCount}`);
 
         res.json({ ok: true });
     } catch (e) {

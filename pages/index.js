@@ -28,20 +28,90 @@ export default function Home() {
         const promptText = document.getElementById('prompt-text');
 
         // ── #3 Jitter Benchmark (Obrigatório) ──────────────────────────────────
-        // Mede a latência do loop de eventos do navegador.
-        // Retorna o desvio médio em ms. Descarte se > 30ms.
+        // Mede a latência do loop de eventos do navegador com maior precisão (amostras e outliers).
         async function runJitterBenchmark() {
-            const timestamps = [];
-            // #3 — real jitter benchmark (12 synthetic samples)
-            for (let i = 0; i < 12; i++) {
-                await new Promise(r => setTimeout(r, 200));
-                timestamps.push(performance.now());
+            const samples = 24;
+            const expectedInterval = 100;
+            const delays = [];
+            
+            for (let i = 0; i < samples; i++) {
+                const start = performance.now();
+                await new Promise(r => setTimeout(r, expectedInterval));
+                const end = performance.now();
+                const jitter = Math.abs((end - start) - expectedInterval);
+                delays.push(jitter);
             }
-            const intervals = timestamps.slice(1).map((t, i) => t - timestamps[i]);
-            const deviations = intervals.map(v => Math.abs(v - 200));
-            // #3 — ensure we never return 0 if benchmark ran
-            const jitter = Math.round(deviations.reduce((a, b) => a + b) / deviations.length);
+            
+            // Remove outliers (25% maiores) para evitar picos pontuais de GC
+            delays.sort((a, b) => a - b);
+            const trimmed = delays.slice(0, Math.floor(samples * 0.75));
+            const jitter = Math.round(trimmed.reduce((a, b) => a + b) / trimmed.length);
             return Math.max(1, jitter); 
+        }
+
+        // ── Recuperação de Sessão (LocalStorage + Backup) ────────────────────────
+        function saveToLocal() {
+            if (!sessionId) return;
+            const state = {
+                participantCode,
+                sessionId,
+                sessionStartEpochMs,
+                sessionStartHighRes,
+                text: writingArea.value,
+                currentPromptIndex,
+                emasInCurrentSegment,
+                charsTypedInCurrentSegment,
+                promptText: promptText.innerText,
+                timestamp: Date.now()
+            };
+            localStorage.setItem('tita_session_backup', JSON.stringify(state));
+        }
+
+        function restoreFromLocal() {
+            const saved = localStorage.getItem('tita_session_backup');
+            if (!saved) return false;
+            try {
+                const state = JSON.parse(saved);
+                // Expira backup após 24h
+                if (Date.now() - state.timestamp > 86400000) {
+                    localStorage.removeItem('tita_session_backup');
+                    return false;
+                }
+                participantCode = state.participantCode;
+                sessionId = state.sessionId;
+                sessionStartEpochMs = state.sessionStartEpochMs;
+                sessionStartHighRes = state.sessionStartHighRes;
+                writingArea.value = state.text;
+                currentPromptIndex = state.currentPromptIndex;
+                emasInCurrentSegment = state.emasInCurrentSegment;
+                charsTypedInCurrentSegment = state.charsTypedInCurrentSegment;
+                promptText.innerText = state.promptText;
+
+                loginContainer.classList.add('hidden');
+                studyContainer.classList.remove('hidden');
+                writingArea.disabled = false;
+                writingArea.focus();
+                
+                const currentLen = writingArea.value.length;
+                const counter = document.getElementById('char-counter');
+                if (counter) counter.innerText = `${currentLen} caracteres`;
+
+                setInterval(checkBatchTimeout, 1000);
+                setInterval(periodicBackup, 60000); // Backup no servidor a cada 60s
+                console.log('Sessão restaurada com sucesso.');
+                return true;
+            } catch (e) { return false; }
+        }
+
+        async function periodicBackup() {
+            if (!sessionId) return;
+            try {
+                await fetch('/api/session/backup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ session_id: sessionId, text: writingArea.value })
+                });
+            } catch (e) { console.error('Backup error:', e); }
         }
 
         // ── #7 Batch flush ───────────────────────────────────────────────────────
@@ -94,6 +164,7 @@ export default function Home() {
             }
 
             if (e.type === 'keyup') {
+                saveToLocal(); // Salva estado a cada tecla liberada
                 const currentLen = writingArea.value.length;
                 const counter = document.getElementById('char-counter');
                 if (counter) counter.innerText = `${currentLen} caracteres`;
@@ -149,7 +220,9 @@ export default function Home() {
                 loginContainer.classList.add('hidden');
                 studyContainer.classList.remove('hidden');
                 writingArea.focus();
+                saveToLocal();
                 setInterval(checkBatchTimeout, 1000); // #7 — periodic batch flush
+                setInterval(periodicBackup, 60000);  // Backup no servidor
             } catch (e) { console.error(e); }
         }
 
@@ -178,6 +251,7 @@ export default function Home() {
                 writingArea.classList.add('hidden');
                 document.getElementById('prompt-box').classList.add('hidden');
                 document.getElementById('char-counter').classList.add('hidden');
+                localStorage.removeItem('tita_session_backup'); // Limpa backup ao concluir
             } catch (e) { console.error(e); }
         }
 
@@ -314,6 +388,7 @@ export default function Home() {
                         // For now, we'll maintain the current standardized prompt for all segments.
                     }
                 }
+                saveToLocal(); // Salva estado após EMA
             } catch (e) { console.error(e); }
         });
 
@@ -330,6 +405,9 @@ export default function Home() {
         // Step 2: binary genuine question — #15
         document.getElementById('btn-engaged-yes')?.addEventListener('click', () => endSession(pendingEngagementRating, true));
         document.getElementById('btn-engaged-no')?.addEventListener('click', () => endSession(pendingEngagementRating, false));
+
+        // Tenta restaurar sessão ao carregar
+        restoreFromLocal();
 
     }, []);
 
