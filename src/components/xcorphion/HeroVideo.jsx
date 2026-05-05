@@ -19,7 +19,7 @@ const HeroVideo = () => {
     }, []);
 
     return (
-        <section className="relative w-full h-screen overflow-hidden bg-transparent flex items-center justify-center">
+        <section className="relative w-full max-h-[720px] overflow-hidden bg-transparent flex items-center justify-center">
             <video 
                 ref={videoRef}
                 autoPlay 
