@@ -27,12 +27,11 @@ const HeroVideo = () => {
                 muted 
                 playsInline
                 preload="auto"
-                className="absolute inset-0 w-full h-full object-cover opacity-100"
+                className="absolute inset-0 w-full h-full object-cover z-0"
                 src="/She_slowly_begins_to_turn_202605042158.mp4"
             />
             
-            {/* Overlay de gradiente para manter contraste do texto */}
-            <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-black via-transparent to-black" />
+            {/* Overlay removido temporariamente para debug do vídeo */}
 
             {/* Conteúdo purista */}
             <div className="relative z-10 w-full max-w-7xl mx-auto px-16 text-right md:text-center pl-24 md:pl-16">
