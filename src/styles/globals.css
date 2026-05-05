@@ -1,45 +1,77 @@
-
 @import "tailwindcss";
 
-@layer base {
-  :root {
-    --bg-primary:    #000000;
-    --bg-secondary:  #080404;
-    --bg-tertiary:   #0f0505;
+/* ── Design tokens para gerar as utility classes do Tailwind v4 ── */
+@theme {
+  --color-bg-primary:    #000000;
+  --color-bg-secondary:  #080404;
+  --color-bg-tertiary:   #0f0505;
 
-    --accent-1:      #8B0000;
-    --accent-2:      #5C0000;
-    --accent-hot:    #B22222;
-    --accent-dim:    #3D0000;
+  --color-accent-1:      #8B0000;
+  --color-accent-2:      #5C0000;
+  --color-accent-hot:    #B22222;
+  --color-accent-dim:    #3D0000;
 
-    --text-primary:  #F0EAE8;
-    --text-muted:    rgba(240,234,232,0.45);
-    --text-dim:      rgba(240,234,232,0.2);
+  --color-text-primary:  #F0EAE8;
+  --color-text-muted:    rgba(240,234,232,0.45);
+  --color-text-dim:      rgba(240,234,232,0.2);
 
-    --glass-bg:      rgba(139,0,0,0.04);
-    --glass-border:  rgba(139,0,0,0.12);
-    --glass-hover:   rgba(139,0,0,0.08);
+  --color-glass-bg:      rgba(139,0,0,0.04);
+  --color-glass-border:  rgba(139,0,0,0.12);
+  --color-glass-hover:   rgba(139,0,0,0.08);
 
-    --glow-primary:  rgba(139,0,0,0.35);
-    --glow-hot:      rgba(178,34,34,0.5);
+  --color-glow-primary:  rgba(139,0,0,0.35);
+  --color-glow-hot:      rgba(178,34,34,0.5);
 
-    --wire-color:    #8B0000;
-    --wire-dim:      #3D0000;
+  --color-wire-color:    #8B0000;
+  --color-wire-dim:      #3D0000;
 
-    --mouse-x: 50%;
-    --mouse-y: 50%;
-  }
+  --font-space: "Space Grotesk", sans-serif;
+  --font-inter: "Inter", sans-serif;
+  --font-mono:  "JetBrains Mono", monospace;
 
-  html, body {
-    @apply h-full;
-  }
-
-  body {
-    @apply bg-black text-primary overflow-x-hidden min-h-screen;
-    font-family: 'Inter', sans-serif;
-  }
+  --shadow-glow-hot: 0 0 20px rgba(178,34,34,0.5);
 }
 
+/* ── CSS custom properties para referências via var() nos componentes ── */
+:root {
+  --bg-primary:    #000000;
+  --bg-secondary:  #080404;
+  --bg-tertiary:   #0f0505;
+
+  --accent-1:      #8B0000;
+  --accent-2:      #5C0000;
+  --accent-hot:    #B22222;
+  --accent-dim:    #3D0000;
+
+  --text-primary:  #F0EAE8;
+  --text-muted:    rgba(240,234,232,0.45);
+  --text-dim:      rgba(240,234,232,0.2);
+
+  --glass-bg:      rgba(139,0,0,0.04);
+  --glass-border:  rgba(139,0,0,0.12);
+  --glass-hover:   rgba(139,0,0,0.08);
+
+  --glow-primary:  rgba(139,0,0,0.35);
+  --glow-hot:      rgba(178,34,34,0.5);
+
+  --wire-color:    #8B0000;
+  --wire-dim:      #3D0000;
+
+  --mouse-x: 50%;
+  --mouse-y: 50%;
+}
+
+/* ── Base styles ── */
+html, body {
+  @apply h-full;
+}
+
+body {
+  @apply bg-black text-text-primary overflow-x-hidden min-h-screen;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ── Grain overlay ── */
 .grain-overlay {
   position: fixed;
   inset: 0;
