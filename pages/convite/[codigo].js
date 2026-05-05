@@ -184,7 +184,7 @@ export async function getServerSideProps(context) {
     
     try {
         const db = await connectToDatabase();
-        const participant = await db.collection('participants').findOne({ participant_id: codigo });
+        const participant = await db.collection('participants').findOne({ participant_code: codigo });
 
         if (!participant) {
             return { props: { error: true } };

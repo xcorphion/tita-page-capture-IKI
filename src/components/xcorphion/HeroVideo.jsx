@@ -16,16 +16,24 @@ const HeroVideo = () => {
     }, []);
 
     return (
-        <video
-            ref={videoRef}
-            autoPlay
-            loop
-            muted
-            playsInline
-            preload="auto"
-            style={{ display: 'block', width: '100%', height: 'auto' }}
-            src="/She_slowly_begins_to_turn_202605042158.mp4"
-        />
+        <section>
+            <video
+                ref={videoRef}
+                autoPlay
+                loop
+                muted
+                playsInline
+                preload="auto"
+                style={{ 
+                    display: 'block', 
+                    width: '100%', 
+                    height: 'auto',
+                    transform: 'scale(1.3) translateY(calc(17% - 13px))',
+                    transformOrigin: 'center'
+                }}
+                src="/She_slowly_begins_to_turn_202605042158.mp4"
+            />
+        </section>
     );
 };
 

@@ -1,0 +1,18 @@
+
+> minimalist-writing-study@1.0.0 dev
+> next dev
+
+▲ Next.js 16.2.4 (Turbopack)
+- Local:         http://localhost:3002
+- Network:       http://192.168.0.117:3002
+- Environments: .env
+✓ Ready in 1819ms
+⨯ Another next dev server is already running.
+
+- Local:        http://localhost:3001
+- PID:          54185
+- Dir:          /home/sollatori/titã  page de capture IKIs
+- Log:          .next/dev/logs/next-development.log
+
+Run kill 54185 to stop it.
+[?25h

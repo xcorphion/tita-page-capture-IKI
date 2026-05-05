@@ -71,6 +71,14 @@ body {
   font-family: 'Inter', sans-serif;
 }
 
+/* ── Standard Section Height ── */
+section {
+  height: 1080px;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
 /* ── Grain overlay ── */
 .grain-overlay {
   position: fixed;

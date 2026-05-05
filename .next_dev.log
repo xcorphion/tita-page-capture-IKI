@@ -23,3 +23,55 @@
  GET / 200 in 1395ms (next.js: 965ms, application-code: 431ms)
 ✓ Compiled in 4s
 ✓ Compiled in 5s
+ GET / 200 in 301ms (next.js: 212ms, application-code: 89ms)
+✓ Compiled in 1060ms
+✓ Compiled in 138ms
+ GET / 200 in 252ms (next.js: 206ms, application-code: 46ms)
+✓ Compiled in 169ms
+✓ Compiled in 171ms
+✓ Compiled in 147ms
+✓ Compiled in 126ms
+✓ Compiled in 324ms
+✓ Compiled in 145ms
+✓ Compiled in 1220ms
+✓ Compiled in 1241ms
+✓ Compiled in 5.7s
+ GET / 200 in 2.6s (next.js: 1678ms, application-code: 963ms)
+✓ Compiled in 5.6s
+[browser] Warning: React does not recognize the `allowTransparency` prop on a DOM element. If you intentionally want it to appear in the DOM as a custom attribute, spell it as lowercase `allowtransparency` instead. If you accidentally passed it from a parent component, remove it from the DOM element.
+    at iframe
+    at FloatingNav (http://localhost:3001/_next/static/chunks/%5Broot-of-the-server%5D__0kq0yf~._.js?id=%255Bproject%255D%252Fsrc%252Fcomponents%252Fxcorphion%252FFloatingNav.jsx+%255Bclient%255D+%2528ecmascript%2529:18:182)
+    at div
+    at Layout (http://localhost:3001/_next/static/chunks/%5Broot-of-the-server%5D__0kq0yf~._.js:763:19)
+    at Home
+    at App (http://localhost:3001/_next/static/chunks/%5Broot-of-the-server%5D__00dsfaf._.js:480:16)
+    at PathnameContextProviderAdapter (http://localhost:3001/_next/static/chunks/node_modules_next_dist_shared_lib_0~pg0mt._.js:5441:43)
+    at PagesDevOverlayErrorBoundary (http://localhost:3001/_next/static/chunks/node_modules_next_dist_0k8zr~w._.js:1137:9)
+    at PagesDevOverlayBridge (http://localhost:3001/_next/static/chunks/node_modules_next_dist_0k8zr~w._.js:1919:34)
+    at Container (http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_0pe1dg-._.js:3157:1)
+    at AppContainer (http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_0pe1dg-._.js:3256:25)
+    at Root (http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_0pe1dg-._.js:3464:17) 
+    at printWarning (file:///home/sollatori/titã  page de capture IKIs/.next/dev/static/chunks/node_modules_react-dom_cjs_react-dom_development_07i0ttg.js:72:42)
+    at error (file:///home/sollatori/titã  page de capture IKIs/.next/dev/static/chunks/node_modules_react-dom_cjs_react-dom_development_07i0ttg.js:50:21)
+    at validateProperty$1 (file:///home/sollatori/titã  page de capture IKIs/.next/dev/static/chunks/node_modules_react-dom_cjs_react-dom_development_07i0ttg.js:3469:21)
+    at warnUnknownProperties (file:///home/sollatori/titã  page de capture IKIs/.next/dev/static/chunks/node_modules_react-dom_cjs_react-dom_development_07i0ttg.js:3502:35)
+    at validateProperties$2 (file:///home/sollatori/titã  page de capture IKIs/.next/dev/static/chunks/node_modules_react-dom_cjs_react-dom_development_07i0ttg.js:3521:13)
+    at validatePropertiesInDevelopment (file:///home/sollatori/titã  page de capture IKIs/.next/dev/static/chunks/node_modules_react-dom_cjs_react-dom_development_07i0ttg.js:8277:17)
+    at setInitialProperties (file:///home/sollatori/titã  page de capture IKIs/.next/dev/static/chunks/node_modules_react-dom_cjs_react-dom_development_07i0ttg.js:8519:17)
+    at finalizeInitialChildren (file:///home/sollatori/titã  page de capture IKIs/.next/dev/static/chunks/node_modules_react-dom_cjs_react-dom_development_07i0ttg.js:9554:13)
+    at completeWork (file:///home/sollatori/titã  page de capture IKIs/.next/dev/static/chunks/node_modules_react-dom_cjs_react-dom_development_07i0ttg.js:18857:37)
+    at completeUnitOfWork (file:///home/sollatori/titã  page de capture IKIs/.next/dev/static/chunks/node_modules_react-dom_cjs_react-dom_development_07i0ttg.js:22430:32)
+    at performUnitOfWork (file:///home/sollatori/titã  page de capture IKIs/.next/dev/static/chunks/node_modules_react-dom_cjs_react-dom_development_07i0ttg.js:22407:17)
+    at workLoopSync (file:///home/sollatori/titã  page de capture IKIs/.next/dev/static/chunks/node_modules_react-dom_cjs_react-dom_development_07i0ttg.js:22327:17)
+    at renderRootSync (file:///home/sollatori/titã  page de capture IKIs/.next/dev/static/chunks/node_modules_react-dom_cjs_react-dom_development_07i0ttg.js:22304:21)
+    at performSyncWorkOnRoot (file:///home/sollatori/titã  page de capture IKIs/.next/dev/static/chunks/node_modules_react-dom_cjs_react-dom_development_07i0ttg.js:22008:30)
+    at flushSyncCallbacks (file:///home/sollatori/titã  page de capture IKIs/.next/dev/static/chunks/node_modules_react-dom_cjs_react-dom_development_07i0ttg.js:10477:40)
+    at flushSync (file:///home/sollatori/titã  page de capture IKIs/.next/dev/static/chunks/node_modules_react-dom_cjs_react-dom_development_07i0ttg.js:22106:21)
+    at Object.scheduleRefresh (file:///home/sollatori/titã  page de capture IKIs/.next/dev/static/chunks/node_modules_react-dom_cjs_react-dom_development_07i0ttg.js:23395:17)
+    at <unknown> (file:///home/sollatori/titã  page de capture IKIs/.next/dev/static/chunks/node_modules_next_dist_compiled_0o6l_m6._.js:391:33)
+    at Set.forEach (<anonymous>)
+    at Object.performReactRefresh (file:///home/sollatori/titã  page de capture IKIs/.next/dev/static/chunks/node_modules_next_dist_compiled_0o6l_m6._.js:384:38)
+    at applyUpdate (file:///home/sollatori/titã  page de capture IKIs/.next/dev/static/chunks/node_modules_next_dist_compiled_0o6l_m6._.js:878:31)
+    at <unknown> (file:///home/sollatori/titã  page de capture IKIs/.next/dev/static/chunks/node_modules_next_dist_compiled_0o6l_m6._.js:886:13) (file:///home/sollatori/titã  page de capture IKIs/.next/dev/static/chunks/node_modules_react-dom_cjs_react-dom_development_07i0ttg.js:72:42)
+✓ Compiled in 687ms
+[?25h
