@@ -1,0 +1,16 @@
+
+> minimalist-writing-study@1.0.0 dev
+> next dev
+
+⚠ Port 3000 is in use by an unknown process, using available port 3001 instead.
+▲ Next.js 16.2.4 (Turbopack)
+- Local:         http://localhost:3001
+- Network:       http://192.168.0.117:3001
+- Environments: .env
+✓ Ready in 1152ms
+
+ GET / 200 in 768ms (next.js: 662ms, application-code: 106ms)
+✓ Compiled in 6.4s
+ GET / 200 in 120ms (next.js: 74ms, application-code: 46ms)
+✓ Compiled in 3.3s
+ GET / 200 in 215ms (next.js: 80ms, application-code: 134ms)
