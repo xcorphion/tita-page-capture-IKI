@@ -9,9 +9,9 @@ const Layout = ({ children }) => {
     }, []);
 
     return (
-        <div className="relative w-full min-h-screen bg-black text-white font-inter selection:bg-accent-1 selection:text-white">
+        <div className="relative w-full min-h-screen bg-transparent text-white font-inter selection:bg-accent-1 selection:text-white">
             <FloatingNav />
-            <main className="w-full relative z-0">
+            <main className="w-full relative z-10">
                 {children}
             </main>
         </div>
