@@ -1,14 +1,20 @@
 {
   "name": "minimalist-writing-study",
   "version": "1.0.0",
-  "description": "Minimalist writing engagement study application",
+  "private": true,
+  "workspaces": [
+    "Xcorphion_Platform",
+    "Research_System",
+    "packages/*"
+  ],
+  "description": "Monorepo for Xcorphion Platform and Research System",
   "main": "server.js",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "build:omma": "vite build",
-    "invite": "node scripts/invite.js"
+    "dev:platform": "npm run dev -w @xcorphion/platform",
+    "dev:research": "npm run dev -w @xcorphion/research",
+    "build:platform": "npm run build -w @xcorphion/platform",
+    "build:research": "npm run build -w @xcorphion/research",
+    "invite": "node Research_System/scripts/invite.js"
   },
   "keywords": [],
   "author": "",
