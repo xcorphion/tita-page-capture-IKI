@@ -13,7 +13,7 @@
     "dev:platform": "npm run dev -w @xcorphion/platform",
     "dev:research": "npm run dev -w @xcorphion/research",
     "build:platform": "npm run build -w @xcorphion/platform",
-    "build:research": "npm run build -w @xcorphion/research && cp -rv Research_System/.next .next",
+    "build:research": "npm run build -w @xcorphion/research",
     "build": "npm run build:research",
     "invite": "node Research_System/scripts/invite.js"
   },
@@ -32,7 +32,7 @@
     "gsap": "^3.12.5",
     "lucide-react": "^0.460.0",
     "mongodb": "^7.2.0",
-    "next": "^16.2.4",
+    "next": "14.2.4",
     "plotly.js": "^3.5.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
