@@ -21,6 +21,6 @@
     "postcss": "^8.4.31",
     "tailwindcss": "^4.2.4",
     "@tailwindcss/postcss": "^4.2.4",
-    "@xcorphion/shared": "file:../packages/shared"
+    "@xcorphion/shared": "*"
   }
 }
