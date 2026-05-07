@@ -323,7 +323,7 @@ export default function IKIResearchPage() {
                             className="w-full h-40 bg-black border border-white/10 rounded-2xl p-6 text-white focus:border-[#8B0000] outline-none transition-colors resize-none"
                             placeholder="Comece a digitar aqui para iniciar..."
                         ></textarea>
-                        <div className="flex justify-between mt-6 font-mono text-[10px] tracking-[0.2em] uppercase">
+                        <div className="flex justify-between mt-6 font-space text-[10px] tracking-[0.2em] uppercase">
                             <span className="text-[#8B0000]">Tempo Restante: {wpmTimer}s</span>
                             <span className="text-white/30">{wpmValue} WPM</span>
                         </div>
