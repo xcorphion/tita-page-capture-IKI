@@ -17,7 +17,7 @@ export default function IKIResearchPage() {
     const [showEnd, setShowEnd] = useState(false);
     const [endStep, setEndStep] = useState('rating');
     const [promptText, setPromptText] = useState('');
-    
+
     // ── Refs para Lógica de Coleta ───────────────────────────────────────────
     const sessionIdRef = useRef('');
     const sessionStartEpochMsRef = useRef(0);
@@ -91,16 +91,16 @@ export default function IKIResearchPage() {
         const batch = [...eventBufferRef.current];
         eventBufferRef.current = [];
         lastBatchTimeRef.current = Date.now();
-        
+
         console.log(`[DEBUG][FIX-5][START] Enviando Lote: ${count} eventos.`);
         try {
             await fetch('/api/events/batch', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    session_id: sessionIdRef.current, 
-                    participant_code: respondentId, 
-                    events: batch 
+                body: JSON.stringify({
+                    session_id: sessionIdRef.current,
+                    participant_code: respondentId,
+                    events: batch
                 })
             });
             console.log(`[DEBUG][FIX-5][END] Lote enviado com sucesso.`);
@@ -117,8 +117,8 @@ export default function IKIResearchPage() {
             const res = await fetch('/api/session/start', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    participant_code: respondentId, 
+                body: JSON.stringify({
+                    participant_code: respondentId,
                     prompt_id: promptId,
                     jitter_benchmark_ms: jitter
                 })
@@ -155,7 +155,7 @@ export default function IKIResearchPage() {
             timestamp_abs_ms: sessionStartEpochMsRef.current + timestamp_rel_ms,
             event_repeat: !!e.nativeEvent.repeat // #9 — flag de repetição
         };
-        
+
         eventBufferRef.current.push(event);
         if (eventBufferRef.current.length >= BATCH_SIZE) {
             console.log(`[DEBUG][FIX-5] Batch Size (50) atingido. Efetuando flush.`);
@@ -171,7 +171,7 @@ export default function IKIResearchPage() {
             } else if (e.code === 'Enter') {
                 charsTypedInCurrentSegmentRef.current++;
             }
-            
+
             if (charsTypedInCurrentSegmentRef.current !== oldVal) {
                 console.log(`[DEBUG][FIX-9] EMA Progress: ${charsTypedInCurrentSegmentRef.current}/${EMA_CHAR_INTERVAL}`);
             }
@@ -229,9 +229,9 @@ export default function IKIResearchPage() {
         const v = parseInt(document.getElementById('v-slider').value);
         const a = parseInt(document.getElementById('a-slider').value);
         const rel_ts = Date.now() - sessionStartEpochMsRef.current;
-        
+
         console.log(`[DEBUG][FIX-10][FIX-11][FIX-12] Enviando EMA: Valência=${v}, Arousal=${a}, RelTime=${rel_ts}ms`);
-        
+
         try {
             await fetch('/api/ema', {
                 method: 'POST',
@@ -281,13 +281,13 @@ export default function IKIResearchPage() {
     // ── Renderização ─────────────────────────────────────────────────────────
 
     if (status === 'loading') return <Layout><div className="min-h-screen bg-black flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#8B0000]"></div></div></Layout>;
-    
+
     return (
         <Layout>
             <Head><title>Pesquisa Somática | XCORPION</title></Head>
 
             <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-8 font-inter">
-                
+
                 {step === 'consent' && (
                     <div className="max-w-xl w-full text-center">
                         <div className="flex items-center justify-center gap-3 text-2xl font-space mb-8"><i className="ph ph-shield-check"></i><h2>Termo de Consentimento</h2></div>
@@ -303,7 +303,7 @@ export default function IKIResearchPage() {
                 {step === 'wpm' && (
                     <div className="max-w-2xl w-full text-center">
                         <h2 className="text-2xl font-space mb-4 flex items-center justify-center gap-3"><i className="ph ph-keyboard"></i> Calibração</h2>
-                        <p className="text-white/40 mb-8 font-inter">Aguardando primeira tecla para iniciar cronômetro...</p>
+                        <p className="text-white/40 mb-8 font-inter">Escreva a seguinte frase abaixo, o mais rápido e assertivo que você conseguir. O cronomêtro só começa após você digitar a primeira letra.</p>
                         <div className="bg-[#111] p-6 rounded-2xl mb-8 italic text-white/70 border border-white/5 font-inter">"A técnica de Keystroke Dynamics estuda o ritmo individual de digitação. Cada pessoa possui um ritmo, uma pressão e um padrão de escrita. É isso que a Xcorphion está compreendendo."</div>
                         <textarea id="wpm-textarea" onKeyDown={handleWpmKeyDown} className="w-full h-40 bg-black border border-white/10 rounded-lg p-6 text-white focus:border-[#8B0000] outline-none resize-none font-inter" placeholder="Comece a digitar..."></textarea>
                         <div className="flex justify-between mt-6 font-space text-[10px] tracking-[0.2em] uppercase"><span className="text-[#8B0000]">Tempo: {wpmTimer}s</span><span className="text-white/30">{wpmValue} WPM</span></div>
@@ -317,7 +317,7 @@ export default function IKIResearchPage() {
                             <p className="text-2xl font-space leading-snug text-white/90">{promptText}</p>
                         </div>
 
-                        <textarea 
+                        <textarea
                             ref={writingAreaRef}
                             onKeyDown={handleWritingKey}
                             onKeyUp={handleWritingKey}
@@ -325,7 +325,7 @@ export default function IKIResearchPage() {
                             className="w-full h-[calc(55vh+80px)] bg-white/[0.02] border border-white/10 rounded-lg p-8 text-xl leading-relaxed text-white/70 outline-none resize-none font-inter focus:border-[#8B0000]/50 transition-all shadow-inner"
                             placeholder="Escreva seus sentimentos..."
                         ></textarea>
-                        
+
                         <div className="text-right mt-6 font-space text-[9px] uppercase tracking-widest text-white/20">{charCount} caracteres coletados</div>
 
                         {showEma && (
