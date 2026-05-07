@@ -292,7 +292,7 @@ export default function IKIResearchPage() {
                     <div className="max-w-xl w-full text-center">
                         <div className="flex items-center justify-center gap-3 text-2xl font-space mb-8"><i className="ph ph-shield-check"></i><h2>Termo de Consentimento</h2></div>
                         <div className="bg-white/5 p-8 rounded-2xl text-left text-sm leading-relaxed mb-10 border border-white/10 font-inter">
-                            <p className="mb-4 text-white/80"><strong>1. Monitoramento Psicomotor e IA:</strong> Este protocolo registra a cadência temporal de sua digitação (IKIs). Estes dados biométricos serão utilizados em experimentos científicos e no treinamento de modelos de Inteligência Artificial voltados à compreensão de estados afetivos.</p>
+                            <p className="mb-4 text-white/80"><strong>1. Coleta e Uso:</strong> Este protocolo registra a cadência temporal de sua digitação (IKIs). Estes dados serão utilizados em experimentos científicos e no treinamento de modelos de Inteligência Artificial.</p>
                             <p className="mb-4 text-white/80"><strong>2. Anonimização e Retenção:</strong> Seus dados são processados através de um hash criptográfico irreversível e permanecerão armazenados em nossos servidores por um período de 5 anos para fins de pesquisa e validação estatística.</p>
                             <p className="text-white/80"><strong>3. Direitos e Exclusão:</strong> Sua participação é voluntária. Em conformidade com a LGPD, você possui o direito de solicitar a exclusão definitiva de seus registros de nossa base de dados a qualquer momento através dos canais de suporte da Xcorphion.</p>
                         </div>
@@ -349,7 +349,7 @@ export default function IKIResearchPage() {
                                 <div className="w-full max-w-md">
                                     {endStep === 'rating' && (
                                         <div className="animate-in zoom-in duration-300">
-                                            <h3 className="text-3xl font-space mb-4">Sessão Concluída</h3>
+                                            <h3 className="text-3xl font-space mb-4">Parabéns! Primeira sessão concluida, seu relato foi salvo. Por favor, avalie a pesquisa:</h3>
                                             <div className="flex justify-center gap-4 mt-10">
                                                 {[1, 2, 3, 4, 5].map(r => <button key={r} onClick={() => { pendingRatingRef.current = r; setEndStep('genuine'); }} className="w-14 h-14 rounded-full border border-white/10 hover:bg-[#8B0000] transition-all flex items-center justify-center font-bold text-lg font-space">{r}</button>)}
                                             </div>
@@ -357,7 +357,7 @@ export default function IKIResearchPage() {
                                     )}
                                     {endStep === 'genuine' && (
                                         <div className="animate-in slide-in-from-bottom duration-500">
-                                            <h3 className="text-3xl font-space mb-4">Genuinidade</h3>
+                                            <h3 className="text-3xl font-space mb-4">Você estava realmente engajado com essa pesquisa?</h3>
                                             <div className="flex gap-4 mt-10"><button onClick={() => handleFinalSubmit(true)} className="flex-1 py-5 bg-white text-black font-bold rounded-2xl uppercase tracking-widest text-[10px] font-inter">Sim</button><button onClick={() => handleFinalSubmit(false)} className="flex-1 py-5 bg-white/5 border border-white/10 text-white font-bold rounded-2xl uppercase tracking-widest text-[10px] font-inter">Não</button></div>
                                         </div>
                                     )}
