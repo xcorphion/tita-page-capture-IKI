@@ -1,8 +1,6 @@
-const crypto = require('crypto');
+import crypto from 'crypto';
 
-function hashParticipantId(code) {
+export function hashParticipantId(code) {
     const salt = process.env.PARTICIPANT_SALT || 'titã-somatic-transformer-2026';
     return crypto.createHash('sha256').update(code + salt).digest('hex');
 }
-
-module.exports = { hashParticipantId };

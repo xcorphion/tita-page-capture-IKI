@@ -1,5 +1,5 @@
 import { connectToDatabase } from '@xcorphion/shared';
-const { hashParticipantId } = require('../../lib/participant');
+import { hashParticipantId } from '../../lib/participant';
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).end();
