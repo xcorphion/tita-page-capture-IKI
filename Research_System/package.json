@@ -17,7 +17,7 @@
     "lucide-react": "^0.460.0",
     "plotly.js": "^3.5.1",
     "react-plotly.js": "^2.6.0",
-    "@xcorphion/shared": "*",
-    "@xcorphion/platform": "*"
+    "@xcorphion/shared": "file:../packages/shared",
+    "@xcorphion/platform": "file:../Xcorphion_Platform"
   }
 }
