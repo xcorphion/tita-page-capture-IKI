@@ -4,6 +4,10 @@
     {
       "source": "/study/:path*",
       "destination": "https://research-system-three.vercel.app/:path*"
+    },
+    {
+      "source": "/study",
+      "destination": "https://research-system-three.vercel.app/"
     }
   ]
 }
