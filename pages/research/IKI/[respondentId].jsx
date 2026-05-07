@@ -291,7 +291,11 @@ export default function IKIResearchPage() {
                 {step === 'consent' && (
                     <div className="max-w-xl w-full text-center">
                         <div className="flex items-center justify-center gap-3 text-2xl font-space mb-8"><i className="ph ph-shield-check"></i><h2>Termo de Consentimento</h2></div>
-                        <div className="bg-white/5 p-8 rounded-2xl text-left text-sm mb-10 border border-white/10 font-inter"><p className="mb-4"><strong>1. Coleta Somática:</strong> Registramos o ritmo das teclas (IKI).</p><p className="mb-4"><strong>2. Anonimização:</strong> Dados vinculados a um hash.</p></div>
+                        <div className="bg-white/5 p-8 rounded-2xl text-left text-sm leading-relaxed mb-10 border border-white/10 font-inter">
+                            <p className="mb-4 text-white/80"><strong>1. Monitoramento Psicomotor:</strong> Este protocolo registra exclusivamente a cadência e o ritmo temporal de sua digitação (IKIs). Nosso foco é a dinâmica biométrica, e não o conteúdo semântico de sua narrativa.</p>
+                            <p className="mb-4 text-white/80"><strong>2. Protocolo de Anonimato:</strong> Seus dados são processados através de um hash criptográfico de via única, impossibilitando a reidentificação e garantindo total conformidade com a LGPD.</p>
+                            <p className="text-white/80"><strong>3. Contribuição Científica:</strong> Ao participar, você contribui para o desenvolvimento de sistemas de IA capazes de compreender estados afetivos através da neurofisiologia do movimento.</p>
+                        </div>
                         <button onClick={() => { console.log(`[DEBUG][FIX-4] Consentimento Dado.`); setStep('wpm'); }} className="w-full py-5 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition-all font-inter">ACEITO E DESEJO CONTINUAR</button>
                     </div>
                 )}
@@ -300,7 +304,7 @@ export default function IKIResearchPage() {
                     <div className="max-w-2xl w-full text-center">
                         <h2 className="text-2xl font-space mb-4 flex items-center justify-center gap-3"><i className="ph ph-keyboard"></i> Calibração</h2>
                         <p className="text-white/40 mb-8 font-inter">Aguardando primeira tecla para iniciar cronômetro...</p>
-                        <div className="bg-[#111] p-6 rounded-2xl mb-8 italic text-white/70 border border-white/5 font-inter">"A técnica de Keystroke Dynamics estuda o ritmo individual de digitação."</div>
+                        <div className="bg-[#111] p-6 rounded-2xl mb-8 italic text-white/70 border border-white/5 font-inter">"A técnica de Keystroke Dynamics estuda o ritmo individual de digitação. Cada pessoa possui um ritmo, uma pressão e um padrão de escrita. É isso que a Xcorphion está compreendendo."</div>
                         <textarea id="wpm-textarea" onKeyDown={handleWpmKeyDown} className="w-full h-40 bg-black border border-white/10 rounded-lg p-6 text-white focus:border-[#8B0000] outline-none resize-none font-inter" placeholder="Comece a digitar..."></textarea>
                         <div className="flex justify-between mt-6 font-space text-[10px] tracking-[0.2em] uppercase"><span className="text-[#8B0000]">Tempo: {wpmTimer}s</span><span className="text-white/30">{wpmValue} WPM</span></div>
                     </div>
@@ -309,7 +313,7 @@ export default function IKIResearchPage() {
                 {step === 'writing' && (
                     <div className="w-full max-w-[936px] animate-in fade-in duration-700">
                         <div className="mb-12 border-b border-white/5 pb-8">
-                            <h3 className="text-[10px] uppercase tracking-[0.3em] text-[#8B0000] font-space mb-4">Tema da Sessão (Fix 8)</h3>
+                            <h3 className="text-[10px] uppercase tracking-[0.3em] text-[#8B0000] font-space mb-4">Tema da Sessão</h3>
                             <p className="text-2xl font-space leading-snug text-white/90">{promptText}</p>
                         </div>
 
