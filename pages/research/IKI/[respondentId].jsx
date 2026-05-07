@@ -292,9 +292,9 @@ export default function IKIResearchPage() {
                     <div className="max-w-xl w-full text-center">
                         <div className="flex items-center justify-center gap-3 text-2xl font-space mb-8"><i className="ph ph-shield-check"></i><h2>Termo de Consentimento</h2></div>
                         <div className="bg-white/5 p-8 rounded-2xl text-left text-sm leading-relaxed mb-10 border border-white/10 font-inter">
-                            <p className="mb-4 text-white/80"><strong>1. Monitoramento Psicomotor:</strong> Este protocolo registra exclusivamente a cadência e o ritmo temporal de sua digitação (IKIs). Nosso foco é a dinâmica biométrica, e não o conteúdo semântico de sua narrativa.</p>
-                            <p className="mb-4 text-white/80"><strong>2. Protocolo de Anonimato:</strong> Seus dados são processados através de um hash criptográfico de via única, impossibilitando a reidentificação e garantindo total conformidade com a LGPD.</p>
-                            <p className="text-white/80"><strong>3. Contribuição Científica:</strong> Ao participar, você contribui para o desenvolvimento de sistemas de IA capazes de compreender estados afetivos através da neurofisiologia do movimento.</p>
+                            <p className="mb-4 text-white/80"><strong>1. Monitoramento Psicomotor e IA:</strong> Este protocolo registra a cadência temporal de sua digitação (IKIs). Estes dados biométricos serão utilizados em experimentos científicos e no treinamento de modelos de Inteligência Artificial voltados à compreensão de estados afetivos.</p>
+                            <p className="mb-4 text-white/80"><strong>2. Anonimização e Retenção:</strong> Seus dados são processados através de um hash criptográfico irreversível e permanecerão armazenados em nossos servidores por um período de 5 anos para fins de pesquisa e validação estatística.</p>
+                            <p className="text-white/80"><strong>3. Direitos e Exclusão:</strong> Sua participação é voluntária. Em conformidade com a LGPD, você possui o direito de solicitar a exclusão definitiva de seus registros de nossa base de dados a qualquer momento através dos canais de suporte da Xcorphion.</p>
                         </div>
                         <button onClick={() => { console.log(`[DEBUG][FIX-4] Consentimento Dado.`); setStep('wpm'); }} className="w-full py-5 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition-all font-inter">ACEITO E DESEJO CONTINUAR</button>
                     </div>
