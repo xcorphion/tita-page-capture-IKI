@@ -274,7 +274,7 @@ export default function IKIResearchPage() {
                 })
             });
             console.log(`[DEBUG][FIX-13][END] Sessão Concluída Atamicamente no DB.`);
-            setStatus('completed');
+            router.push(`/research/IKI/${respondentId}/finish`);
         } catch (e) { console.error(e); }
     };
 
