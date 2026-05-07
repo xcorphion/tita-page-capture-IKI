@@ -1,2 +1,0 @@
-◇ injected env (3) from .env // tip: ⌁ auth for agents [www.vestauth.com]
-Nome do participante: Nome do indicador (quem indicou): 
