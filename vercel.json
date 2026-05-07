@@ -3,7 +3,7 @@
   "rewrites": [
     {
       "source": "/study/:path*",
-      "destination": "https://research-system-three.vercel.app/:path*"
+      "destination": "https://research-system-rglsbhql3-joao-sollatoris-projects.vercel.app/:path*"
     }
   ]
 }
