@@ -197,24 +197,30 @@ export default function IKIResearchPage() {
 
     // ── Handlers de Onboarding ───────────────────────────────────────────────
 
-    const handleWpmFocus = () => {
+    const handleWpmKeyDown = (e) => {
         if (wpmStartTimeRef.current) return;
-        wpmStartTimeRef.current = Date.now();
-        const interval = setInterval(() => {
-            const elapsed = (Date.now() - wpmStartTimeRef.current) / 1000;
-            const remaining = Math.max(0, 60 - Math.floor(elapsed));
-            setWpmTimer(remaining);
+        
+        // Filtro de teclas válidas (caracteres individuais, excluindo Alt, Ctrl, etc)
+        const isValidKey = e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey;
+        
+        if (isValidKey) {
+            wpmStartTimeRef.current = Date.now();
+            const interval = setInterval(() => {
+                const elapsed = (Date.now() - wpmStartTimeRef.current) / 1000;
+                const remaining = Math.max(0, 60 - Math.floor(elapsed));
+                setWpmTimer(remaining);
 
-            const input = document.getElementById('wpm-textarea');
-            const chars = input?.value.length || 0;
-            const currentWPM = Math.round((chars / 5) / (elapsed / 60)) || 0;
-            setWpmValue(currentWPM);
+                const input = document.getElementById('wpm-textarea');
+                const chars = input?.value.length || 0;
+                const currentWPM = Math.round((chars / 5) / (elapsed / 60)) || 0;
+                setWpmValue(currentWPM);
 
-            if (remaining <= 0) {
-                clearInterval(interval);
-                completeOnboarding(currentWPM);
-            }
-        }, 500);
+                if (remaining <= 0) {
+                    clearInterval(interval);
+                    completeOnboarding(currentWPM);
+                }
+            }, 500);
+        }
     };
 
     const completeOnboarding = async (wpm) => {
@@ -319,7 +325,7 @@ export default function IKIResearchPage() {
                         </div>
                         <textarea 
                             id="wpm-textarea"
-                            onFocus={handleWpmFocus}
+                            onKeyDown={handleWpmKeyDown}
                             className="w-full h-40 bg-black border border-white/10 rounded-2xl p-6 text-white focus:border-[#8B0000] outline-none transition-colors resize-none"
                             placeholder="Comece a digitar aqui para iniciar..."
                         ></textarea>
