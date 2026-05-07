@@ -2,7 +2,7 @@
 const nextConfig = {
   reactStrictMode: false,
   transpilePackages: ["@xcorphion/shared", "@xcorphion/platform"],
-  basePath: '/research',
+  basePath: '/study',
   trailingSlash: false,
   devIndicators: {
     appIsrStatus: false,

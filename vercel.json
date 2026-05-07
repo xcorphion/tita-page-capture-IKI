@@ -2,8 +2,8 @@
   "version": 2,
   "rewrites": [
     {
-      "source": "/research/:path*",
-      "destination": "https://research-system-three.vercel.app/research/:path*"
+      "source": "/study/:path*",
+      "destination": "https://research-system-three.vercel.app/study/:path*"
     }
   ]
 }
