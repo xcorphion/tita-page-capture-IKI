@@ -338,7 +338,7 @@ export default function IKIResearchPage() {
 
                 {/* ETAPA 3: ÁREA DE ESCRITA PRINCIPAL */}
                 {step === 'writing' && (
-                    <div className="w-full max-w-4xl animate-in fade-in duration-700">
+                    <div className="w-full max-w-[936px] animate-in fade-in duration-700">
                         <div className="mb-12 border-b border-white/5 pb-8">
                             <h3 className="text-[10px] uppercase tracking-[0.3em] text-[#8B0000] font-space mb-4">Tema da Sessão</h3>
                             <p id="prompt-display" className="text-2xl font-space leading-snug text-white/90"></p>
@@ -349,7 +349,7 @@ export default function IKIResearchPage() {
                             onKeyDown={handleWritingKey}
                             onKeyUp={handleWritingKey}
                             disabled={showEma || showEnd}
-                            className="w-full h-[55vh] bg-white/[0.02] border border-white/10 rounded-lg p-8 text-xl leading-relaxed text-white/70 outline-none resize-none placeholder:text-white/10 font-inter focus:border-[#8B0000]/50 transition-all shadow-inner"
+                            className="w-full h-[calc(55vh+80px)] bg-white/[0.02] border border-white/10 rounded-lg p-8 text-xl leading-relaxed text-white/70 outline-none resize-none placeholder:text-white/10 font-inter focus:border-[#8B0000]/50 transition-all shadow-inner"
                             placeholder="Escreva sobre suas percepções e sentimentos..."
                         ></textarea>
                         
