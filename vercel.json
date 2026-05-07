@@ -3,7 +3,7 @@
   "rewrites": [
     {
       "source": "/research/:path*",
-      "destination": "https://research-system.vercel.app/research/:path*"
+      "destination": "https://research-system-three.vercel.app/research/:path*"
     }
   ]
 }
