@@ -13,8 +13,8 @@
     "dev:platform": "npm run dev -w @xcorphion/platform",
     "dev:research": "npm run dev -w @xcorphion/research",
     "build:platform": "npm run build -w @xcorphion/platform",
-    "build:research": "npm run build -w @xcorphion/research",
-    "build": "npm run build -w @xcorphion/platform",
+    "build:research": "npm run build -w @xcorphion/research && cp -rv Research_System/.next .next",
+    "build": "npm run build:research",
     "invite": "node Research_System/scripts/invite.js"
   },
   "dependencies": {
