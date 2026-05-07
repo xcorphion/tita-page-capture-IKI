@@ -320,13 +320,13 @@ export default function IKIResearchPage() {
                             <i className="ph ph-keyboard"></i> Calibração de Velocidade
                         </h2>
                         <p className="text-white/40 mb-8">Digite o texto abaixo por 60 segundos para calibrar o seu IKI base.</p>
-                        <div className="bg-[#111] p-6 rounded-2xl mb-8 italic text-white/70 border border-white/5">
+                        <div className="bg-[#111] p-6 rounded-2xl mb-8 italic text-white/70 border border-white/5 font-inter">
                             "A técnica de Keystroke Dynamics estuda o ritmo individual de digitação. Cada pessoa possui um padrão único de pressionamento e liberação de teclas."
                         </div>
                         <textarea 
                             id="wpm-textarea"
                             onKeyDown={handleWpmKeyDown}
-                            className="w-full h-40 bg-black border border-white/10 rounded-2xl p-6 text-white focus:border-[#8B0000] outline-none transition-colors resize-none"
+                            className="w-full h-40 bg-black border border-white/10 rounded-lg p-6 text-white focus:border-[#8B0000] outline-none transition-colors resize-none font-inter"
                             placeholder="Comece a digitar aqui para iniciar..."
                         ></textarea>
                         <div className="flex justify-between mt-6 font-space text-[10px] tracking-[0.2em] uppercase">
@@ -340,7 +340,7 @@ export default function IKIResearchPage() {
                 {step === 'writing' && (
                     <div className="w-full max-w-4xl animate-in fade-in duration-700">
                         <div className="mb-12 border-b border-white/5 pb-8">
-                            <h3 className="text-[10px] uppercase tracking-[0.3em] text-[#8B0000] mb-4">Tema da Sessão</h3>
+                            <h3 className="text-[10px] uppercase tracking-[0.3em] text-[#8B0000] font-space mb-4">Tema da Sessão</h3>
                             <p id="prompt-display" className="text-2xl font-space leading-snug text-white/90"></p>
                         </div>
 
@@ -349,7 +349,7 @@ export default function IKIResearchPage() {
                             onKeyDown={handleWritingKey}
                             onKeyUp={handleWritingKey}
                             disabled={showEma || showEnd}
-                            className="w-full h-[55vh] bg-transparent border-none text-xl leading-relaxed text-white/70 outline-none resize-none placeholder:text-white/10"
+                            className="w-full h-[55vh] bg-white/[0.02] border border-white/10 rounded-lg p-8 text-xl leading-relaxed text-white/70 outline-none resize-none placeholder:text-white/10 font-inter focus:border-[#8B0000]/50 transition-all shadow-inner"
                             placeholder="Escreva sobre suas percepções e sentimentos..."
                         ></textarea>
                         
