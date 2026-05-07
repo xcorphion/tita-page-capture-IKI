@@ -1,4 +1,9 @@
 {
-    "framework": "nextjs",
-    "outputDirectory": ".next"
+  "version": 2,
+  "rewrites": [
+    {
+      "source": "/research/:path*",
+      "destination": "https://research-system.vercel.app/research/:path*"
+    }
+  ]
 }
