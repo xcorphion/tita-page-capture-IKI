@@ -71,7 +71,7 @@ export default function Convite({ participant, error, appUrl }) {
     }
 
     const { participant_name, referrer_name, participant_code } = participant;
-    const session_link = `/`; // Redireciona para raiz (funciona em local e Vercel)
+    const session_link = `/tour`; // Link corrigido para a rota de tour da pesquisa de IKIs
 
     let sessionNumber = 1;
     let isWaiting = false;

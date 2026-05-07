@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,10 +11,22 @@
     <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        html, body { background: transparent !important; background-color: transparent !important; color: white; font-family: 'Inter', sans-serif; overflow: hidden; margin: 0; }
-        .font-space { font-family: 'Space Grotesk', sans-serif; }
+        html,
+        body {
+            background: transparent !important;
+            background-color: transparent !important;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            margin: 0;
+        }
+
+        .font-space {
+            font-family: 'Space Grotesk', sans-serif;
+        }
     </style>
 </head>
+
 <body>
     <div id="root"></div>
 
@@ -28,8 +41,8 @@
             const navItems = [
                 { id: 'home', icon: 'home', label: 'Xcorphion Home', detail: 'Início da jornada' },
                 { id: 'mission', icon: 'layers', label: 'Manifesto', detail: 'Nossa visão de IA' },
-                { id: 'deeptech', icon: 'cpu', label: 'Deep Tech', detail: 'Algoritmos Somáticos' },
-                { id: 'news', icon: 'newspaper', label: 'News Feed', detail: 'Atualizações' },
+                { id: 'break-news', icon: 'newspaper', label: 'Break News', detail: 'Artigos Editoriais' },
+                { id: 'research', icon: 'microscope', label: 'Pesquisa', detail: 'Damásio & KeyStrokers' },
             ];
 
             useEffect(() => {
@@ -47,32 +60,56 @@
                 onMouseEnter: () => setIsExpanded(true),
                 onMouseLeave: () => setIsExpanded(false),
                 className: "absolute top-6 bottom-6 left-6 z-[100] flex flex-col pointer-events-auto"
-            }, 
+            },
                 React.createElement(motion.div, {
-                    animate: { 
+                    animate: {
                         width: isExpanded ? 240 : 64,
                         backgroundColor: isExpanded ? 'rgba(15, 5, 5, 0.95)' : 'rgba(255, 255, 255, 0.05)'
                     },
                     transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
-                    className: "h-full flex flex-col items-stretch overflow-hidden backdrop-blur-2xl border border-white/10 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.8)] relative"
-                }, [
+                    className: "h-full flex flex-col items-stretch overflow-hidden backdrop-blur-2xl border border-white/10 rounded-[2rem] shadow-[0_20px_60px_rgba(0,0,0,0.8)] relative"
+                },
                     // Logo
-                    React.createElement("div", { className: "h-20 flex items-center justify-center px-4 overflow-hidden" }, [
+                    React.createElement("div", { key: "logo-container", className: "h-20 flex items-center justify-center px-4 overflow-hidden relative" }, [
+                        // Logo Circular (Retraída)
                         React.createElement(motion.img, {
-                            src: isExpanded ? "Xcorphion.svg" : "ommo.png",
-                            alt: "Logo",
+                            key: "logo-collapsed",
+                            src: "ommo.png",
                             animate: { 
-                                height: isExpanded ? 24 : 32,
-                                width: isExpanded ? "auto" : 32,
-                                opacity: 1,
-                                borderRadius: isExpanded ? "0px" : "8px"
+                                opacity: isExpanded ? 0 : 1,
+                                scale: isExpanded ? 0.6 : 1,
+                                x: isExpanded ? -20 : 0
                             },
-                            transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
-                            className: "max-w-none object-cover"
+                            transition: { duration: 0.4, ease: "easeInOut" },
+                            style: { 
+                                height: 32, 
+                                width: 32, 
+                                borderRadius: "8px", 
+                                objectFit: 'contain',
+                                position: 'absolute'
+                            }
+                        }),
+                        // Logo Extenso (Expandida - Xcorphion)
+                        React.createElement(motion.img, {
+                            key: "logo-expanded",
+                            src: "Xcorphion.svg",
+                            initial: { opacity: 0, scale: 0.8 },
+                            animate: { 
+                                opacity: isExpanded ? 1 : 0,
+                                scale: isExpanded ? 1.1 : 0.8,
+                                x: isExpanded ? 0 : 20
+                            },
+                            transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
+                            style: { 
+                                height: 28, 
+                                width: 150, 
+                                objectFit: 'contain',
+                                position: 'absolute'
+                            }
                         })
                     ]),
                     // Nav Items
-                    React.createElement("div", { className: "flex-1 px-2 mt-8 flex flex-col items-center gap-4" }, 
+                    React.createElement("div", { key: "nav-items-container", className: "flex-1 px-2 mt-8 flex flex-col items-center gap-4" },
                         navItems.map(item => React.createElement("button", {
                             key: item.id,
                             onClick: () => {
@@ -80,36 +117,38 @@
                                 window.parent.postMessage({ type: 'SIDEBAR_NAVIGATE', id: item.id }, '*');
                             },
                             className: `flex items-center transition-all duration-300 relative group h-10 rounded-lg ${isExpanded ? 'w-full px-3' : 'w-10 justify-center'} ${activeItem === item.id ? 'bg-white/10 text-white' : 'text-gray-500 hover:text-white hover:bg-white/5'}`
-                        }, [
-                            // Indicador Ativo Curvado (na borda esquerda do próprio botão)
+                        },
+                            // Indicador Ativo Curvado
                             activeItem === item.id && React.createElement(motion.div, {
+                                key: "activeIndicator",
                                 layoutId: "activeIndicator",
                                 className: "absolute left-0 top-0 bottom-0 w-1 bg-[#8B0000] rounded-l-lg"
                             }),
-                            
-                            React.createElement("div", { className: "flex items-center justify-center min-w-[24px]" }, 
+
+                            React.createElement("div", { key: "icon-wrap", className: "flex items-center justify-center min-w-[24px]" },
                                 React.createElement("i", { "data-lucide": item.icon, className: "w-5 h-5" })
                             ),
-                            
+
                             isExpanded && React.createElement(motion.div, {
+                                key: "label-wrap",
                                 initial: { opacity: 0, x: -10 },
                                 animate: { opacity: 1, x: 0 },
                                 transition: { duration: 0.5, delay: 0.1, ease: [0.22, 1, 0.36, 1] },
                                 className: "ml-4 flex flex-col items-start overflow-hidden"
-                            }, [
-                                React.createElement("span", { className: "text-sm font-medium whitespace-nowrap" }, item.label),
-                                React.createElement("span", { className: "text-[10px] opacity-60 whitespace-nowrap" }, item.detail)
-                            ])
-                        ]))
+                            },
+                                React.createElement("span", { key: "label", className: "text-sm font-medium whitespace-nowrap" }, item.label),
+                                React.createElement("span", { key: "detail", className: "text-[10px] opacity-60 whitespace-nowrap" }, item.detail)
+                            )
+                        ))
                     ),
                     // Footer
-                    React.createElement("div", { className: "p-3 border-t border-white/5" }, 
-                        React.createElement("button", { className: "flex items-center p-3 rounded-2xl text-gray-500 hover:text-white transition-all w-full" }, [
+                    React.createElement("div", { key: "sidebar-footer", className: "p-3 border-t border-white/5" },
+                        React.createElement("button", { className: "flex items-center p-3 rounded-2xl text-gray-500 hover:text-white transition-all w-full" },
                             React.createElement("i", { "data-lucide": "settings", className: "w-5 h-5" }),
                             isExpanded && React.createElement("span", { className: "ml-4 text-sm font-medium" }, "Configurações")
-                        ])
+                        )
                     )
-                ])
+                )
             );
         };
 
@@ -117,4 +156,5 @@
         root.render(React.createElement(SidebarPrototype));
     </script>
 </body>
+
 </html>

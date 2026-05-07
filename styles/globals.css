@@ -1,8 +1,5 @@
 * {
     box-sizing: border-box;
-    background-color: black;
-    color: white;
-    font-family: 'Courier New', Courier, monospace;
 }
 
 body, html {
@@ -10,9 +7,6 @@ body, html {
     padding: 0;
     height: 100%;
     width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
 
 .center-container {

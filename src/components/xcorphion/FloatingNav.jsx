@@ -4,18 +4,34 @@ const initDebug = (moduleName) => console.log(`[DEBUG][INIT] Módulo montado: ${
 const callDebug = (action) => console.log(`[DEBUG][CALL] Ação disparada: ${action}`);
 
 const FloatingNav = () => {
-    // Definimos a largura base do iframe. Quando retraído: ~120px (para caber a sombra). Quando expandido: ~320px.
-    const [iframeWidth, setIframeWidth] = useState('120px');
+    // Definimos a largura base do iframe. Quando retraído: ~160px (para caber a sombra). Quando expandido: ~360px.
+    const [iframeWidth, setIframeWidth] = useState('160px');
 
     useEffect(() => {
         initDebug('FloatingNav (Iframe Orchestrator)');
 
         const handleMessage = (event) => {
             if (event.data?.type === 'SIDEBAR_RESIZE') {
-                setIframeWidth(event.data.isExpanded ? '320px' : '120px');
+                setIframeWidth(event.data.isExpanded ? '360px' : '160px');
             } else if (event.data?.type === 'SIDEBAR_NAVIGATE') {
-                callDebug(`Navegando para: ${event.data.id}`);
-                // Aqui você pode adicionar lógica de roteamento do Next.js se precisar no futuro
+                if (event.data.id === 'research') {
+                    window.location.href = '/research';
+                    return;
+                }
+
+                const sectionMap = {
+                    'home': 'section-hero',
+                    'mission': 'section-manifesto',
+                    'break-news': 'section-breaknews'
+                };
+                
+                const targetId = sectionMap[event.data.id];
+                if (targetId) {
+                    const element = document.getElementById(targetId);
+                    if (element) {
+                        element.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }
             }
         };
 
@@ -34,7 +50,7 @@ const FloatingNav = () => {
                 colorScheme: 'light' // Previne o fundo preto automático do browser
             }}
             className="fixed top-0 left-0 h-screen border-none z-[100] pointer-events-auto bg-transparent"
-            allowTransparency="true"
+            allowtransparency="true"
         />
     );
 };

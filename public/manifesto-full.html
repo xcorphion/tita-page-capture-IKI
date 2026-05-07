@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manifesto Full - Xcorphion</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        html,
+        body {
+            background: transparent !important;
+            background-color: transparent !important;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            margin: 0;
+        }
+
+        .font-space {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .font-inter {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Divisor sutil */
+        .divider-glow {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(139, 0, 0, 0.4), transparent);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <script>
+        const { useState, useEffect } = React;
+        const { motion } = window.Motion;
+
+        // ═══════════════════════════════════════════
+        // DADOS DOS CONCORRENTES
+        // ═══════════════════════════════════════════
+        const benchmarkData = [
+            { name: "Claude Opus 4.7", company: "Anthropic", params: "500B", barWidth: 18,  color: "#8B0000" },
+            { name: "Llama Behemoth",  company: "Meta AI",   params: "2.0T", barWidth: 35,  color: "#8B0000" },
+            { name: "GPT-5.5 Instant", company: "OpenAI",    params: "3.2T", barWidth: 100, color: "#8B0000" },
+            { name: "OMMΩ",            company: "Xcorphion", params: "80B",  barWidth: 3,   color: "#94A3B8" },
+        ];
+
+        // ═══════════════════════════════════════════
+        // COMPONENTE: Linha de Concorrente
+        // ═══════════════════════════════════════════
+        const BenchmarkRow = ({ item, index, isXcorphion }) => {
+            return React.createElement(motion.div, {
+                key: item.name,
+                initial: { opacity: 0, x: -20 },
+                whileInView: { opacity: 1, x: 0 },
+                transition: { duration: 0.5, delay: index * 0.15, ease: [0.22, 1, 0.36, 1] },
+                viewport: { once: true },
+                className: "py-4"
+            }, [
+                // Label do nome
+                React.createElement("div", { key: "label", className: "flex items-center justify-between mb-2" }, [
+                    React.createElement("div", { key: "name-group", className: "flex items-baseline gap-2" }, [
+                        React.createElement("span", { 
+                            key: "name",
+                            className: `font-space font-semibold text-[14px] ${isXcorphion ? 'text-[#C83232]' : 'text-white/70'}` 
+                        }, item.name),
+                        React.createElement("span", { 
+                            key: "company",
+                            className: "text-[11px] text-white/30 font-inter"
+                        }, `(${item.company})`),
+                    ]),
+                    React.createElement("span", { 
+                        key: "params",
+                        className: `font-mono text-[13px] ${isXcorphion ? 'text-[#C83232]' : 'text-white/40'}`
+                    }, item.params),
+                ]),
+
+                // Barra gorda única
+                React.createElement("div", { key: "track", className: "w-full bg-white/5 rounded-[4px]", style: { height: '14px' } },
+                    React.createElement(motion.div, {
+                        initial: { width: 0 },
+                        whileInView: { width: `${item.barWidth}%` },
+                        transition: { duration: 1.4, delay: 0.2 + index * 0.15, ease: [0.22, 1, 0.36, 1] },
+                        viewport: { once: true },
+                        style: { backgroundColor: item.color },
+                        className: "h-full rounded-[4px]"
+                    })
+                )
+            ]);
+        };
+
+        // ═══════════════════════════════════════════
+        // SEÇÃO MANIFESTO
+        // ═══════════════════════════════════════════
+        const ManifestoSection = () => {
+            return React.createElement("section", {
+                className: "w-full relative overflow-hidden",
+                style: { minHeight: '100vh' }
+            }, [
+                // Divisor superior com glow vermelho
+                React.createElement("div", { key: "divider-top", className: "divider-glow w-full" }),
+
+                // Conteúdo Principal — Layout lado a lado
+                React.createElement("div", {
+                    key: "content",
+                    className: "relative z-10 max-w-6xl mx-auto px-8 py-24 flex items-center gap-16",
+                    style: { minHeight: '100vh' }
+                }, [
+                    // COLUNA ESQUERDA — Texto
+                    React.createElement(motion.div, {
+                        key: "left-col",
+                        initial: { opacity: 0, y: 30 },
+                        whileInView: { opacity: 1, y: 0 },
+                        transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] },
+                        viewport: { once: true },
+                        className: "flex-1 flex flex-col items-start"
+                    }, [
+                        // Título principal
+                        React.createElement("h2", {
+                            key: "title",
+                            className: "font-space font-medium text-[56px] leading-[1.1] tracking-tight text-white mb-6"
+                        }, [
+                            "Primeiro launch",
+                            React.createElement("br", { key: "br1" }),
+                            "da Xcorphion"
+                        ]),
+
+                        // Parágrafo
+                        React.createElement("p", {
+                            key: "sub",
+                            className: "font-inter text-[18px] leading-[1.6] text-white/60 max-w-md mb-10"
+                        }, "Construímos o OMMΩ para que em 10 anos nenhum sistema de IA precise perguntar como você está. Ele já saberá pelo modo como você interage com ele."),
+
+                        // Botão Retangular (Rounded 8px)
+                        React.createElement("button", {
+                            key: "btn",
+                            className: "bg-[#8B0000] hover:bg-[#990000] text-white font-inter font-semibold text-[15px] px-8 py-3.5 rounded-[8px] transition-all duration-300 shadow-[0_0_20px_rgba(139,0,0,0.2)] hover:shadow-[0_0_30px_rgba(139,0,0,0.4)] pointer-events-auto"
+                        }, "Conhecer OMMΩ")
+                    ]),
+
+                    // COLUNA DIREITA — Tabela de Concorrentes
+                    React.createElement(motion.div, {
+                        key: "right-col",
+                        initial: { opacity: 0, x: 30 },
+                        whileInView: { opacity: 1, x: 0 },
+                        transition: { duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] },
+                        viewport: { once: true },
+                        className: "flex-1 relative"
+                    }, [
+                        // Título da tabela
+                        React.createElement("div", { key: "table-header", className: "pb-4 border-b border-white/5 mb-2" },
+                            React.createElement("span", { className: "font-inter text-[11px] text-white/25 uppercase tracking-[0.2em]" }, "Concorrentes")
+                        ),
+
+                        // Linhas de dados
+                        ...benchmarkData.map((item, index) =>
+                            React.createElement(BenchmarkRow, {
+                                key: item.name,
+                                item,
+                                index,
+                                isXcorphion: item.company === "Xcorphion"
+                            })
+                        )
+                    ])
+                ])
+            ]);
+        };
+
+        const App = () => {
+            return React.createElement(ManifestoSection, null);
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(React.createElement(App));
+    </script>
+</body>
+
+</html>

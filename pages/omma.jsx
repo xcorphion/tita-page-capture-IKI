@@ -1,6 +1,7 @@
 import Head from 'next/head';
 import Layout from '../src/components/xcorphion/Layout';
 import HeroVideo from '../src/components/xcorphion/HeroVideo';
+import ManifestoOrchestrator from '../src/components/xcorphion/ManifestoOrchestrator';
 
 export default function OmmaPage() {
   return (
@@ -16,6 +17,7 @@ export default function OmmaPage() {
       
       <Layout>
         <HeroVideo />
+        <ManifestoOrchestrator />
       </Layout>
     </>
   );

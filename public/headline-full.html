@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Headline Full - Xcorphion</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        html, body { 
+            background: transparent !important; 
+            background-color: transparent !important; 
+            color: white; 
+            font-family: 'Inter', sans-serif; 
+            overflow: hidden; 
+            margin: 0; 
+        }
+        .font-space { font-family: 'Space Grotesk', sans-serif; }
+        
+        .grid-bg {
+            background-size: 40px 40px;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.15) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.15) 1px, transparent 1px);
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script>
+        const { useState, useEffect } = React;
+        const { motion } = window.Motion;
+
+        const EsquadroGrid = () => {
+            return React.createElement(motion.div, {
+                initial: { opacity: 0 },
+                animate: { opacity: 1 },
+                transition: { duration: 1.5, delay: 0.3 },
+                className: "absolute top-0 right-0 pointer-events-none z-20",
+                style: {
+                    width: '700px',
+                    height: '504px'
+                }
+            }, 
+                React.createElement("div", { 
+                    className: "w-full h-full grid-bg",
+                    style: {
+                        maskImage: 'linear-gradient(to top right, transparent 30%, black 60%)',
+                        WebkitMaskImage: 'linear-gradient(to top right, transparent 30%, black 60%)',
+                    }
+                })
+            );
+        };
+
+        const HeadlinePrototype = () => {
+            return React.createElement(
+                "div",
+                { className: "absolute inset-0 flex items-start justify-end pr-[30px] pt-[30px] pointer-events-none" },
+                React.createElement(
+                    motion.div,
+                    {
+                        initial: { opacity: 0, y: 20 },
+                        animate: { opacity: 1, y: 0 },
+                        transition: { duration: 1, ease: [0.22, 1, 0.36, 1] },
+                        className: "max-w-4xl text-right relative pointer-events-auto"
+                    },
+                    React.createElement(
+                        "h1",
+                        {
+                            className: "font-space font-semibold text-[30px] leading-relaxed tracking-tight text-white/90 drop-shadow-2xl"
+                        },
+                        "Cada modelo que lançarmos será menor,",
+                        React.createElement("br"),
+                        React.createElement("span", { className: "text-[#990000] font-bold [-webkit-text-stroke:0.5px_#990000]" }, "mais eficiente e mais preciso"),
+                        React.createElement("br"),
+                        "que o anterior."
+                    )
+                )
+            );
+        };
+
+        const App = () => {
+            return React.createElement("div", { className: "h-screen w-screen relative overflow-hidden" }, [
+                React.createElement(EsquadroGrid, { key: "esquadro" }),
+                React.createElement("div", { key: "headline", className: "relative z-30 w-full h-full" }, 
+                    React.createElement(HeadlinePrototype, null)
+                )
+            ]);
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(React.createElement(App));
+    </script>
+</body>
+</html>
