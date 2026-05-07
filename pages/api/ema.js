@@ -13,10 +13,10 @@ export default async function handler(req, res) {
             session_id,
             participant_id,
             prompt_index: Number(prompt_index), // #4.3 — required field
-            character_count,
-            valence,
-            arousal,
-            timestamp_rel_ms,   // #12 — from browser, not Date.now()
+            character_count: Number(character_count),
+            valence: Number(valence),
+            arousal: Number(arousal),
+            timestamp_rel_ms: Number(timestamp_rel_ms),   // #12 — from browser, not Date.now()
             created_at: new Date()
         });
         res.json({ ok: true });
