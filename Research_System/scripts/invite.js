@@ -76,7 +76,7 @@ async function main() {
         console.log(`✓ Sessão 1: LIBERADA`);
         console.log(`✓ Sessão 2: AGUARDANDO (requer admin)`);
         console.log(`✓ Sessão 3: AGUARDANDO (requer admin)`);
-        console.log(`Link de convite: ${appUrl}/convite/${code}`);
+        console.log(`Link de convite: ${appUrl}/study/convite/${code}`);
 
     } catch (e) {
         console.error("Erro ao criar participante:", e);

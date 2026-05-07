@@ -52,7 +52,7 @@ export default function ResearchIndex() {
           
           <div className="flex flex-col gap-6">
             {articles.map((article) => (
-              <Link href={`/research/${article.id}`} key={article.id} className="group block p-6 border border-white/5 rounded-2xl bg-white/[0.03] hover:bg-white/[0.08] hover:border-[#990000]/40 transition-all duration-500">
+              <Link href={`/study/${article.id}`} key={article.id} className="group block p-6 border border-white/5 rounded-2xl bg-white/[0.03] hover:bg-white/[0.08] hover:border-[#990000]/40 transition-all duration-500">
                 <article>
                   <div className="flex justify-between items-start mb-2">
                     <h3 className="text-lg font-bold group-hover:text-[#990000] transition-colors leading-tight">

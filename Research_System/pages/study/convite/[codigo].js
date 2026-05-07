@@ -71,7 +71,7 @@ export default function Convite({ participant, error, appUrl }) {
     }
 
     const { participant_name, referrer_name, participant_code } = participant;
-    const session_link = `/research/IKI/${participant_code}`; // Link dinâmico para a unidade de pesquisa IKI
+    const session_link = `/study/IKI/${participant_code}`; // Link dinâmico para a unidade de pesquisa IKI
 
     let sessionNumber = 1;
     let isWaiting = false;
