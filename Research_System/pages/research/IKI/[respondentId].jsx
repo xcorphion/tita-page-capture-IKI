@@ -17,6 +17,7 @@ export default function IKIResearchPage() {
     const [showEnd, setShowEnd] = useState(false);
     const [endStep, setEndStep] = useState('rating');
     const [promptText, setPromptText] = useState('');
+    const [jitterWarning, setJitterWarning] = useState(false);
 
     // ── Refs para Lógica de Coleta ───────────────────────────────────────────
     const sessionIdRef = useRef('');
@@ -128,6 +129,12 @@ export default function IKIResearchPage() {
             sessionStartEpochMsRef.current = data.session_start_epoch_ms;
             sessionStartHighResRef.current = performance.now();
             setPromptText(data.prompt_text);
+
+            if (jitter > 30) {
+                console.warn(`[DEBUG][FIX-7] Jitter Crítico: ${jitter}ms. Ativando aviso.`);
+                setJitterWarning(true);
+            }
+            
             console.log(`[DEBUG][FIX-13] Sessão iniciada ID: ${data.session_id}. Ready for IKI.`);
         } catch (e) { console.error(e); }
     };
@@ -317,6 +324,17 @@ export default function IKIResearchPage() {
                             <p className="text-2xl font-space leading-snug text-white/90">{promptText}</p>
                         </div>
 
+                        {jitterWarning && (
+                            <div className="mb-8 p-4 bg-[#8B0000]/10 border border-[#8B0000]/30 rounded-xl flex items-center gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
+                                <i className="ph ph-warning-circle text-2xl text-[#8B0000]"></i>
+                                <div className="text-sm">
+                                    <p className="font-bold text-[#8B0000] uppercase tracking-tighter mb-1">Instabilidade de Hardware Detectada</p>
+                                    <p className="text-white/60">Seu dispositivo apresenta oscilações de latência. Para resultados acadêmicos precisos, sugerimos trocar para um computador com conexão estável.</p>
+                                </div>
+                                <button onClick={() => setJitterWarning(false)} className="ml-auto text-white/20 hover:text-white"><i className="ph ph-x"></i></button>
+                            </div>
+                        )}
+
                         <textarea
                             ref={writingAreaRef}
                             onKeyDown={handleWritingKey}
@@ -332,11 +350,11 @@ export default function IKIResearchPage() {
                             <div className="fixed inset-0 z-[200] bg-black/95 backdrop-blur-md flex items-center justify-center p-6">
                                 <div className="w-full max-w-sm bg-[#050505] border border-white/10 p-10 rounded-3xl shadow-2xl">
                                     <div className="mb-12">
-                                        <div className="flex justify-between text-[9px] uppercase tracking-widest text-white/40 mb-6"><span>Negativo</span><span>Positivo</span></div>
+                                        <div className="flex justify-between text-[9px] uppercase tracking-widest text-white/40 mb-6"><span>Muito Negativo</span><span>Muito Positivo</span></div>
                                         <input type="range" id="v-slider" min="0" max="100" defaultValue="50" className="w-full h-1 bg-white/10 appearance-none rounded-full accent-white" />
                                     </div>
                                     <div className="mb-14">
-                                        <div className="flex justify-between text-[9px] uppercase tracking-widest text-white/40 mb-6"><span>Calmo</span><span>Agitado</span></div>
+                                        <div className="flex justify-between text-[9px] uppercase tracking-widest text-white/40 mb-6"><span>Muito Calmo</span><span>Muito Agitado</span></div>
                                         <input type="range" id="a-slider" min="0" max="100" defaultValue="50" className="w-full h-1 bg-white/10 appearance-none rounded-full accent-white" />
                                     </div>
                                     <button onClick={handleEmaSubmit} className="w-full py-4 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition-all uppercase tracking-widest text-[10px] font-inter">Continuar</button>
