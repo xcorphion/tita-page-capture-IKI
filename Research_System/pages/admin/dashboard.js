@@ -84,7 +84,7 @@ export default function Dashboard() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 30 }}>
                 <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 300 }}>PIPELINE DE ANÁLISE <span style={{ color: '#7c6fff' }}>IKIs × EMAs</span></h1>
                 <div style={{ display: 'flex', gap: 15 }}>
-                    <button onClick={() => window.location.href = '/api/analysis/export-csv'} className="icon-btn" style={{ fontSize: '0.8rem', padding: '8px 15px' }}>
+                    <button onClick={() => window.location.href = '/study/api/analysis/export-csv'} className="icon-btn" style={{ fontSize: '0.8rem', padding: '8px 15px' }}>
                         EXPORTAR DATASET (CSV)
                     </button>
                     <button onClick={() => fetchData()} className="icon-btn" style={{ fontSize: '0.8rem', padding: '8px 15px', background: '#333' }}>
