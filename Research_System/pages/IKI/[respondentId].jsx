@@ -21,6 +21,7 @@ export default function IKIResearchPage() {
 
     // ── Refs para Lógica de Coleta ───────────────────────────────────────────
     const sessionIdRef = useRef('');
+    const sessionTokenRef = useRef('');
     const sessionStartEpochMsRef = useRef(0);
     const sessionStartHighResRef = useRef(0);
     const eventBufferRef = useRef([]);
@@ -104,6 +105,7 @@ export default function IKIResearchPage() {
                 body: JSON.stringify({
                     session_id: sessionIdRef.current,
                     participant_code: respondentId,
+                    session_token: sessionTokenRef.current,
                     events: batch
                 })
             });
@@ -130,6 +132,7 @@ export default function IKIResearchPage() {
             });
             const data = await res.json();
             sessionIdRef.current = data.session_id;
+            sessionTokenRef.current = data.session_token;
             sessionStartEpochMsRef.current = data.session_start_epoch_ms;
             sessionStartHighResRef.current = performance.now();
             setPromptText(data.prompt_text);
@@ -259,6 +262,7 @@ export default function IKIResearchPage() {
                 body: JSON.stringify({
                     session_id: sessionIdRef.current,
                     participant_code: respondentId,
+                    session_token: sessionTokenRef.current,
                     character_count: charCount,
                     valence: v, arousal: a, timestamp_rel_ms: rel_ts,
                     prompt_index: currentPromptIndexRef.current
@@ -288,6 +292,7 @@ export default function IKIResearchPage() {
                 body: JSON.stringify({
                     session_id: sessionIdRef.current,
                     participant_code: respondentId,
+                    session_token: sessionTokenRef.current,
                     engagement_rating: pendingRatingRef.current,
                     engagement_genuine: genuine,
                     text_final: writingAreaRef.current?.value || ''

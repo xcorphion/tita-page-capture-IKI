@@ -1,4 +1,15 @@
 import { connectToDatabase } from '@xcorphion/shared';
+import { checkAdminAuth } from '../../../lib/adminAuth';
+
+function sanitizeHtml(html) {
+    if (typeof html !== 'string') return '';
+    return html
+        .replace(/<script[\s\S]*?<\/script>/gi, '')
+        .replace(/<iframe[\s\S]*?<\/iframe>/gi, '')
+        .replace(/<(object|embed|link|meta|base)[^>]*\/?>/gi, '')
+        .replace(/\son\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '')
+        .replace(/href\s*=\s*["']\s*javascript:[^"']*/gi, 'href="#"');
+}
 
 export default async function handler(req, res) {
     const db = await connectToDatabase('platform');
@@ -27,6 +38,7 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'PUT') {
+        if (!checkAdminAuth(req, res)) return;
         try {
             const body = req.body;
             if (!body || typeof body !== 'object') {
@@ -39,7 +51,7 @@ export default async function handler(req, res) {
             if (typeof body.card_title === 'string' && body.card_title.trim().length > 0) updateFields.card_title = body.card_title.trim();
             if (typeof body.card_legend === 'string') updateFields.card_legend = body.card_legend.trim();
             if (typeof body.card_image === 'string') updateFields.card_image = body.card_image.trim();
-            if (typeof body.article_content === 'string') updateFields.article_content = body.article_content;
+            if (typeof body.article_content === 'string') updateFields.article_content = sanitizeHtml(body.article_content);
             if (typeof body.author === 'string') updateFields.author = body.author.trim();
             if (Array.isArray(body.sources)) updateFields.sources = body.sources.filter(s => typeof s === 'string');
 
@@ -62,6 +74,7 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'DELETE') {
+        if (!checkAdminAuth(req, res)) return;
         try {
             const result = await collection.deleteOne({ custom_id: id });
             

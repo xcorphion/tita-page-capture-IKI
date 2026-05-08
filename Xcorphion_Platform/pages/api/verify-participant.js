@@ -1,12 +1,18 @@
 import { connectToDatabase } from '@xcorphion/shared';
+import { rateLimit } from '../../lib/rateLimit';
+
+const CODE_RE = /^[A-Z0-9]{1,20}$/;
 
 export default async function handler(req, res) {
   if (req.method !== 'GET')
     return res.status(405).json({ eligible: false, error: 'Method Not Allowed' });
 
+  if (rateLimit(req, { max: 20, windowMs: 60_000 }))
+    return res.status(429).json({ eligible: false, reason: 'rate_limited' });
+
   const code = typeof req.query.code === 'string' ? req.query.code.trim().toUpperCase() : '';
 
-  if (!code)
+  if (!code || !CODE_RE.test(code))
     return res.status(400).json({ eligible: false, reason: 'no_code' });
 
   try {

@@ -5,32 +5,34 @@ const features = [
   {
     id: '01',
     title: 'KEYSTROKE DYNAMICS',
-    description: 'Analisa velocidade, ritmo e pausas na digitação. Cada hesitação conta. Cada aceleração revela.'
+    description: 'Analisa a distribuição estatística dos intervalos entre teclas. O ritmo da sua digitação carrega informação somática que o conteúdo não revela.'
   },
   {
     id: '02',
-    title: 'MARCADORES SOMÁTICOS',
-    description: 'Framework neurocientífico de Damásio integrado ao pipeline de inferência. Emoção como dado.'
+    title: 'VALÊNCIA × AROUSAL',
+    description: 'Mede estado afetivo usando o Circumplex Model de Russell — dois eixos contínuos em vez de rótulos discretos de emoção. A linguagem da afetividade, não das emoções.'
   },
   {
     id: '03',
-    title: 'VOZ BIDIRECIONAL',
-    description: 'Recebe e emite áudio. Lê prosódia, cadência e tensão emocional na fala em tempo real.'
+    title: 'ESTADO CONTÍNUO',
+    description: 'Não avalia momentos isolados. Constrói representação do estado ao longo de toda a sessão — antes, durante e depois de cada hesitação.'
   },
   {
     id: '04',
-    title: 'ESTADO CONTÍNUO',
-    description: 'Não avalia momentos isolados. Constrói um mapa emocional ao longo de toda a conversa.'
+    title: 'MODELO WITHIN-PERSON',
+    description: 'Cada representação é personalizada. OMMΩ aprende o padrão individual do usuário, não compara com uma população genérica.'
   },
   {
     id: '05',
     title: 'API AFETIVA',
-    description: 'Exponha inteligência emocional via API REST. System prompt customizável. Fine-tuning futuro.'
+    description: 'Acesso programático ao núcleo somático do OMMΩ via API REST.',
+    status: 'em desenvolvimento'
   },
   {
     id: '06',
     title: 'WHITE LABEL',
-    description: 'Plataforma própria ou integração silenciosa. OMMA como motor invisível da sua aplicação.'
+    description: 'Capacidades somáticas completas sob sua marca. OMMΩ como motor invisível da sua aplicação.',
+    status: 'em breve'
   }
 ];
 
@@ -70,6 +72,11 @@ const Features = () => {
               <p className="font-inter text-sm text-text-muted leading-relaxed">
                 {feature.description}
               </p>
+              {feature.status && (
+                <span className="inline-block mt-4 font-inter text-[10px] uppercase tracking-[0.1em] px-2 py-1 rounded" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.28)' }}>
+                  {feature.status}
+                </span>
+              )}
             </motion.div>
           ))}
         </div>

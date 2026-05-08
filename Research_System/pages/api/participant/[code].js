@@ -1,9 +1,19 @@
 import { connectToDatabase } from '@xcorphion/shared';
 import { hashParticipantId, hashFingerprint, extractIp } from '../../../lib/participant';
+import { rateLimit } from '../../../lib/rateLimit';
 import geoip from 'geoip-lite';
 
+const CODE_RE = /^[A-Z0-9]{1,20}$/;
+
 export default async function handler(req, res) {
-    const { code } = req.query;
+    if (rateLimit(req, { max: 20, windowMs: 60_000 }))
+        return res.status(429).json({ error: 'Muitas requisições. Aguarde um momento.' });
+
+    const raw = typeof req.query.code === 'string' ? req.query.code.trim().toUpperCase() : '';
+    if (!CODE_RE.test(raw))
+        return res.status(400).json({ error: 'Código inválido.' });
+    const code = raw;
+
     const db = await connectToDatabase();
     const participants = db.collection('participants');
     const participant_id = hashParticipantId(code);
@@ -12,6 +22,10 @@ export default async function handler(req, res) {
     if (req.method === 'POST') {
         const { wpm_baseline, device_profile } = req.body;
         try {
+            const existing = await participants.findOne({ participant_id });
+            if (existing?.onboarding_complete)
+                return res.status(409).json({ error: 'Onboarding já concluído.' });
+
             const fingerprint_hash = hashFingerprint(device_profile);
             const geo = (ip && ip !== 'unknown') ? (geoip.lookup(ip) || null) : null;
 

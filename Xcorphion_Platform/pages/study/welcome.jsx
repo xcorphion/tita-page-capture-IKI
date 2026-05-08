@@ -177,7 +177,7 @@ export default function StudyWelcome() {
 
         <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', padding: '20px 40px', display: 'flex', justifyContent: 'center' }}>
           <span style={{ fontFamily: F.inter, fontSize: 11, color: 'rgba(255,255,255,0.12)' }}>
-            © 2025 Xcorphion Corporation
+            © 2026 Xcorphion Corporation
           </span>
         </div>
       </div>

@@ -1,8 +1,12 @@
 import { connectToDatabase } from '@xcorphion/shared';
+import { rateLimit } from '../../lib/rateLimit';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST')
     return res.status(405).json({ success: false, error: 'Method Not Allowed' });
+
+  if (rateLimit(req, { max: 10, windowMs: 60 * 60_000 }))
+    return res.status(429).json({ success: false, error: 'Muitas requisições. Aguarde.' });
 
   const { email, participant_code } = req.body || {};
 

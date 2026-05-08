@@ -31,7 +31,7 @@ const HeroContent = () => {
       >
         <motion.div variants={item} className="mb-8">
           <span className="inline-block px-4 py-1 border border-accent-1 bg-accent-1/10 rounded-full font-inter text-[10px] text-accent-hot tracking-[0.2em] uppercase animate-pulse">
-            TITAN Family · Research Preview
+            TITAN Family · Research Phase
           </span>
         </motion.div>
 
@@ -39,14 +39,14 @@ const HeroContent = () => {
           variants={item}
           className="font-space font-extrabold text-5xl md:text-8xl text-text-primary leading-[0.92] tracking-[-0.035em] mb-8"
         >
-          The first mind<br />that sees yours.
+          The first mind<br />that reads how you think.
         </motion.h1>
 
         <motion.p 
           variants={item}
           className="font-inter text-lg md:text-xl text-text-muted max-w-[500px] mx-auto leading-relaxed mb-12"
         >
-          OMMA reads what you feel while you think. Keystroke patterns. Voice. Language. Emotion — decoded.
+          OMMΩ estimates your emotional state through how you type — not what you type. Keystroke rhythm. Continuous affect. No forms.
         </motion.p>
 
         <motion.div variants={item} className="flex flex-col md:flex-row gap-4 justify-center">
@@ -68,11 +68,11 @@ const HeroContent = () => {
         transition={{ delay: 1.5, duration: 1 }}
         className="absolute bottom-10 w-full flex flex-wrap justify-center gap-x-8 gap-y-4 px-6 font-inter text-[10px] text-text-dim tracking-widest uppercase"
       >
-        <span>5M Parameters</span>
+        <span>~10M Parameters</span>
         <span className="hidden md:inline">·</span>
-        <span>Emotional State Recognition</span>
+        <span>Keystroke Dynamics</span>
         <span className="hidden md:inline">·</span>
-        <span>Beta 2026</span>
+        <span>Beta 2027</span>
       </motion.div>
 
       <motion.div 

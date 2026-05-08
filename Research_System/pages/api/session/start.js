@@ -1,9 +1,13 @@
 import { connectToDatabase } from '@xcorphion/shared';
 import { randomUUID } from 'crypto';
 import { hashParticipantId, hashFingerprint, extractIp } from '../../../lib/participant';
+import { generateSessionToken } from '../../../lib/sessionAuth';
+import { rateLimit } from '../../../lib/rateLimit';
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).end();
+    if (rateLimit(req, { max: 10, windowMs: 10 * 60_000 }))
+        return res.status(429).json({ error: 'Muitas requisições. Aguarde antes de tentar novamente.' });
     const { participant_code, prompt_id, jitter_benchmark_ms, device_profile } = req.body;
     const participant_id = hashParticipantId(participant_code);
     const sessionId = randomUUID();
@@ -40,18 +44,20 @@ export default async function handler(req, res) {
             }
         }
 
+        const { token, hash: token_hash } = generateSessionToken();
+
         await db.collection('sessions').insertOne({
             session_id: sessionId,
             participant_id,
             prompt_id,
             session_start_epoch_ms: sessionStartEpochMs,
-            // #5 — jitter_benchmark_ms arrives from real microbenchmark, not hardcoded 0
             jitter_benchmark_ms: jitter_benchmark_ms !== undefined ? Number(jitter_benchmark_ms) : null,
+            token_hash,   // SHA-256 do token — plaintext nunca persiste
             status: 'started',
             created_at: new Date()
         });
 
-        res.json({ session_id: sessionId, session_start_epoch_ms: sessionStartEpochMs, prompt_text: promptText });
+        res.json({ session_id: sessionId, session_start_epoch_ms: sessionStartEpochMs, prompt_text: promptText, session_token: token });
     } catch (e) {
         console.error(e);
         res.status(500).json({ error: 'Failed to start session' });

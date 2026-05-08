@@ -57,76 +57,114 @@
                 titleLine2: "da Xcorphion",
                 desc: "Construímos o OMMΩ para que em 10 anos nenhum sistema de IA precise perguntar como você está. Ele já saberá pelo modo como você interage com ele.",
                 cta: "Conhecer OMMΩ",
-                competitors: "Concorrentes"
+                frameLabel: "O que os LLMs medem — e o que OMMΩ mede",
+                frameLine1: "LLMs como Claude, GPT e Llama processam o que você escreve.",
+                frameLine2: "OMMΩ estima o estado afetivo de quem escreve.",
+                frameLine3: "São dimensões complementares. Em abril de 2026, a Anthropic publicou evidências de representações emocionais internas em LLMs. OMMΩ é o lado externo desse mesmo fenômeno.",
+                frameNote: "Emotion concepts and their function in a LLM — Anthropic, Abril 2026"
             },
             en: {
                 titleLine1: "First launch",
                 titleLine2: "by Xcorphion",
                 desc: "We built OMMΩ so that in 10 years no AI system needs to ask how you're doing. It will already know by the way you interact with it.",
                 cta: "Meet OMMΩ",
-                competitors: "Competitors"
+                frameLabel: "What LLMs measure — and what OMMΩ measures",
+                frameLine1: "LLMs like Claude, GPT, and Llama process what you write.",
+                frameLine2: "OMMΩ estimates the affective state of the person writing.",
+                frameLine3: "These are complementary dimensions. In April 2026, Anthropic published evidence of internal emotional representations in LLMs. OMMΩ is the external side of that same phenomenon.",
+                frameNote: "Emotion concepts and their function in a LLM — Anthropic, April 2026"
             },
             es: {
                 titleLine1: "Primer lanzamiento",
                 titleLine2: "de Xcorphion",
                 desc: "Construimos OMMΩ para que en 10 años ningún sistema de IA necesite preguntar cómo estás. Ya lo sabrá por la forma en que interactúas con él.",
                 cta: "Conocer OMMΩ",
-                competitors: "Competidores"
+                frameLabel: "Lo que miden los LLMs — y lo que mide OMMΩ",
+                frameLine1: "Los LLMs como Claude, GPT y Llama procesan lo que escribes.",
+                frameLine2: "OMMΩ estima el estado afectivo de quien escribe.",
+                frameLine3: "Son dimensiones complementarias. En abril de 2026, Anthropic publicó evidencias de representaciones emocionales internas en LLMs. OMMΩ es el lado externo de ese mismo fenómeno.",
+                frameNote: "Emotion concepts and their function in a LLM — Anthropic, Abril 2026"
             }
         };
         const mt = MT[lang] || MT.pt;
 
         // ═══════════════════════════════════════════
-        // DADOS DOS CONCORRENTES
+        // COMPONENTE: Frame de diferenciação
         // ═══════════════════════════════════════════
-        const benchmarkData = [
-            { name: "Claude Opus 4.7", company: "Anthropic", params: "500B", barWidth: 18,  color: "#8B0000" },
-            { name: "Llama Behemoth",  company: "Meta AI",   params: "2.0T", barWidth: 35,  color: "#8B0000" },
-            { name: "GPT-5.5 Instant", company: "OpenAI",    params: "3.2T", barWidth: 100, color: "#8B0000" },
-            { name: "OMMΩ",            company: "Xcorphion", params: "??B",  barWidth: 3,   color: "#94A3B8" },
-        ];
-
-        // ═══════════════════════════════════════════
-        // COMPONENTE: Linha de Concorrente
-        // ═══════════════════════════════════════════
-        const BenchmarkRow = ({ item, index, isXcorphion }) => {
+        const DifferentiationFrame = () => {
             return React.createElement(motion.div, {
-                key: item.name,
-                initial: { opacity: 0, x: -20 },
+                initial: { opacity: 0, x: 30 },
                 whileInView: { opacity: 1, x: 0 },
-                transition: { duration: 0.5, delay: index * 0.15, ease: [0.22, 1, 0.36, 1] },
+                transition: { duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] },
                 viewport: { once: true },
-                className: "py-4"
+                style: {
+                    border: '1px solid rgba(255,255,255,0.08)',
+                    borderRadius: '12px',
+                    padding: '32px',
+                    background: 'rgba(255,255,255,0.02)'
+                }
             }, [
-                // Label do nome
-                React.createElement("div", { key: "label", className: "flex items-center justify-between mb-2" }, [
-                    React.createElement("div", { key: "name-group", className: "flex items-baseline gap-2" }, [
-                        React.createElement("span", { 
-                            key: "name",
-                            className: `font-space font-semibold text-[14px] ${isXcorphion ? 'text-[#C83232]' : 'text-white/70'}` 
-                        }, item.name),
-                        React.createElement("span", { 
-                            key: "company",
-                            className: "text-[11px] text-white/30 font-inter"
-                        }, `(${item.company})`),
-                    ]),
-                    React.createElement("span", { 
-                        key: "params",
-                        className: `font-mono text-[13px] ${isXcorphion ? 'text-[#C83232]' : 'text-white/40'}`
-                    }, item.params),
-                ]),
+                React.createElement("span", {
+                    key: "label",
+                    style: {
+                        display: 'block',
+                        fontFamily: 'Inter, sans-serif',
+                        fontSize: '10px',
+                        color: 'rgba(255,255,255,0.25)',
+                        letterSpacing: '0.18em',
+                        textTransform: 'uppercase',
+                        marginBottom: '24px'
+                    }
+                }, mt.frameLabel),
 
-                // Barra gorda única
-                React.createElement("div", { key: "track", className: "w-full bg-white/5 rounded-[4px]", style: { height: '14px' } },
-                    React.createElement(motion.div, {
-                        initial: { width: 0 },
-                        whileInView: { width: `${item.barWidth}%` },
-                        transition: { duration: 1.4, delay: 0.2 + index * 0.15, ease: [0.22, 1, 0.36, 1] },
-                        viewport: { once: true },
-                        style: { backgroundColor: item.color },
-                        className: "h-full rounded-[4px]"
-                    })
-                )
+                React.createElement("p", {
+                    key: "line1",
+                    style: {
+                        fontFamily: 'Inter, sans-serif',
+                        fontSize: '15px',
+                        color: 'rgba(255,255,255,0.5)',
+                        lineHeight: '1.65',
+                        margin: '0 0 12px'
+                    }
+                }, mt.frameLine1),
+
+                React.createElement("p", {
+                    key: "line2",
+                    style: {
+                        fontFamily: 'Space Grotesk, sans-serif',
+                        fontSize: '17px',
+                        fontWeight: '600',
+                        color: 'white',
+                        lineHeight: '1.5',
+                        margin: '0 0 20px'
+                    }
+                }, mt.frameLine2),
+
+                React.createElement("div", {
+                    key: "divider",
+                    style: { height: '1px', background: 'rgba(255,255,255,0.06)', margin: '0 0 20px' }
+                }),
+
+                React.createElement("p", {
+                    key: "line3",
+                    style: {
+                        fontFamily: 'Inter, sans-serif',
+                        fontSize: '13px',
+                        color: 'rgba(255,255,255,0.4)',
+                        lineHeight: '1.7',
+                        margin: '0 0 16px'
+                    }
+                }, mt.frameLine3),
+
+                React.createElement("span", {
+                    key: "note",
+                    style: {
+                        fontFamily: 'JetBrains Mono, monospace',
+                        fontSize: '10px',
+                        color: 'rgba(139,0,0,0.7)',
+                        letterSpacing: '0.04em'
+                    }
+                }, `↳ ${mt.frameNote}`)
             ]);
         };
 
@@ -180,30 +218,13 @@
                         }, mt.cta)
                     ]),
 
-                    // COLUNA DIREITA — Tabela de Concorrentes
-                    React.createElement(motion.div, {
+                    // COLUNA DIREITA — Frame de diferenciação
+                    React.createElement("div", {
                         key: "right-col",
-                        initial: { opacity: 0, x: 30 },
-                        whileInView: { opacity: 1, x: 0 },
-                        transition: { duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] },
-                        viewport: { once: true },
                         className: "flex-1 relative"
-                    }, [
-                        // Título da tabela
-                        React.createElement("div", { key: "table-header", className: "pb-4 border-b border-white/5 mb-2" },
-                            React.createElement("span", { className: "font-inter text-[11px] text-white/25 uppercase tracking-[0.2em]" }, mt.competitors)
-                        ),
-
-                        // Linhas de dados
-                        ...benchmarkData.map((item, index) =>
-                            React.createElement(BenchmarkRow, {
-                                key: item.name,
-                                item,
-                                index,
-                                isXcorphion: item.company === "Xcorphion"
-                            })
-                        )
-                    ])
+                    },
+                        React.createElement(DifferentiationFrame, { key: "diff-frame" })
+                    )
                 ])
             ]);
         };

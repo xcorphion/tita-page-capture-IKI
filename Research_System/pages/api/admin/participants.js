@@ -1,23 +1,18 @@
 import { connectToDatabase } from '@xcorphion/shared';
 import geoip from 'geoip-lite';
+import { checkAdminAuth } from '../../../lib/adminAuth';
 
 export default async function handler(req, res) {
-    const password = (req.headers['x-admin-password'] || req.headers.authorization || req.body?.password || '').trim();
-    const envPassword = (process.env.ADMIN_PASSWORD || '').trim();
-
-    if (!envPassword) {
-        return res.status(500).json({ error: 'Erro de Configuração: A variável ADMIN_PASSWORD não está definida.' });
-    }
-    if (password !== envPassword) {
-        return res.status(401).json({ error: 'Senha incorreta' });
-    }
+    if (!checkAdminAuth(req, res)) return;
 
     const db = await connectToDatabase();
     const participants = db.collection('participants');
 
     if (req.method === 'GET') {
         try {
-            const list = await participants.find({}).sort({ created_at: -1 }).toArray();
+            const list = await participants.find({})
+                .project({ device_profile: 0, contact_email: 0 })
+                .sort({ created_at: -1 }).toArray();
             return res.json({ participants: list });
         } catch (e) {
             console.error(e);

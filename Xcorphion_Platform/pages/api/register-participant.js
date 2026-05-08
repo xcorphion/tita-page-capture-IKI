@@ -1,22 +1,27 @@
 import { connectToDatabase } from '@xcorphion/shared';
 import crypto from 'crypto';
+import { rateLimit } from '../../lib/rateLimit';
 
 function generateCode() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // sem O, 0, I, 1
   let code = '';
-  for (let i = 0; i < 5; i++)
-    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  for (let i = 0; i < 8; i++)
+    code += chars.charAt(crypto.randomInt(0, chars.length)); // CSPRNG — não Math.random()
   return code;
 }
 
 function hashParticipantId(code) {
-  const salt = process.env.PARTICIPANT_SALT || 'titã-somatic-transformer-2026';
+  const salt = process.env.PARTICIPANT_SALT;
+  if (!salt) throw new Error('PARTICIPANT_SALT não configurado.');
   return crypto.createHash('sha256').update(code + salt).digest('hex');
 }
 
 export default async function handler(req, res) {
   if (req.method !== 'POST')
     return res.status(405).json({ success: false, error: 'Method Not Allowed' });
+
+  if (rateLimit(req, { max: 5, windowMs: 10 * 60_000 }))
+    return res.status(429).json({ success: false, error: 'Muitas requisições. Aguarde antes de tentar novamente.' });
 
   const { participant_name } = req.body || {};
 

@@ -1,13 +1,20 @@
 import { connectToDatabase } from '@xcorphion/shared';
 import { hashParticipantId } from '../../../lib/participant';
+import { validateSessionToken } from '../../../lib/sessionAuth';
+
+const MAX_BATCH = 200;
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).end();
-    const { session_id, participant_code, events } = req.body;
+    const { session_id, participant_code, session_token, events } = req.body;
     const participant_id = hashParticipantId(participant_code);
     if (!events || events.length === 0) return res.json({ received: 0 });
+    if (events.length > MAX_BATCH)
+        return res.status(400).json({ error: `Batch excede o limite de ${MAX_BATCH} eventos.` });
     try {
         const db = await connectToDatabase();
+        if (!await validateSessionToken(db, session_id, session_token))
+            return res.status(401).json({ error: 'Token de sessão inválido.' });
         const eventsCol = db.collection('events');
 
         // #11 — schema includes timestamp_abs_ms and event_repeat

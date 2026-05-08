@@ -1,11 +1,10 @@
 
 import { connectToDatabase } from '@xcorphion/shared';
 import { format } from 'd3-dsv';
+import { checkAdminAuth } from '../../lib/adminAuth';
 
 export default async function handler(req, res) {
-    const password = (req.headers['x-admin-password'] || req.headers.authorization || req.query?.pwd || '').trim();
-    const envPassword = (process.env.ADMIN_PASSWORD || '').trim();
-    if (password !== envPassword) return res.status(401).json({ error: 'Senha incorreta' });
+    if (!checkAdminAuth(req, res)) return;
 
     if (req.method !== 'GET') return res.status(405).end();
 
@@ -13,7 +12,7 @@ export default async function handler(req, res) {
         const db = await connectToDatabase();
         
         // Buscar todos os eventos e sessões
-        const sessions = await db.collection('sessions').find({ status: 'completed' }).toArray();
+        const sessions = await db.collection('sessions').find({ status: 'completed' }).limit(500).toArray();
         const sessionIds = sessions.map(s => s.session_id);
         
         const allEvents = await db.collection('events')

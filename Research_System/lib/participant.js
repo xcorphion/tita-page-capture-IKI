@@ -1,7 +1,8 @@
 import crypto from 'crypto';
 
 export function hashParticipantId(code) {
-    const salt = process.env.PARTICIPANT_SALT || 'titã-somatic-transformer-2026';
+    const salt = process.env.PARTICIPANT_SALT;
+    if (!salt) throw new Error('PARTICIPANT_SALT não configurado.');
     return crypto.createHash('sha256').update(code + salt).digest('hex');
 }
 

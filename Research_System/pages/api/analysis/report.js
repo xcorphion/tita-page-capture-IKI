@@ -1,10 +1,9 @@
 
 import { connectToDatabase, getPearsonCorrelation, getCohensD, getTerciles } from '@xcorphion/shared';
+import { checkAdminAuth } from '../../lib/adminAuth';
 
 export default async function handler(req, res) {
-    const password = (req.headers['x-admin-password'] || req.headers.authorization || '').trim();
-    const envPassword = (process.env.ADMIN_PASSWORD || '').trim();
-    if (password !== envPassword) return res.status(401).json({ error: 'Senha incorreta' });
+    if (!checkAdminAuth(req, res)) return;
 
     if (req.method !== 'GET') return res.status(405).end();
     const { session_id } = req.query; // Se fornecido, foca no gráfico lognormal e timeline dessa sessão
@@ -16,6 +15,7 @@ export default async function handler(req, res) {
         const sessions = await db.collection('sessions')
             .find({ status: 'completed' })
             .sort({ completed_at: 1 })
+            .limit(1000)
             .toArray();
 
         if (sessions.length === 0) return res.json({ error: 'Nenhuma sessão concluída encontrada.' });

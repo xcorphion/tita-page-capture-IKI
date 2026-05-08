@@ -1,4 +1,16 @@
 import { connectToDatabase } from '@xcorphion/shared';
+import { checkAdminAuth } from '../../../lib/adminAuth';
+import { randomUUID } from 'crypto';
+
+function sanitizeHtml(html) {
+    if (typeof html !== 'string') return '';
+    return html
+        .replace(/<script[\s\S]*?<\/script>/gi, '')
+        .replace(/<iframe[\s\S]*?<\/iframe>/gi, '')
+        .replace(/<(object|embed|link|meta|base)[^>]*\/?>/gi, '')
+        .replace(/\son\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '')
+        .replace(/href\s*=\s*["']\s*javascript:[^"']*/gi, 'href="#"');
+}
 
 export default async function handler(req, res) {
     const db = await connectToDatabase('platform');
@@ -20,6 +32,7 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'POST') {
+        if (!checkAdminAuth(req, res)) return;
         try {
             const body = req.body;
             
@@ -36,11 +49,11 @@ export default async function handler(req, res) {
 
             // Sanitização básica implícita via estruturação explícita (Evita Mass Assignment - OWASP API6)
             const newArticle = {
-                custom_id: customId || crypto.randomUUID(),
+                custom_id: customId || randomUUID(),
                 card_title: card_title.trim(),
                 card_legend: typeof card_legend === 'string' ? card_legend.trim() : '',
                 card_image: typeof card_image === 'string' ? card_image.trim() : '',
-                article_content: typeof article_content === 'string' ? article_content : '',
+                article_content: sanitizeHtml(article_content),
                 author: typeof author === 'string' ? author.trim() : 'Admin',
                 sources: Array.isArray(sources) ? sources.filter(s => typeof s === 'string') : [],
                 published_at: new Date()

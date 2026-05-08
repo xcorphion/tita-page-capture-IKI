@@ -1,13 +1,16 @@
 import { connectToDatabase } from '@xcorphion/shared';
-
-// Simple token check — set UNLOCK_SECRET in .env
-const UNLOCK_SECRET = process.env.UNLOCK_SECRET || 'tita-admin';
+import crypto from 'crypto';
+import { rateLimit } from '../../../lib/rateLimit';
+import { checkAdminAuth } from '../../../lib/adminAuth';
 
 export default async function handler(req, res) {
+    if (rateLimit(req, { max: 10, windowMs: 5 * 60_000 }))
+        return res.status(429).json({ error: 'Muitas tentativas. Aguarde.' });
+
     const { code } = req.query;
 
     if (req.method === 'GET') {
-        // Return lock status for this participant
+        if (!checkAdminAuth(req, res)) return;
         try {
             const db = await connectToDatabase();
             const doc = await db.collection('participants').findOne({ participant_id: code });
@@ -25,7 +28,13 @@ export default async function handler(req, res) {
 
     if (req.method === 'POST') {
         const { secret } = req.body || {};
-        if (secret !== UNLOCK_SECRET) return res.status(403).json({ error: 'Forbidden' });
+        const expected = process.env.UNLOCK_SECRET || '';
+        if (!expected) return res.status(500).json({ error: 'UNLOCK_SECRET não configurado.' });
+        const provided = typeof secret === 'string' ? secret : '';
+        const a = Buffer.from(provided);
+        const b = Buffer.from(expected);
+        const valid = a.length === b.length && crypto.timingSafeEqual(a, b);
+        if (!valid) return res.status(403).json({ error: 'Forbidden' });
         try {
             const db = await connectToDatabase();
             const result = await db.collection('participants').updateOne(

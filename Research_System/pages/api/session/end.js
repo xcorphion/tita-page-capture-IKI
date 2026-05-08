@@ -1,16 +1,25 @@
 import { connectToDatabase } from '@xcorphion/shared';
 import { hashParticipantId } from '../../../lib/participant';
+import { validateSessionToken } from '../../../lib/sessionAuth';
+
+const MAX_TEXT = 20_000;
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).end();
-    // #2  — engagement_rating is integer 1–5, not boolean
-    // #15 — engagement_genuine is boolean (separate binary question)
-    const { session_id, participant_code, engagement_rating, engagement_genuine, text_final } = req.body;
+    const { session_id, participant_code, session_token, engagement_rating, engagement_genuine, text_final } = req.body;
+    if (typeof text_final === 'string' && text_final.length > MAX_TEXT)
+        return res.status(400).json({ error: 'Texto excede o tamanho máximo permitido.' });
+    const rating = Number(engagement_rating);
+    if (!Number.isInteger(rating) || rating < 1 || rating > 5)
+        return res.status(400).json({ error: 'engagement_rating deve ser um inteiro entre 1 e 5.' });
     const participant_id = hashParticipantId(participant_code);
 
     try {
-        console.log(`[SessionEnd] Iniciando fim de sessão para ${session_id}`);
+        const sid = session_id?.slice(0, 8);
+        console.log(`[SessionEnd] Iniciando fim de sessão para ${sid}…`);
         const db = await connectToDatabase();
+        if (!await validateSessionToken(db, session_id, session_token))
+            return res.status(401).json({ error: 'Token de sessão inválido.' });
 
         // #19 — normalizer_params gravado por sessão (iki_log_mean, iki_log_std)
         const allEvents = await db.collection('events')
@@ -64,19 +73,19 @@ export default async function handler(req, res) {
             }
         );
 
-        console.log(`[SessionEnd] Update sessions: matched=${sessionUpdate.matchedCount}, modified=${sessionUpdate.modifiedCount}`);
+        console.log(`[SessionEnd] Update sessions sid=${sid}: matched=${sessionUpdate.matchedCount}, modified=${sessionUpdate.modifiedCount}`);
 
         // Retrieve current sessions count before increment to decide if this is session 1's end
         const participant = await db.collection('participants').findOne({ participant_id });
         if (!participant) {
-            console.error(`[SessionEnd] Participante ${participant_id} não encontrado!`);
+            console.error(`[SessionEnd] Participante não encontrado (pid=${participant_id?.slice(0, 8)}…)`);
             // Se não encontrar pelo hash, tenta buscar pelo código plano se disponível
             // Mas o ideal é que o hash funcione.
         }
         
         const sessionsBeforeEnd = participant?.sessions_completed || 0;
         const currentSession = sessionsBeforeEnd + 1; // 1, 2, or 3
-        console.log(`[SessionEnd] Participante: ${participant_id}, Sessões antes: ${sessionsBeforeEnd}, Sessão atual: ${currentSession}`);
+        console.log(`[SessionEnd] pid=${participant_id?.slice(0, 8)}… sessões antes=${sessionsBeforeEnd} atual=${currentSession}`);
 
         const participantUpdate = { 
             $inc: { sessions_completed: 1 },

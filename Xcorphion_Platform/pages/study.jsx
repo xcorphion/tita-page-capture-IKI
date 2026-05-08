@@ -233,7 +233,7 @@ export default function StudyPage() {
               Esse ritmo varia com seu estado interno: quando você está concentrado, o padrão é diferente de quando está ansioso, cansado ou no fluxo. O IKI é, em certo sentido, um sinal somático involuntário — uma janela para o estado fisiológico que normalmente fica escondido atrás do texto.
             </P>
             <P>
-              A hipótese central da pesquisa, baseada no trabalho de Antônio Damásio sobre marcadores somáticos, é que esse padrão pode ser capturado, normalizado e usado como contexto em sistemas de IA — sem nenhum dado de conteúdo ou identidade.
+              A hipótese central da pesquisa, apoiada no Circumplex Model of Affect de James Russell, na tradição de Affective Computing de Rosalind Picard e na Hipótese do Marcador Somático de Antônio Damásio como motivação filosófica, é que esse padrão pode ser capturado, normalizado e usado como contexto em sistemas de IA — sem nenhum dado de conteúdo ou identidade.
             </P>
           </Section>
 
@@ -385,7 +385,7 @@ export default function StudyPage() {
         {/* Footer strip */}
         <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', padding: '20px 40px', display: 'flex', justifyContent: 'center' }}>
           <span style={{ fontFamily: F.inter, fontSize: 11, color: 'rgba(255,255,255,0.12)' }}>
-            © 2025 Xcorphion Corporation
+            © 2026 Xcorphion Corporation
           </span>
         </div>
 

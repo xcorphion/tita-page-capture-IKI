@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 
@@ -6,9 +7,75 @@ const F = {
   inter: "'Inter', sans-serif",
 };
 
+const CONSENT_TEXT = 'SIM, EU ACEITO';
+
 export default function ResearchFinishPage() {
   const router = useRouter();
   const { respondentId } = router.query;
+
+  const [step, setStep]               = useState('consent'); // consent | email | sending | sent
+  const [consentInput, setConsentInput] = useState('');
+  const [pasteBlocked, setPasteBlocked] = useState(false);
+  const [email, setEmail]             = useState('');
+  const [emailError, setEmailError]   = useState('');
+  const [sendError, setSendError]     = useState('');
+
+  const consentValid = consentInput === CONSENT_TEXT;
+
+  const handlePaste = (e) => {
+    e.preventDefault();
+    setPasteBlocked(true);
+    setTimeout(() => setPasteBlocked(false), 2800);
+  };
+
+  const handleConsentSubmit = () => {
+    if (consentValid) setStep('email');
+  };
+
+  const handleSend = async () => {
+    if (!email.trim() || step === 'sending') return;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setEmailError('E-mail inválido.');
+      return;
+    }
+    setEmailError('');
+    setSendError('');
+    setStep('sending');
+    try {
+      const res = await fetch('/study/api/session/send-link', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          participant_code: respondentId,
+          email: email.trim(),
+          consent_text: consentInput,
+        }),
+      });
+      if (res.ok) {
+        setStep('sent');
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setSendError(data.error || 'Erro ao enviar. Tente novamente.');
+        setStep('email');
+      }
+    } catch {
+      setSendError('Erro de conexão.');
+      setStep('email');
+    }
+  };
+
+  const inputBase = {
+    width: '100%', boxSizing: 'border-box',
+    fontFamily: F.inter, fontSize: 15,
+    color: 'white',
+    background: 'rgba(255,255,255,0.05)',
+    border: '1px solid rgba(255,255,255,0.1)',
+    borderRadius: 10, padding: '13px 16px',
+    outline: 'none', transition: 'border-color 0.2s',
+  };
+
+  const platformUrl = process.env.NEXT_PUBLIC_PLATFORM_URL || 'https://xcorphion.online';
+  const studyLink = respondentId ? `${platformUrl}/study?code=${respondentId}` : '#';
 
   return (
     <>
@@ -26,6 +93,7 @@ export default function ResearchFinishPage() {
           0%, 100% { box-shadow: 0 0 24px rgba(139,0,0,0.15); }
           50%       { box-shadow: 0 0 48px rgba(139,0,0,0.35); }
         }
+        @keyframes spin { to { transform: rotate(360deg); } }
         .finish-enter { animation: fadeUp 0.9s cubic-bezier(0.22,1,0.36,1) forwards; }
         .icon-pulse   { animation: pulseGlow 3s ease-in-out infinite; }
       `}</style>
@@ -37,7 +105,7 @@ export default function ResearchFinishPage() {
         alignItems: 'center', justifyContent: 'center',
         padding: '40px 24px', textAlign: 'center',
       }}>
-        <div style={{ maxWidth: 480, width: '100%' }} className="finish-enter">
+        <div style={{ maxWidth: 460, width: '100%' }} className="finish-enter">
 
           {/* Icon */}
           <div
@@ -50,79 +118,236 @@ export default function ResearchFinishPage() {
               margin: '0 auto 36px',
             }}
           >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8B0000" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M20 6L9 17l-5-5" />
-            </svg>
+            {step === 'sent' ? (
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8B0000" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 6L9 17l-5-5" />
+              </svg>
+            ) : (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8B0000" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                <polyline points="22,6 12,13 2,6" />
+              </svg>
+            )}
           </div>
 
           {/* Title */}
           <h1 style={{
             fontFamily: F.space, fontWeight: 800,
-            fontSize: 'clamp(26px, 4vw, 38px)',
+            fontSize: 'clamp(24px, 4vw, 34px)',
             letterSpacing: '-0.03em', lineHeight: 1.1,
-            color: 'white', marginBottom: 20,
+            color: 'white', marginBottom: 16,
           }}>
-            Sua essência foi capturada.
+            {step === 'sent' ? 'Link enviado.' : 'Sua essência foi capturada.'}
           </h1>
 
-          {/* Body */}
+          {/* Subtitle */}
           <p style={{
-            fontFamily: F.inter, fontWeight: 300, fontSize: 16,
-            color: 'rgba(255,255,255,0.5)', lineHeight: 1.75,
-            marginBottom: 48, maxWidth: 400, margin: '0 auto 48px',
+            fontFamily: F.inter, fontWeight: 300, fontSize: 15,
+            color: 'rgba(255,255,255,0.45)', lineHeight: 1.75,
+            marginBottom: 40, maxWidth: 380, margin: '0 auto 40px',
           }}>
-            Obrigado pela entrega e autenticidade.
-            Sua participação contribui diretamente para o treinamento do OMMΩ.
-            Quando a{' '}
-            <span style={{ color: 'rgba(255,255,255,0.75)', fontWeight: 400 }}>segunda sessão</span>
-            {' '}abrir, você receberá o link no seu e-mail.
+            {step === 'sent'
+              ? <>Enviamos o link para <strong style={{ color: 'rgba(255,255,255,0.7)', fontWeight: 400 }}>{email}</strong>. Quando a Sessão 2 abrir, você será notificado.</>
+              : 'Obrigado pela entrega e autenticidade. Cadastre seu e-mail para receber o link da Sessão 2.'}
           </p>
 
           {/* Divider */}
           <div style={{
-            width: 48, height: 1,
-            background: 'linear-gradient(to right, transparent, rgba(255,255,255,0.15), transparent)',
-            margin: '0 auto 40px',
+            width: 40, height: 1,
+            background: 'linear-gradient(to right, transparent, rgba(255,255,255,0.12), transparent)',
+            margin: '0 auto 36px',
           }} />
 
-          {/* CTA */}
-          <a
-            href={`${process.env.NEXT_PUBLIC_PLATFORM_URL || 'https://xcorphion.online'}/study?code=${respondentId}`}
-            style={{
-              display: 'inline-flex', alignItems: 'center', gap: 10,
-              fontFamily: F.inter, fontWeight: 500, fontSize: 14,
-              color: 'white', background: '#8B0000',
-              padding: '13px 32px', borderRadius: 8,
-              textDecoration: 'none',
-              boxShadow: '0 0 28px rgba(139,0,0,0.22)',
-              transition: 'background 0.2s, box-shadow 0.2s, transform 0.15s',
-              marginBottom: 20, display: 'inline-flex',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.background = '#9e0000'; e.currentTarget.style.boxShadow = '0 0 48px rgba(139,0,0,0.42)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = '#8B0000'; e.currentTarget.style.boxShadow = '0 0 28px rgba(139,0,0,0.22)'; e.currentTarget.style.transform = 'none'; }}
-          >
-            Entrar na lista de espera do OMMΩ
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <path d="M5 12h14M12 5l7 7-7 7" />
-            </svg>
-          </a>
+          {/* ── STEP: consent ── */}
+          {step === 'consent' && (
+            <div style={{ textAlign: 'left' }}>
+              <p style={{ fontFamily: F.inter, fontSize: 12, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 10 }}>
+                Consentimento de uso de e-mail
+              </p>
+              <p style={{ fontFamily: F.inter, fontSize: 14, color: 'rgba(255,255,255,0.45)', lineHeight: 1.7, marginBottom: 20 }}>
+                Ao cadastrar seu e-mail, você autoriza a Xcorphion a usá-lo exclusivamente para comunicações relacionadas a esta pesquisa. Para confirmar, digite exatamente:
+              </p>
+              <div style={{
+                fontFamily: F.inter, fontSize: 13, fontWeight: 500,
+                color: 'rgba(255,255,255,0.75)',
+                background: 'rgba(255,255,255,0.04)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: 8, padding: '10px 16px',
+                letterSpacing: '0.06em', textAlign: 'center',
+                marginBottom: 16, userSelect: 'none',
+              }}>
+                {CONSENT_TEXT}
+              </div>
+              <input
+                type="text"
+                placeholder="Digite aqui"
+                value={consentInput}
+                onChange={e => setConsentInput(e.target.value)}
+                onPaste={handlePaste}
+                onKeyDown={e => e.key === 'Enter' && handleConsentSubmit()}
+                autoComplete="off"
+                spellCheck={false}
+                style={{
+                  ...inputBase,
+                  marginBottom: 8,
+                  borderColor: consentInput.length > 0 && !consentValid
+                    ? 'rgba(200,80,80,0.4)'
+                    : consentValid
+                      ? 'rgba(120,200,120,0.35)'
+                      : 'rgba(255,255,255,0.1)',
+                }}
+              />
+              {pasteBlocked && (
+                <p style={{ fontFamily: F.inter, fontSize: 12, color: 'rgba(200,100,60,0.9)', marginBottom: 8 }}>
+                  Não é permitido colar. Digite manualmente.
+                </p>
+              )}
+              <button
+                onClick={handleConsentSubmit}
+                disabled={!consentValid}
+                style={{
+                  width: '100%',
+                  fontFamily: F.inter, fontWeight: 500, fontSize: 14,
+                  color: 'white',
+                  background: consentValid ? '#8B0000' : 'rgba(139,0,0,0.3)',
+                  border: 'none', borderRadius: 10,
+                  padding: '13px', marginTop: 8,
+                  cursor: consentValid ? 'pointer' : 'default',
+                  boxShadow: consentValid ? '0 0 20px rgba(139,0,0,0.22)' : 'none',
+                  transition: 'background 0.2s, box-shadow 0.2s',
+                }}
+                onMouseEnter={e => { if (consentValid) e.currentTarget.style.background = '#9e0000'; }}
+                onMouseLeave={e => { if (consentValid) e.currentTarget.style.background = '#8B0000'; }}
+              >
+                Confirmar consentimento
+              </button>
+            </div>
+          )}
 
-          <div>
-            <button
-              onClick={() => router.push('/')}
+          {/* ── STEP: email ── */}
+          {(step === 'email' || step === 'sending') && (
+            <div style={{ textAlign: 'left' }}>
+              <p style={{ fontFamily: F.inter, fontSize: 12, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 10 }}>
+                Seu e-mail
+              </p>
+              <input
+                type="email"
+                placeholder="voce@exemplo.com"
+                value={email}
+                onChange={e => { setEmail(e.target.value); setEmailError(''); }}
+                onKeyDown={e => e.key === 'Enter' && handleSend()}
+                disabled={step === 'sending'}
+                style={{
+                  ...inputBase,
+                  marginBottom: emailError ? 8 : 16,
+                  borderColor: emailError ? 'rgba(200,80,80,0.4)' : 'rgba(255,255,255,0.1)',
+                  opacity: step === 'sending' ? 0.6 : 1,
+                }}
+              />
+              {emailError && (
+                <p style={{ fontFamily: F.inter, fontSize: 12, color: 'rgba(200,80,80,0.9)', marginBottom: 12 }}>
+                  {emailError}
+                </p>
+              )}
+              {sendError && (
+                <p style={{ fontFamily: F.inter, fontSize: 12, color: 'rgba(200,80,80,0.9)', marginBottom: 12 }}>
+                  {sendError}
+                </p>
+              )}
+              <button
+                onClick={handleSend}
+                disabled={step === 'sending' || !email.trim()}
+                style={{
+                  width: '100%',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                  fontFamily: F.inter, fontWeight: 500, fontSize: 14,
+                  color: 'white',
+                  background: step === 'sending' || !email.trim() ? 'rgba(139,0,0,0.35)' : '#8B0000',
+                  border: 'none', borderRadius: 10,
+                  padding: '13px',
+                  cursor: step === 'sending' || !email.trim() ? 'default' : 'pointer',
+                  boxShadow: step === 'sending' ? 'none' : '0 0 20px rgba(139,0,0,0.22)',
+                  transition: 'background 0.2s',
+                }}
+                onMouseEnter={e => { if (step === 'email' && email.trim()) e.currentTarget.style.background = '#9e0000'; }}
+                onMouseLeave={e => { if (step === 'email') e.currentTarget.style.background = email.trim() ? '#8B0000' : 'rgba(139,0,0,0.35)'; }}
+              >
+                {step === 'sending' ? (
+                  <>
+                    <div style={{ width: 14, height: 14, border: '2px solid rgba(255,255,255,0.2)', borderTopColor: 'white', borderRadius: '50%', animation: 'spin 0.7s linear infinite', flexShrink: 0 }} />
+                    Enviando...
+                  </>
+                ) : (
+                  <>
+                    Enviar link
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+                  </>
+                )}
+              </button>
+            </div>
+          )}
+
+          {/* ── STEP: sent ── */}
+          {step === 'sent' && (
+            <a
+              href={studyLink}
               style={{
-                background: 'none', border: 'none', cursor: 'pointer',
-                fontFamily: F.inter, fontSize: 10, fontWeight: 500,
-                color: 'rgba(255,255,255,0.2)', letterSpacing: '0.3em',
-                textTransform: 'uppercase', padding: '8px 0',
-                transition: 'color 0.3s, letter-spacing 0.4s',
+                display: 'inline-flex', alignItems: 'center', gap: 10,
+                fontFamily: F.inter, fontWeight: 500, fontSize: 14,
+                color: 'white', background: '#8B0000',
+                padding: '13px 32px', borderRadius: 8,
+                textDecoration: 'none',
+                boxShadow: '0 0 28px rgba(139,0,0,0.22)',
+                transition: 'background 0.2s, box-shadow 0.2s, transform 0.15s',
               }}
-              onMouseEnter={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.55)'; e.currentTarget.style.letterSpacing = '0.45em'; }}
-              onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.2)'; e.currentTarget.style.letterSpacing = '0.3em'; }}
+              onMouseEnter={e => { e.currentTarget.style.background = '#9e0000'; e.currentTarget.style.boxShadow = '0 0 48px rgba(139,0,0,0.42)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = '#8B0000'; e.currentTarget.style.boxShadow = '0 0 28px rgba(139,0,0,0.22)'; e.currentTarget.style.transform = 'none'; }}
             >
-              Retornar ao Início
-            </button>
-          </div>
+              Entrar na lista de espera agora
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </a>
+          )}
+
+          {/* Skip */}
+          {(step === 'consent' || step === 'email' || step === 'sending') && (
+            <div style={{ marginTop: 28 }}>
+              <a
+                href={studyLink}
+                style={{
+                  fontFamily: F.inter, fontSize: 11, fontWeight: 500,
+                  color: 'rgba(255,255,255,0.18)', letterSpacing: '0.2em',
+                  textTransform: 'uppercase', textDecoration: 'none',
+                  transition: 'color 0.2s',
+                }}
+                onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.45)'}
+                onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.18)'}
+              >
+                Acessar agora sem e-mail →
+              </a>
+            </div>
+          )}
+
+          {/* Return home */}
+          {step === 'sent' && (
+            <div style={{ marginTop: 24 }}>
+              <button
+                onClick={() => router.push('/')}
+                style={{
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  fontFamily: F.inter, fontSize: 10, fontWeight: 500,
+                  color: 'rgba(255,255,255,0.18)', letterSpacing: '0.3em',
+                  textTransform: 'uppercase', padding: '8px 0',
+                  transition: 'color 0.2s',
+                }}
+                onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.45)'}
+                onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.18)'}
+              >
+                Retornar ao Início
+              </button>
+            </div>
+          )}
 
         </div>
       </div>

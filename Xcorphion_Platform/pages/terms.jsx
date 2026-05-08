@@ -18,11 +18,12 @@ const TOC_SECTIONS = [
   { id: 'sec-7',  num: '07', label: 'Compartilhamento' },
   { id: 'sec-8',  num: '08', label: 'Segurança' },
   { id: 'sec-9',  num: '09', label: 'Direitos do Titular' },
-  { id: 'sec-10', num: '10', label: 'Critérios de Elegibilidade' },
-  { id: 'sec-11', num: '11', label: 'Participação Voluntária' },
-  { id: 'sec-12', num: '12', label: 'Cookies' },
-  { id: 'sec-13', num: '13', label: 'Alterações' },
-  { id: 'sec-14', num: '14', label: 'Foro e Lei Aplicável' },
+  { id: 'sec-10', num: '10', label: 'Requisitos para Participar' },
+  { id: 'sec-11', num: '11', label: 'Critérios de Elegibilidade' },
+  { id: 'sec-12', num: '12', label: 'Participação Voluntária' },
+  { id: 'sec-13', num: '13', label: 'Cookies' },
+  { id: 'sec-14', num: '14', label: 'Alterações' },
+  { id: 'sec-15', num: '15', label: 'Foro e Lei Aplicável' },
 ];
 
 const SectionBadge = ({ num }) => (
@@ -257,7 +258,7 @@ export default function TermsPage() {
                 <H2 id="sec-1-title" num="01">Identificação da Controladora</H2>
                 <div style={{ paddingTop: 20 }}>
                   <P>
-                    A pesquisa descrita neste documento é conduzida pela <strong style={{ color: 'rgba(255,255,255,0.8)', fontWeight: 500 }}>Xcorphion Corporation</strong> ("Xcorphion", "nós", "nossa"), pessoa jurídica de direito privado, responsável pelo desenvolvimento do sistema de inteligência artificial OMMΩ. Para fins de comunicação relacionados a esta pesquisa, o contato pode ser feito através dos canais disponíveis em xcorphion.online.
+                    A pesquisa descrita neste documento é conduzida pela <strong style={{ color: 'rgba(255,255,255,0.8)', fontWeight: 500 }}>Xcorphion Corporation</strong> ("Xcorphion", "nós", "nossa"), pessoa jurídica de direito privado, responsável pelo desenvolvimento do sistema de inteligência artificial OMMΩ. Para fins de comunicação relacionados a esta pesquisa, o contato pode ser feito através dos canais disponíveis em <Link href="https://xcorphion.online/contact" style={{ color: 'rgba(255,255,255,0.75)', textDecoration: 'underline', textDecorationColor: 'rgba(255,255,255,0.25)', textUnderlineOffset: 3, fontWeight: 400, transition: 'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color = 'white'} onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.75)'}>xcorphion.online/contact</Link>.
                   </P>
                 </div>
               </div>
@@ -444,7 +445,7 @@ export default function TermsPage() {
                     ))}
                   </div>
                   <P>
-                    O exercício desses direitos pode ser solicitado através dos canais de contato disponíveis em xcorphion.online. Solicitações serão respondidas em até 15 dias úteis.
+                    O exercício desses direitos pode ser solicitado através dos canais de contato disponíveis em <Link href="https://xcorphion.online/contact" style={{ color: 'rgba(255,255,255,0.75)', textDecoration: 'underline', textDecorationColor: 'rgba(255,255,255,0.25)', textUnderlineOffset: 3, fontWeight: 400, transition: 'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color = 'white'} onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.75)'}>xcorphion.online/contact</Link>. Solicitações serão respondidas em até 15 dias úteis.
                   </P>
                 </div>
               </div>
@@ -453,14 +454,20 @@ export default function TermsPage() {
 
               {/* Section 10 */}
               <div id="sec-10" data-section>
-                <H2 id="sec-10-title" num="10">Critérios de Elegibilidade e Gate de Engajamento</H2>
+                <H2 id="sec-10-title" num="10">Requisitos para Participar</H2>
                 <div style={{ paddingTop: 20 }}>
-                  <P>
-                    A participação está condicionada à conclusão da Sessão 1 com confirmação de engajamento genuíno, conforme avaliado pela resposta à pergunta sobre autenticidade do engajamento ao final da sessão. Participantes que respondam negativamente a essa pergunta terão seu perfil marcado como inelegível para sessões subsequentes e para inclusão na lista de espera do OMMΩ.
-                  </P>
-                  <P>
-                    Essa medida é necessária para garantir a qualidade científica dos dados coletados, uma vez que dados produzidos sem engajamento genuíno introduzem ruído sistemático inaceitável para os modelos somáticos em desenvolvimento.
-                  </P>
+                  <P>Para participar da pesquisa, o dispositivo e o ambiente do participante devem atender aos seguintes requisitos técnicos:</P>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 0, marginBottom: 8 }}>
+                    <DataCard icon={<CheckIcon />}>
+                      <strong style={{ color: 'rgba(255,255,255,0.72)', fontWeight: 500 }}>Notebook:</strong> A sessão deve ser realizada em um computador portátil (notebook). Dispositivos móveis (smartphones, tablets) não são suportados, pois a coleta de IKI requer teclado físico integrado ou externo conectado.
+                    </DataCard>
+                    <DataCard icon={<CheckIcon />}>
+                      <strong style={{ color: 'rgba(255,255,255,0.72)', fontWeight: 500 }}>Teclado físico:</strong> O uso de teclado físico é obrigatório. Teclados virtuais ou de tela não produzem os eventos de temporização necessários para o cálculo do Inter-Keystroke Interval.
+                    </DataCard>
+                    <DataCard icon={<CheckIcon />}>
+                      <strong style={{ color: 'rgba(255,255,255,0.72)', fontWeight: 500 }}>Conexão estável com a internet:</strong> A sessão requer conexão Wi-Fi ou cabeada estável durante toda a sua duração. Interrupções de conexão podem resultar em perda de dados e invalidação da sessão.
+                    </DataCard>
+                  </div>
                 </div>
               </div>
 
@@ -468,7 +475,22 @@ export default function TermsPage() {
 
               {/* Section 11 */}
               <div id="sec-11" data-section>
-                <H2 id="sec-11-title" num="11">Participação Voluntária e Revogação</H2>
+                <H2 id="sec-11-title" num="11">Critérios de Elegibilidade e Gate de Engajamento</H2>
+                <div style={{ paddingTop: 20 }}>
+                  <P>
+                    A participação está condicionada à conclusão da Sessão 1 com aprovação interna do servidor. A Xcorphion aplica critérios automatizados de qualidade de dados para determinar a elegibilidade de cada perfil — esses critérios não são divulgados para preservar a integridade da amostra. Perfis que não atendam aos critérios serão marcados como inelegíveis para sessões subsequentes e para inclusão na lista de espera do OMMΩ.
+                  </P>
+                  <P>
+                    Essa medida é necessária para garantir a qualidade científica dos dados coletados. Dados que não atendam aos parâmetros de qualidade introduzem ruído sistemático inaceitável para os modelos somáticos em desenvolvimento.
+                  </P>
+                </div>
+              </div>
+
+              <Divider />
+
+              {/* Section 12 */}
+              <div id="sec-12" data-section>
+                <H2 id="sec-12-title" num="12">Participação Voluntária e Revogação</H2>
                 <div style={{ paddingTop: 20 }}>
                   <P>
                     A participação nesta pesquisa é inteiramente voluntária. Não há remuneração, obrigação contratual ou qualquer penalidade associada à não participação ou à desistência. O participante pode interromper a sessão a qualquer momento, sem prejuízo algum.
@@ -481,9 +503,9 @@ export default function TermsPage() {
 
               <Divider />
 
-              {/* Section 12 */}
-              <div id="sec-12" data-section>
-                <H2 id="sec-12-title" num="12">Cookies e Tecnologias de Rastreamento</H2>
+              {/* Section 13 */}
+              <div id="sec-13" data-section>
+                <H2 id="sec-13-title" num="13">Cookies e Tecnologias de Rastreamento</H2>
                 <div style={{ paddingTop: 20 }}>
                   <P>
                     A plataforma de pesquisa não utiliza cookies de rastreamento de terceiros, pixels de marketing ou SDKs de análise comportamental externos. O único dado de sessão armazenado no navegador é o código de participante, necessário para continuidade entre sessões distintas.
@@ -493,9 +515,9 @@ export default function TermsPage() {
 
               <Divider />
 
-              {/* Section 13 */}
-              <div id="sec-13" data-section>
-                <H2 id="sec-13-title" num="13">Alterações nestes Termos</H2>
+              {/* Section 14 */}
+              <div id="sec-14" data-section>
+                <H2 id="sec-14-title" num="14">Alterações nestes Termos</H2>
                 <div style={{ paddingTop: 20 }}>
                   <P>
                     A Xcorphion reserva-se o direito de atualizar estes termos a qualquer momento. Alterações materiais serão comunicadas através dos canais disponíveis e publicadas nesta página com data de vigência atualizada. O uso continuado da plataforma após a vigência das novas condições implica concordância com os termos revisados.
@@ -505,9 +527,9 @@ export default function TermsPage() {
 
               <Divider />
 
-              {/* Section 14 */}
-              <div id="sec-14" data-section>
-                <H2 id="sec-14-title" num="14">Foro e Lei Aplicável</H2>
+              {/* Section 15 */}
+              <div id="sec-15" data-section>
+                <H2 id="sec-15-title" num="15">Foro e Lei Aplicável</H2>
                 <div style={{ paddingTop: 20 }}>
                   <P>
                     Estes termos são regidos pela legislação brasileira. Eventuais conflitos serão submetidos ao foro da comarca competente no Brasil, com renúncia expressa a qualquer outro, por mais privilegiado que seja.
@@ -623,7 +645,7 @@ export default function TermsPage() {
         {/* Footer */}
         <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', padding: '20px 40px', display: 'flex', justifyContent: 'center' }}>
           <span style={{ fontFamily: F.inter, fontSize: 11, color: 'rgba(255,255,255,0.12)' }}>
-            © 2025 Xcorphion Corporation
+            © 2026 Xcorphion Corporation
           </span>
         </div>
       </div>

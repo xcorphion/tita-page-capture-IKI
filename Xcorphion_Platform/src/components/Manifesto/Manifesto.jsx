@@ -8,7 +8,7 @@ const Manifesto = () => {
     threshold: 0.15
   });
 
-  const text = "OMMA não processa apenas linguagem. Ele percebe o estado interno de quem escreve.";
+  const text = "OMMΩ não processa apenas linguagem. Ele estima o estado afetivo de quem escreve.";
   const words = text.split(" ");
 
   return (
@@ -48,12 +48,12 @@ const Manifesto = () => {
           className="space-y-8"
         >
           <p className="font-inter text-lg text-text-muted leading-[1.85]">
-            Desenvolvido com base nos Marcadores Somáticos de António Damásio e na análise de Keystroke Dynamics, OMMA é o primeiro modelo a integrar sinais cognitivo-afetivos em tempo real — texto, ritmo de digitação e voz — para construir uma compreensão emocional do interlocutor.
+            Baseado no Circumplex Model of Affect de James Russell e na tradição de Affective Computing de Rosalind Picard, OMMΩ usa Inter-Keystroke Interval como sinal periférico para estimar valência e arousal — em tempo de sessão, não de token. A Hipótese do Marcador Somático de Antônio Damásio fornece a motivação filosófica: o corpo informa a decisão antes da consciência.
           </p>
-          
+
           <div className="pt-8 border-t border-accent-dim">
             <span className="font-inter text-sm text-text-dim">
-              Família TITAN · 5 milhões de parâmetros · Arquitetura proprietária Xcorpion Corporation — 2025
+              Família TITAN · ~10M parâmetros iniciais · Arquitetura proprietária Xcorphion Corporation — 2026
             </span>
           </div>
         </motion.div>
