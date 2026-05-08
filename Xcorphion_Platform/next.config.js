@@ -59,10 +59,10 @@ const nextConfig = {
   },
   async headers() {
     return [
-      { source: '/sidebar.html',       headers: htmlIframeHeaders },
-      { source: '/headline-full.html', headers: htmlIframeHeaders },
+      { source: '/:path*',              headers: securityHeaders },
+      { source: '/sidebar.html',        headers: htmlIframeHeaders },
+      { source: '/headline-full.html',  headers: htmlIframeHeaders },
       { source: '/manifesto-full.html', headers: htmlIframeHeaders },
-      { source: '/:path*',             headers: securityHeaders },
     ];
   },
   async rewrites() {
