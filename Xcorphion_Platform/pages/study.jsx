@@ -45,6 +45,11 @@ export default function StudyPage() {
 
   useEffect(() => {
     if (!router.isReady) return;
+    if (router.query.start === '1') {
+      setShowModal(true);
+      router.replace('/study', undefined, { shallow: true });
+      return;
+    }
     const code = typeof router.query.code === 'string' ? router.query.code.trim().toUpperCase() : '';
     if (!code) { setEligible(false); setIneligibleReason('no_code'); return; }
     setParticipantCode(code);
@@ -57,7 +62,7 @@ export default function StudyPage() {
       })
       .catch(() => { setEligible(false); setIneligibleReason('server_error'); })
       .finally(() => setVerifying(false));
-  }, [router.isReady, router.query.code]);
+  }, [router.isReady, router.query.code, router.query.start]);
 
   useEffect(() => {
     if (!showModal) return;
@@ -194,7 +199,7 @@ export default function StudyPage() {
                 onMouseEnter={e => { e.currentTarget.style.background = '#9e0000'; e.currentTarget.style.boxShadow = '0 0 40px rgba(139,0,0,0.45)'; }}
                 onMouseLeave={e => { e.currentTarget.style.background = '#8B0000'; e.currentTarget.style.boxShadow = '0 0 24px rgba(139,0,0,0.25)'; }}
               >
-                Quero participar
+                Entrar na Waitlist
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
               </button>
               <a
@@ -443,7 +448,7 @@ export default function StudyPage() {
                   Como você quer ser chamado?
                 </h2>
                 <p style={{ fontFamily: F.inter, fontSize: 14, color: 'rgba(255,255,255,0.4)', lineHeight: 1.65, margin: 0 }}>
-                  Usado apenas para identificar seu perfil de participante. Nenhum outro dado de identidade é coletado agora.
+                  Para entrar na waitlist do OMMΩ é necessário completar a Sessão 1 da pesquisa. Seu nome identifica seu perfil — nenhum outro dado de identidade é coletado neste momento.
                 </p>
               </div>
 
@@ -512,9 +517,13 @@ export default function StudyPage() {
               </button>
 
               <p style={{ fontFamily: F.inter, fontSize: 11, color: 'rgba(255,255,255,0.2)', textAlign: 'center', marginTop: 20, marginBottom: 0, lineHeight: 1.6 }}>
-                Ao participar você concorda com os{' '}
+                Ao prosseguir você concorda com os{' '}
                 <Link href="/terms" style={{ color: 'rgba(255,255,255,0.4)', textDecoration: 'underline', textUnderlineOffset: 3 }}>
-                  termos de uso da pesquisa
+                  termos de uso
+                </Link>
+                {'. '}
+                <Link href="/study#privacidade" style={{ color: 'rgba(255,255,255,0.4)', textDecoration: 'underline', textUnderlineOffset: 3 }}>
+                  Metodologia e privacidade
                 </Link>
                 .
               </p>

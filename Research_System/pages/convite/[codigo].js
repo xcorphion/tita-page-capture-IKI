@@ -6,7 +6,6 @@ import { connectToDatabase } from '@xcorphion/shared';
 const F = {
   space: "'Space Grotesk', sans-serif",
   inter: "'Inter', sans-serif",
-  mono: "'JetBrains Mono', monospace",
 };
 
 const ease = [0.22, 1, 0.36, 1];
@@ -16,7 +15,7 @@ const fonts = (
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
     <link
-      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700;800;900&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap"
       rel="stylesheet"
     />
   </>
@@ -312,9 +311,9 @@ function CodeBlock({ code }) {
       {/* Code */}
       <div style={{ padding: '26px 24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <span style={{
-          fontFamily: F.mono,
+          fontFamily: F.inter,
           fontSize: 'clamp(26px, 5vw, 36px)',
-          fontWeight: 500,
+          fontWeight: 600,
           letterSpacing: '0.28em',
           color: 'white',
         }}>
@@ -371,8 +370,36 @@ function CTAButton({ href, label }) {
   );
 }
 
-export default function Convite({ participant, error, platformUrl }) {
+export default function Convite({ participant, error, blocked, platformUrl }) {
   const wrap = (content) => <Shell platformUrl={platformUrl}>{content}</Shell>;
+
+  // ── Bloqueado ────────────────────────────────────────────────────────────
+  if (blocked) {
+    return wrap(
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, ease }}
+        style={{ maxWidth: 420, width: '100%', textAlign: 'center' }}
+      >
+        <StatusIcon type="lock" />
+        <StateLabel>Acesso indisponível</StateLabel>
+        <h1 style={{
+          fontFamily: F.space, fontWeight: 700,
+          fontSize: 'clamp(22px, 3vw, 28px)',
+          letterSpacing: '-0.03em', color: 'white', marginBottom: 14,
+        }}>
+          Este link não está disponível.
+        </h1>
+        <p style={{
+          fontFamily: F.inter, fontWeight: 300, fontSize: 15,
+          color: 'rgba(255,255,255,0.38)', lineHeight: 1.75,
+        }}>
+          Entre em contato com quem te convidou para a pesquisa.
+        </p>
+      </motion.div>
+    );
+  }
 
   // ── Error ────────────────────────────────────────────────────────────────
   if (error) {
@@ -431,7 +458,7 @@ export default function Convite({ participant, error, platformUrl }) {
   }
 
   const { participant_name, referrer_name, participant_code } = participant;
-  const session_link = `/IKI/${participant_code}`;
+  const session_link = `/study/IKI/${participant_code}`;
 
   // ── Aguardando ───────────────────────────────────────────────────────────
   const isWaiting =
@@ -567,15 +594,47 @@ export default function Convite({ participant, error, platformUrl }) {
 export async function getServerSideProps(context) {
   const { codigo } = context.params;
   const platformUrl = process.env.NEXT_PUBLIC_PLATFORM_URL || process.env.APP_URL || '';
+  const ip = context.req.headers['x-forwarded-for']?.split(',')[0]?.trim()
+    || context.req.socket?.remoteAddress
+    || 'unknown';
 
   try {
     const db = await connectToDatabase();
+
+    // Check IP blocklist first
+    if (ip && ip !== 'unknown') {
+      const blockedIp = await db.collection('ip_blocklist').findOne({ ip });
+      if (blockedIp) {
+        // Silently flag the participant this IP is trying to access
+        const target = await db.collection('participants').findOne({ participant_code: codigo });
+        if (target && blockedIp.source_participant_id !== target.participant_id) {
+          await db.collection('participants').updateOne(
+            { participant_code: codigo },
+            { $addToSet: { suspicious_ip_attempts: ip } }
+          );
+        }
+        return { props: { blocked: true, platformUrl } };
+      }
+    }
+
     const participant =
       (await db.collection('participants').findOne({ participant_id: codigo })) ??
       (await db.collection('participants').findOne({ participant_code: codigo }));
 
     if (!participant) {
       return { props: { error: true, platformUrl } };
+    }
+
+    if (participant.status === 'BLOQUEADO') {
+      return { props: { blocked: true, platformUrl } };
+    }
+
+    // Track IP for this participant
+    if (ip && ip !== 'unknown') {
+      await db.collection('participants').updateOne(
+        { participant_code: codigo },
+        { $addToSet: { known_ips: ip } }
+      );
     }
 
     return {

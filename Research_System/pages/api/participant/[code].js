@@ -1,18 +1,35 @@
 import { connectToDatabase } from '@xcorphion/shared';
-import { hashParticipantId } from '../../../lib/participant';
+import { hashParticipantId, hashFingerprint, extractIp } from '../../../lib/participant';
+import geoip from 'geoip-lite';
 
 export default async function handler(req, res) {
     const { code } = req.query;
     const db = await connectToDatabase();
     const participants = db.collection('participants');
     const participant_id = hashParticipantId(code);
+    const ip = extractIp(req);
 
     if (req.method === 'POST') {
         const { wpm_baseline, device_profile } = req.body;
         try {
+            const fingerprint_hash = hashFingerprint(device_profile);
+            const geo = (ip && ip !== 'unknown') ? (geoip.lookup(ip) || null) : null;
+
             await participants.updateOne(
                 { participant_id },
-                { $set: { wpm_baseline, device_profile, onboarding_complete: true } }
+                {
+                    $set: {
+                        wpm_baseline,
+                        device_profile,
+                        device_fingerprint_hash: fingerprint_hash,
+                        onboarding_complete: true,
+                        'fingerprint.user_agent': device_profile?.userAgent || '',
+                        'fingerprint.captured_at': new Date(),
+                        'fingerprint.ip': ip,
+                        'fingerprint.geo': geo,
+                    },
+                    $addToSet: { known_ips: ip },
+                }
             );
             return res.json({ ok: true });
         } catch (e) {
@@ -22,27 +39,51 @@ export default async function handler(req, res) {
     }
 
     if (req.method !== 'GET') return res.status(405).end();
-    
+
     try {
+        // Always capture IP on access
+        if (ip && ip !== 'unknown') {
+            await participants.updateOne({ participant_id }, { $addToSet: { known_ips: ip } });
+        }
+
         let doc = await participants.findOne({ participant_code: code });
         if (!doc) {
             return res.status(404).json({ error: 'Convite não encontrado.' });
         }
-        const sessionsCompleted = doc.sessions_completed || 0;
 
-        // Check if session is locked (waiting for admin)
-        const isLocked = (sessionsCompleted === 1 && !doc.admin_authorized_s2) || 
+        // Check if this participant is blocked
+        if (doc.status === 'BLOQUEADO') {
+            return res.status(403).json({ error: 'BLOQUEADO' });
+        }
+
+        // Check if requesting IP is in blocklist
+        if (ip && ip !== 'unknown') {
+            const blocked = await db.collection('ip_blocklist').findOne({ ip });
+            if (blocked) {
+                // Silently flag this participant as having been accessed from a blocked IP
+                if (blocked.source_participant_id !== participant_id) {
+                    await participants.updateOne(
+                        { participant_id },
+                        { $addToSet: { suspicious_ip_attempts: ip } }
+                    );
+                }
+                return res.status(403).json({ error: 'IP_BLOQUEADO' });
+            }
+        }
+
+        const sessionsCompleted = doc.sessions_completed || 0;
+        const isLocked = (sessionsCompleted === 1 && !doc.admin_authorized_s2) ||
                          (sessionsCompleted === 2 && !doc.admin_authorized_s3);
 
-        res.json({ 
-            participant_id, 
-            sessions_completed: sessionsCompleted, 
+        res.json({
+            participant_id,
+            sessions_completed: sessionsCompleted,
             next_prompt_id: sessionsCompleted + 1,
             onboarding_complete: doc.onboarding_complete,
-            locked: isLocked
+            locked: isLocked,
         });
     } catch (e) {
         console.error(e);
-        res.status(500).json({ error: 'Internal server error' });
+        return res.status(500).json({ error: 'Internal server error' });
     }
 }

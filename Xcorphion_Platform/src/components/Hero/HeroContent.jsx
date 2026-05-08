@@ -1,7 +1,10 @@
 
+import { useState } from 'react';
 import { motion } from 'framer-motion';
+import WaitlistGateModal from '../WaitlistGate/WaitlistGateModal';
 
 const HeroContent = () => {
+  const [gateOpen, setGateOpen] = useState(false);
   const container = {
     hidden: { opacity: 0 },
     show: {
@@ -27,7 +30,7 @@ const HeroContent = () => {
         className="text-center"
       >
         <motion.div variants={item} className="mb-8">
-          <span className="inline-block px-4 py-1 border border-accent-1 bg-accent-1/10 rounded-full font-mono text-[10px] text-accent-hot tracking-[0.2em] uppercase animate-pulse">
+          <span className="inline-block px-4 py-1 border border-accent-1 bg-accent-1/10 rounded-full font-inter text-[10px] text-accent-hot tracking-[0.2em] uppercase animate-pulse">
             TITAN Family · Research Preview
           </span>
         </motion.div>
@@ -47,11 +50,11 @@ const HeroContent = () => {
         </motion.p>
 
         <motion.div variants={item} className="flex flex-col md:flex-row gap-4 justify-center">
-          <button 
+          <button
+            onClick={() => setGateOpen(true)}
             className="px-9 py-3.5 bg-gradient-to-r from-accent-1 to-accent-2 text-text-primary font-bold rounded-sm hover:shadow-[0_0_32px_var(--glow-hot)] hover:scale-[1.02] transition-all duration-300"
-            onClick={() => document.getElementById('waitlist')?.scrollIntoView({ behavior: 'smooth' })}
           >
-            Join the Waitlist
+            Waitlist
           </button>
           <button className="px-7 py-3.5 border border-accent-dim text-text-muted font-medium rounded-sm hover:border-accent-1 hover:text-text-primary transition-all duration-300">
             Understand OMMA →
@@ -63,7 +66,7 @@ const HeroContent = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.5, duration: 1 }}
-        className="absolute bottom-10 w-full flex flex-wrap justify-center gap-x-8 gap-y-4 px-6 font-mono text-[10px] text-text-dim tracking-widest uppercase"
+        className="absolute bottom-10 w-full flex flex-wrap justify-center gap-x-8 gap-y-4 px-6 font-inter text-[10px] text-text-dim tracking-widest uppercase"
       >
         <span>5M Parameters</span>
         <span className="hidden md:inline">·</span>
@@ -82,6 +85,7 @@ const HeroContent = () => {
         </svg>
       </motion.div>
     </div>
+    <WaitlistGateModal isOpen={gateOpen} onClose={() => setGateOpen(false)} />
   );
 };
 

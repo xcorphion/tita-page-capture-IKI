@@ -1,9 +1,12 @@
 
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import WaitlistGateModal from '../WaitlistGate/WaitlistGateModal';
 
 const Nav = () => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [gateOpen, setGateOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -30,18 +33,19 @@ const Nav = () => {
         </div>
 
         <div className="flex items-center gap-8">
-          <span className="hidden md:block font-mono text-xs text-text-muted tracking-tight">
+          <span className="hidden md:block font-inter text-xs text-text-muted tracking-tight">
             TITAN — OMMA
           </span>
-          <button 
-            className="px-4 py-2 border border-accent-1 text-accent-hot text-xs font-mono uppercase tracking-widest hover:bg-accent-1 hover:text-white transition-all duration-300"
-            onClick={() => document.getElementById('waitlist')?.scrollIntoView({ behavior: 'smooth' })}
+          <button
+            onClick={() => setGateOpen(true)}
+            className="px-4 py-2 border border-accent-1 text-accent-hot text-xs font-inter uppercase tracking-widest hover:bg-accent-1 hover:text-white transition-all duration-300"
           >
             Waitlist
           </button>
         </div>
       </div>
     </motion.nav>
+    <WaitlistGateModal isOpen={gateOpen} onClose={() => setGateOpen(false)} />
   );
 };
 

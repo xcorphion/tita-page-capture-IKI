@@ -8,21 +8,22 @@
     "start": "next start"
   },
   "dependencies": {
-    "next": "14.2.4",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "mongodb": "^7.2.0",
+    "@tailwindcss/postcss": "^4.2.4",
+    "@xcorphion/platform": "*",
+    "@xcorphion/shared": "*",
+    "d3-dsv": "^3.0.1",
     "dotenv": "^17.4.2",
     "framer-motion": "^11.11.17",
+    "geoip-lite": "^1.4.10",
     "lucide-react": "^0.460.0",
+    "mongodb": "^7.2.0",
+    "next": "14.2.4",
     "plotly.js": "^3.5.1",
-    "react-plotly.js": "^2.6.0",
-    "d3-dsv": "^3.0.1",
-    "react-quill": "^2.0.0",
     "postcss": "^8.4.31",
-    "tailwindcss": "^4.2.4",
-    "@tailwindcss/postcss": "^4.2.4",
-    "@xcorphion/shared": "*",
-    "@xcorphion/platform": "*"
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-plotly.js": "^2.6.0",
+    "react-quill": "^2.0.0",
+    "tailwindcss": "^4.2.4"
   }
 }

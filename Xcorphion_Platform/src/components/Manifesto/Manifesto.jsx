@@ -21,7 +21,7 @@ const Manifesto = () => {
           initial={{ opacity: 0, x: -20 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
-          className="inline-block font-mono text-xs text-accent-1 tracking-[0.2em] uppercase mb-8"
+          className="inline-block font-inter text-xs text-accent-1 tracking-[0.2em] uppercase mb-8"
         >
           SOBRE O MODELO
         </motion.span>
@@ -52,7 +52,7 @@ const Manifesto = () => {
           </p>
           
           <div className="pt-8 border-t border-accent-dim">
-            <span className="font-mono text-sm text-text-dim">
+            <span className="font-inter text-sm text-text-dim">
               Família TITAN · 5 milhões de parâmetros · Arquitetura proprietária Xcorpion Corporation — 2025
             </span>
           </div>

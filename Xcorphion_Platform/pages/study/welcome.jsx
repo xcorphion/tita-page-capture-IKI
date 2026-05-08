@@ -7,7 +7,6 @@ import { motion } from 'framer-motion';
 const F = {
   space: "'Space Grotesk', sans-serif",
   inter: "'Inter', sans-serif",
-  mono: "'JetBrains Mono', monospace",
 };
 
 export default function StudyWelcome() {
@@ -16,7 +15,7 @@ export default function StudyWelcome() {
   const [copied, setCopied] = useState(false);
 
   const researchUrl = process.env.NEXT_PUBLIC_RESEARCH_URL || 'http://localhost:3001';
-  const sessionUrl = code ? `${researchUrl}/study/convite/${code}` : '#';
+  const sessionUrl = code ? `${researchUrl}/study/IKI/${code}` : '#';
 
   const handleCopy = () => {
     if (!code) return;
@@ -33,7 +32,7 @@ export default function StudyWelcome() {
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700;800;900&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
       </Head>
 
       <div style={{ minHeight: '100vh', background: '#080808', color: 'white', fontFamily: F.inter, display: 'flex', flexDirection: 'column' }}>
@@ -116,8 +115,8 @@ export default function StudyWelcome() {
               </p>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, marginBottom: 16 }}>
                 <span style={{
-                  fontFamily: F.mono, fontSize: 'clamp(28px, 6vw, 40px)',
-                  fontWeight: 500, letterSpacing: '0.2em',
+                  fontFamily: F.inter, fontSize: 'clamp(28px, 6vw, 40px)',
+                  fontWeight: 600, letterSpacing: '0.22em',
                   color: 'white',
                 }}>
                   {code || '—'}

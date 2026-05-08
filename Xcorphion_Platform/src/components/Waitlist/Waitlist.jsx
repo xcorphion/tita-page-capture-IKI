@@ -1,117 +1,76 @@
-
-import { useForm } from 'react-hook-form';
-import { motion } from 'framer-motion';
 import { useState } from 'react';
+import { motion } from 'framer-motion';
+import WaitlistGateModal from '../WaitlistGate/WaitlistGateModal';
 
 const Waitlist = () => {
-  const { register, handleSubmit, formState: { errors }, reset } = useForm();
-  const [isSuccess, setIsSuccess] = useState(false);
-
-  const onSubmit = (data) => {
-    // Mocking storage
-    const waitlist = JSON.parse(localStorage.getItem('omma_waitlist') || '[]');
-    waitlist.push(data.email);
-    localStorage.setItem('omma_waitlist', JSON.stringify(waitlist));
-    
-    setIsSuccess(true);
-    reset();
-  };
-
+  const [gateOpen, setGateOpen] = useState(false);
   return (
     <section id="waitlist" className="bg-bg-secondary py-32 md:py-48 px-6">
       <div className="max-w-[600px] mx-auto text-center">
-        <motion.span 
+
+        <motion.span
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          className="block font-mono text-xs text-accent-1 tracking-[0.2em] uppercase mb-8"
+          className="block font-inter text-xs text-accent-1 tracking-[0.2em] uppercase mb-8"
         >
-          ACESSO ANTECIPADO
+          ACESSO À WAITLIST
         </motion.span>
 
-        <motion.h2 
+        <motion.h2
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           className="font-space font-bold text-4xl md:text-5xl text-text-primary leading-[1.1] mb-8"
         >
-          Seja o primeiro a<br />perceber com OMMA.
+          A lista não é aberta.<br />É conquistada.
         </motion.h2>
 
-        <motion.p 
+        <motion.p
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ delay: 0.2 }}
+          transition={{ delay: 0.15 }}
           className="font-inter text-lg text-text-muted leading-relaxed mb-12"
         >
-          Beta em 2026. Vagas limitadas para pesquisadores, empresas e desenvolvedores selecionados.
+          Para entrar na lista de espera do OMMΩ, você precisa participar da
+          Sessão 1 da nossa pesquisa. É o mesmo dado que vai treinar o modelo
+          — e sua porta de entrada para o beta.
         </motion.p>
 
-        {isSuccess ? (
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="p-8 border border-accent-1 bg-accent-1/5"
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.3 }}
+        >
+          <button
+            onClick={() => setGateOpen(true)}
+            className="inline-flex items-center gap-3 bg-accent-1 text-text-primary font-inter font-medium text-sm px-9 py-4 rounded-sm hover:bg-accent-hot hover:shadow-[0_0_32px_var(--glow-hot)] transition-all duration-300"
           >
-            <span className="font-mono text-accent-hot text-sm tracking-widest uppercase">
-              ✓ Você está na lista. Aguarde nosso contato.
-            </span>
-          </motion.div>
-        ) : (
-          <motion.form 
-            onSubmit={handleSubmit(onSubmit)}
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.4 }}
-            className="flex flex-col md:flex-row gap-4"
-          >
-            <div className="flex-1 relative">
-              <input
-                type="email"
-                placeholder="seu@email.com"
-                {...register("email", { 
-                  required: "Email obrigatório",
-                  pattern: {
-                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                    message: "Email inválido"
-                  }
-                })}
-                className={`w-full bg-bg-tertiary border ${errors.email ? 'border-accent-hot' : 'border-glass-border'} focus:border-accent-1 outline-none text-text-primary text-sm p-4 rounded-none transition-all duration-300`}
-              />
-              {errors.email && (
-                <span className="absolute -bottom-6 left-0 font-mono text-[10px] text-accent-hot uppercase">
-                  {errors.email.message}
-                </span>
-              )}
-            </div>
-            
-            <button 
-              type="submit"
-              className="bg-accent-1 text-text-primary font-mono text-xs uppercase tracking-widest px-8 py-4 hover:bg-accent-hot hover:shadow-[0_0_20px_var(--glow-hot)] transition-all duration-300 rounded-none"
-            >
-              Entrar na Waitlist →
-            </button>
-          </motion.form>
-        )}
+            Waitlist
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+          </button>
+        </motion.div>
 
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          transition={{ delay: 0.6 }}
-          className="mt-12 space-y-2"
+          transition={{ delay: 0.5 }}
+          className="mt-10 space-y-2"
         >
           <p className="font-inter text-xs text-text-dim">
-            Sem spam. Apenas atualizações do projeto.
+            8–15 minutos. Requer teclado físico.
           </p>
-          <p className="font-mono text-xs text-text-dim tracking-tight">
-            Xcorpion Corporation · TITAN Family
+          <p className="font-inter text-xs text-text-dim tracking-tight">
+            Xcorphion Corporation · TITAN Family
           </p>
         </motion.div>
+
       </div>
     </section>
+    <WaitlistGateModal isOpen={gateOpen} onClose={() => setGateOpen(false)} />
   );
 };
 

@@ -40,11 +40,11 @@ const MetricItem = ({ value, label, sublabel, showSeparator }) => {
       <span className="font-space font-black text-5xl md:text-6xl text-accent-1 leading-none">
         {displayValue}{value.includes('M') ? 'M' : ''}
       </span>
-      <span className="mt-4 font-mono text-[10px] text-text-dim uppercase tracking-[0.15em]">
+      <span className="mt-4 font-inter text-[10px] text-text-dim uppercase tracking-[0.15em]">
         {label}
       </span>
       {sublabel && (
-        <span className="mt-1 font-mono text-[10px] text-text-dim uppercase tracking-[0.15em]">
+        <span className="mt-1 font-inter text-[10px] text-text-dim uppercase tracking-[0.15em]">
           {sublabel}
         </span>
       )}

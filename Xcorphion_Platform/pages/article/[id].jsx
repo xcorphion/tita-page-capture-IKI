@@ -7,7 +7,6 @@ import { motion } from 'framer-motion';
 const F = {
   space: "'Space Grotesk', sans-serif",
   inter: "'Inter', sans-serif",
-  mono: "'JetBrains Mono', monospace",
 };
 
 function estimateReadingTime(html) {
@@ -111,7 +110,7 @@ export default function ArticlePage() {
     return (
       <div style={{ minHeight: '100vh', background: '#080808', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 32 }}>
         <div style={{ textAlign: 'center', maxWidth: 400 }}>
-          <span style={{ fontFamily: F.mono, fontSize: 10, color: '#8B0000', letterSpacing: '0.2em', textTransform: 'uppercase', display: 'block', marginBottom: 20 }}>
+          <span style={{ fontFamily: F.inter, fontWeight: 600, fontSize: 10, color: '#8B0000', letterSpacing: '0.2em', textTransform: 'uppercase', display: 'block', marginBottom: 20 }}>
             ERRO 404
           </span>
           <h1 style={{ fontFamily: F.space, fontSize: 36, fontWeight: 700, color: 'white', letterSpacing: '-0.03em', marginBottom: 16 }}>
@@ -146,7 +145,7 @@ export default function ArticlePage() {
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700;800;900&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
       </Head>
 
       {/* Reading progress bar */}
@@ -385,7 +384,7 @@ export default function ArticlePage() {
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {article.sources.map((source, idx) => (
                   <li key={idx} style={{ display: 'flex', gap: 12, fontFamily: F.inter, fontSize: 13, color: 'rgba(255,255,255,0.38)', lineHeight: 1.6 }}>
-                    <span style={{ fontFamily: F.mono, color: 'rgba(255,255,255,0.15)', flexShrink: 0 }}>[{idx + 1}]</span>
+                    <span style={{ fontFamily: F.inter, fontWeight: 500, color: 'rgba(255,255,255,0.15)', flexShrink: 0 }}>[{idx + 1}]</span>
                     <span>{source}</span>
                   </li>
                 ))}
@@ -405,7 +404,7 @@ export default function ArticlePage() {
         .editorial-content ul, .editorial-content ol { padding-left: 1.5em; margin-bottom: 1.8em; }
         .editorial-content li { margin-bottom: 0.5em; }
         .editorial-content img { border-radius: 12px; margin: 3em auto; display: block; max-width: 100%; border: 1px solid rgba(255,255,255,0.07); }
-        .editorial-content code { font-family: 'JetBrains Mono', monospace; font-size: 0.85em; background: rgba(255,255,255,0.06); padding: 2px 7px; border-radius: 4px; color: rgba(255,255,255,0.8); }
+        .editorial-content code { font-family: 'Inter', sans-serif; font-weight: 500; font-size: 0.83em; background: rgba(255,255,255,0.06); padding: 2px 8px; border-radius: 4px; color: rgba(255,255,255,0.85); }
         .editorial-content pre { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 8px; padding: 1.5em; overflow-x: auto; margin: 2em 0; }
         .editorial-content pre code { background: none; padding: 0; }
         .editorial-content strong { color: rgba(255,255,255,0.92); font-weight: 600; }

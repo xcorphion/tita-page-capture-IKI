@@ -27,7 +27,7 @@
 
   --font-space: "Space Grotesk", sans-serif;
   --font-inter: "Inter", sans-serif;
-  --font-mono:  "JetBrains Mono", monospace;
+  --font-mono:  "Inter", sans-serif;
 
   --shadow-glow-hot: 0 0 20px rgba(178,34,34,0.5);
 }
@@ -84,7 +84,7 @@ body {
 /* ── Font utilities explícitas (garante resolução independente do @theme) ── */
 .font-space { font-family: 'Space Grotesk', sans-serif !important; }
 .font-inter { font-family: 'Inter', sans-serif !important; }
-.font-mono  { font-family: 'JetBrains Mono', monospace !important; }
+.font-mono  { font-family: 'Inter', sans-serif !important; font-weight: 500; letter-spacing: 0.04em; }
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {

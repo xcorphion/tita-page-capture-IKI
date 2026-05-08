@@ -1,12 +1,17 @@
 import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
+import Link from 'next/link';
+import { motion } from 'framer-motion';
 
-// Importa o Quill dinamicamente para evitar erro de SSR (document is not defined)
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 import 'react-quill/dist/quill.snow.css';
 
-// Configurações do toolbar do Quill para permitir formatação de jornalismo
+const F = {
+  space: "'Space Grotesk', sans-serif",
+  inter: "'Inter', sans-serif",
+};
+
 const modules = {
   toolbar: [
     [{ 'header': [2, 3, 4, false] }],
@@ -17,206 +22,336 @@ const modules = {
   ],
 };
 
+const Label = ({ children }) => (
+  <span style={{
+    display: 'block', fontFamily: F.inter, fontSize: 11, fontWeight: 500,
+    color: 'rgba(255,255,255,0.35)', letterSpacing: '0.08em',
+    textTransform: 'uppercase', marginBottom: 8,
+  }}>
+    {children}
+  </span>
+);
+
+const inputBase = {
+  width: '100%', boxSizing: 'border-box',
+  fontFamily: F.inter, fontSize: 14,
+  color: 'white',
+  background: 'rgba(255,255,255,0.05)',
+  border: '1px solid rgba(255,255,255,0.1)',
+  borderRadius: 8,
+  padding: '12px 16px',
+  outline: 'none',
+  transition: 'border-color 0.2s',
+};
+
+const onFocus = e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.25)'; };
+const onBlur  = e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; };
+
 export default function AdminCardsEditor() {
-    const [formData, setFormData] = useState({
-        card_title: '',
-        card_legend: '',
-        card_image: '',
-        author: '',
-        sources: '',
-        article_content: ''
-    });
+  const [formData, setFormData] = useState({
+    card_title: '',
+    card_legend: '',
+    card_image: '',
+    author: '',
+    sources: '',
+    article_content: '',
+  });
 
-    const [status, setStatus] = useState('');
+  const [status, setStatus]   = useState('');
+  const [isError, setIsError] = useState(false);
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
+  const handleChange = e => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
 
-    const handleQuillChange = (content) => {
-        setFormData(prev => ({ ...prev, article_content: content }));
-    };
+  const handleQuillChange = content => {
+    setFormData(prev => ({ ...prev, article_content: content }));
+  };
 
-    const handleSave = async () => {
-        setStatus('Salvando...');
-        try {
-            const payload = {
-                ...formData,
-                sources: formData.sources.split(',').map(s => s.trim()).filter(s => s)
-            };
+  const handleSave = async () => {
+    setStatus('Salvando...');
+    setIsError(false);
+    try {
+      const payload = {
+        ...formData,
+        sources: formData.sources.split(',').map(s => s.trim()).filter(s => s),
+      };
 
-            const res = await fetch('/api/articles', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
+      const res = await fetch('/study/api/articles', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
 
-            if (res.ok) {
-                setStatus('✅ Artigo salvo com sucesso!');
-                setFormData({
-                    card_title: '', card_legend: '', card_image: '', author: '', sources: '', article_content: ''
-                });
-                setTimeout(() => setStatus(''), 3000);
-            } else {
-                const error = await res.json();
-                setStatus(`❌ Erro: ${error.error || 'Falha ao salvar'}`);
-            }
-        } catch (error) {
-            setStatus('❌ Erro na requisição.');
-        }
-    };
+      if (res.ok) {
+        setStatus('Artigo publicado com sucesso.');
+        setFormData({ card_title: '', card_legend: '', card_image: '', author: '', sources: '', article_content: '' });
+        setTimeout(() => setStatus(''), 3000);
+      } else {
+        const error = await res.json();
+        setIsError(true);
+        setStatus(error.error || 'Falha ao salvar');
+      }
+    } catch {
+      setIsError(true);
+      setStatus('Erro na requisição.');
+    }
+  };
 
-    return (
-        <div className="min-h-screen bg-black text-white flex flex-col md:flex-row overflow-hidden font-inter">
-            <Head>
-                <title>Admin - OMMΩ News Editor</title>
-            </Head>
+  return (
+    <>
+      <Head>
+        <title>Redação — Xcorphion Research</title>
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+      </Head>
 
-            {/* PAINEL ESQUERDO: EDITOR */}
-            <div className="w-full md:w-1/2 h-screen overflow-y-auto p-8 border-r border-white/10 bg-[#0a0a0a]">
-                <div className="flex items-center justify-between mb-8">
-                    <h1 className="text-2xl font-space font-semibold text-[#8B0000]">Redação // Break News</h1>
-                    <button 
-                        onClick={handleSave}
-                        className="px-6 py-2 bg-[#8B0000] text-white font-medium rounded hover:bg-red-800 transition"
-                    >
-                        Publicar Artigo
-                    </button>
-                </div>
+      <div style={{ minHeight: '100vh', background: '#080808', color: 'white', fontFamily: F.inter, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
 
-                {status && <div className="mb-4 text-sm font-medium text-green-400">{status}</div>}
+        {/* Topbar */}
+        <header style={{
+          position: 'sticky', top: 0, zIndex: 100,
+          borderBottom: '1px solid rgba(255,255,255,0.05)',
+          background: 'rgba(8,8,8,0.9)', backdropFilter: 'blur(24px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '0 40px', height: 56, flexShrink: 0,
+        }}>
+          <Link
+            href="/"
+            style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: F.inter, fontSize: 13, color: 'rgba(255,255,255,0.35)', textDecoration: 'none', transition: 'color 0.2s' }}
+            onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.75)'}
+            onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.35)'}
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <path d="M19 12H5M12 19l-7-7 7-7" />
+            </svg>
+            Voltar
+          </Link>
+          <span style={{ fontFamily: F.space, fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.18)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+            Redação
+          </span>
+          <button
+            onClick={handleSave}
+            style={{
+              fontFamily: F.inter, fontWeight: 500, fontSize: 13,
+              color: 'white', background: '#8B0000',
+              border: 'none', borderRadius: 8,
+              padding: '8px 20px', cursor: 'pointer',
+              boxShadow: '0 0 20px rgba(139,0,0,0.25)',
+              transition: 'background 0.2s, box-shadow 0.2s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = '#9e0000'; e.currentTarget.style.boxShadow = '0 0 32px rgba(139,0,0,0.45)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = '#8B0000'; e.currentTarget.style.boxShadow = '0 0 20px rgba(139,0,0,0.25)'; }}
+          >
+            Publicar Artigo
+          </button>
+        </header>
 
-                <div className="space-y-6">
-                    {/* Campos do Card */}
-                    <div className="p-6 bg-white/5 rounded-lg border border-white/10 space-y-4">
-                        <h2 className="text-sm uppercase tracking-widest text-white/50 mb-4 font-mono">Dados do Card (Vitrine)</h2>
-                        
-                        <div>
-                            <label className="block text-xs text-white/70 mb-1">Título (Max 60 chars)</label>
-                            <input type="text" name="card_title" value={formData.card_title} onChange={handleChange} 
-                                className="w-full bg-black border border-white/20 rounded p-3 text-white focus:border-[#8B0000] outline-none transition" 
-                                placeholder="Ex: A nova era da empatia algorítmica..." />
-                        </div>
-                        
-                        <div>
-                            <label className="block text-xs text-white/70 mb-1">Legenda / Resumo</label>
-                            <textarea name="card_legend" value={formData.card_legend} onChange={handleChange} rows="2"
-                                className="w-full bg-black border border-white/20 rounded p-3 text-white focus:border-[#8B0000] outline-none transition resize-none"
-                                placeholder="Uma breve descrição que aparecerá no carrossel." />
-                        </div>
+        {/* Two-panel layout */}
+        <div style={{ flex: 1, display: 'flex', overflow: 'hidden', height: 'calc(100vh - 56px)' }}>
 
-                        <div>
-                            <label className="block text-xs text-white/70 mb-1">URL da Imagem (Quadrada 1:1)</label>
-                            <input type="text" name="card_image" value={formData.card_image} onChange={handleChange} 
-                                className="w-full bg-black border border-white/20 rounded p-3 text-white focus:border-[#8B0000] outline-none transition" 
-                                placeholder="https://exemplo.com/imagem-quadrada.jpg" />
-                        </div>
-                    </div>
-
-                    {/* Metadados do Artigo */}
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-xs text-white/70 mb-1">Autor</label>
-                            <input type="text" name="author" value={formData.author} onChange={handleChange} 
-                                className="w-full bg-black border border-white/20 rounded p-3 text-white focus:border-[#8B0000] outline-none transition" 
-                                placeholder="Ex: Editorial Xcorphion" />
-                        </div>
-                        <div>
-                            <label className="block text-xs text-white/70 mb-1">Fontes (Separadas por vírgula)</label>
-                            <input type="text" name="sources" value={formData.sources} onChange={handleChange} 
-                                className="w-full bg-black border border-white/20 rounded p-3 text-white focus:border-[#8B0000] outline-none transition" 
-                                placeholder="Ex: Nature, MIT Tech Review" />
-                        </div>
-                    </div>
-
-                    {/* Corpo do Artigo (Rich Text) */}
-                    <div>
-                        <label className="block text-xs text-white/70 mb-2">Corpo do Artigo (Editorial)</label>
-                        <div className="bg-white text-black rounded overflow-hidden">
-                            <ReactQuill 
-                                theme="snow" 
-                                value={formData.article_content} 
-                                onChange={handleQuillChange}
-                                modules={modules}
-                                className="h-[400px] pb-[42px]"
-                            />
-                        </div>
-                    </div>
-                </div>
+          {/* Left — Editor */}
+          <motion.div
+            initial={{ opacity: 0, x: -16 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            style={{
+              width: '50%', height: '100%', overflowY: 'auto',
+              padding: '40px', borderRight: '1px solid rgba(255,255,255,0.05)',
+            }}
+          >
+            <div style={{ marginBottom: 36 }}>
+              <h1 style={{ fontFamily: F.space, fontSize: 22, fontWeight: 700, color: 'white', letterSpacing: '-0.02em', marginBottom: 6 }}>
+                Break News
+              </h1>
+              <span style={{ fontFamily: F.inter, fontWeight: 600, fontSize: 11, color: '#8B0000', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+                Redação // Editor
+              </span>
             </div>
 
-            {/* PAINEL DIREITO: LIVE PREVIEW */}
-            <div className="w-full md:w-1/2 h-screen overflow-y-auto bg-[#0F172A] relative">
-                {/* O background 'preto chumbo levemente azulado' (#0F172A) solicitado */}
-                
-                <div className="sticky top-0 w-full bg-[#0F172A]/90 backdrop-blur-md border-b border-white/5 py-3 px-6 z-10 flex justify-between items-center">
-                    <span className="text-xs font-mono uppercase tracking-widest text-white/40">Live Preview</span>
-                    <span className="text-[10px] text-white/20">Renderização em Tempo Real</span>
-                </div>
+            {status && (
+              <div style={{
+                marginBottom: 24, padding: '14px 18px',
+                border: `1px solid ${isError ? 'rgba(139,0,0,0.35)' : 'rgba(255,255,255,0.07)'}`,
+                borderRadius: 10,
+                background: isError ? 'rgba(139,0,0,0.06)' : 'rgba(255,255,255,0.02)',
+              }}>
+                <p style={{ fontFamily: F.inter, fontSize: 13, color: isError ? 'rgba(210,70,70,0.9)' : 'rgba(255,255,255,0.6)', margin: 0 }}>
+                  {status}
+                </p>
+              </div>
+            )}
 
-                {/* Container do Artigo (Padrão Anthropic: limpo, centralizado, padding médio) */}
-                <div className="max-w-3xl mx-auto px-8 py-16">
-                    
-                    {/* Header do Artigo */}
-                    <div className="mb-12 text-center">
-                        <span className="text-[#8B0000] font-mono text-sm tracking-widest uppercase block mb-4">
-                            BREAK NEWS
-                        </span>
-                        <h1 className="text-4xl md:text-5xl font-space font-semibold text-white leading-tight mb-6">
-                            {formData.card_title || 'Título do Artigo Aparecerá Aqui'}
-                        </h1>
-                        <p className="text-lg text-white/60 font-inter max-w-2xl mx-auto leading-relaxed mb-8">
-                            {formData.card_legend || 'A legenda de apoio será exibida nesta área, complementando o título de forma elegante.'}
-                        </p>
-                        
-                        <div className="flex items-center justify-center gap-4 text-sm text-white/40 font-mono">
-                            <span>{formData.author || 'Autor'}</span>
-                            <span>•</span>
-                            <span>{new Date().toLocaleDateString('pt-BR')}</span>
-                        </div>
-                    </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
 
-                    {/* Imagem Hero Preview */}
-                    {formData.card_image && (
-                        <div className="w-full aspect-video rounded-xl overflow-hidden mb-12 border border-white/10">
-                            <img src={formData.card_image} alt="Preview" className="w-full h-full object-cover" />
-                        </div>
-                    )}
-
-                    {/* Corpo do Texto Renderizado */}
-                    {/* A classe 'prose' tipicamente vem do tailwind typography, mas aqui faremos estilos nativos p/ garantir controle */}
-                    <div 
-                        className="font-inter text-[17px] leading-[1.8] text-white/80 article-preview-content"
-                        dangerouslySetInnerHTML={{ __html: formData.article_content || '<p class="text-white/30 italic text-center mt-20">O conteúdo do artigo será renderizado aqui...</p>' }}
+              {/* Card data */}
+              <div style={{ padding: '28px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14 }}>
+                <span style={{ display: 'block', fontFamily: F.inter, fontSize: 11, color: 'rgba(255,255,255,0.22)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 24 }}>
+                  Dados do Card (Vitrine)
+                </span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+                  <div>
+                    <Label>Título (máx. 60 caracteres)</Label>
+                    <input type="text" name="card_title" value={formData.card_title} onChange={handleChange}
+                      style={inputBase} placeholder="Ex: A nova era da empatia algorítmica..."
+                      onFocus={onFocus} onBlur={onBlur}
                     />
-
-                    {/* Rodapé: Fontes */}
-                    {formData.sources && (
-                        <div className="mt-16 pt-8 border-t border-white/10">
-                            <span className="text-xs font-mono uppercase tracking-widest text-white/40 block mb-4">Fontes & Referências</span>
-                            <ul className="text-sm text-white/60 space-y-2">
-                                {formData.sources.split(',').map((s, i) => s.trim() && (
-                                    <li key={i}>[{i+1}] {s.trim()}</li>
-                                ))}
-                            </ul>
-                        </div>
-                    )}
+                  </div>
+                  <div>
+                    <Label>Legenda / Resumo</Label>
+                    <textarea name="card_legend" value={formData.card_legend} onChange={handleChange} rows={2}
+                      style={{ ...inputBase, resize: 'none' }}
+                      placeholder="Uma breve descrição que aparecerá no carrossel."
+                      onFocus={onFocus} onBlur={onBlur}
+                    />
+                  </div>
+                  <div>
+                    <Label>URL da Imagem (quadrada 1:1)</Label>
+                    <input type="text" name="card_image" value={formData.card_image} onChange={handleChange}
+                      style={inputBase} placeholder="https://exemplo.com/imagem.jpg"
+                      onFocus={onFocus} onBlur={onBlur}
+                    />
+                  </div>
                 </div>
+              </div>
+
+              {/* Metadata */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                <div>
+                  <Label>Autor</Label>
+                  <input type="text" name="author" value={formData.author} onChange={handleChange}
+                    style={inputBase} placeholder="Ex: Editorial Xcorphion"
+                    onFocus={onFocus} onBlur={onBlur}
+                  />
+                </div>
+                <div>
+                  <Label>Fontes (separadas por vírgula)</Label>
+                  <input type="text" name="sources" value={formData.sources} onChange={handleChange}
+                    style={inputBase} placeholder="Ex: Nature, MIT Tech Review"
+                    onFocus={onFocus} onBlur={onBlur}
+                  />
+                </div>
+              </div>
+
+              {/* Article body */}
+              <div>
+                <Label>Corpo do Artigo (Editorial)</Label>
+                <div style={{ borderRadius: 8, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }}>
+                  <ReactQuill
+                    theme="snow"
+                    value={formData.article_content}
+                    onChange={handleQuillChange}
+                    modules={modules}
+                    style={{ height: 400, paddingBottom: 42 }}
+                  />
+                </div>
+              </div>
+
+            </div>
+          </motion.div>
+
+          {/* Right — Live Preview */}
+          <motion.div
+            initial={{ opacity: 0, x: 16 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
+            style={{ width: '50%', height: '100%', overflowY: 'auto', background: '#080808', position: 'relative' }}
+          >
+            <div style={{
+              position: 'sticky', top: 0, zIndex: 10,
+              background: 'rgba(8,8,8,0.9)', backdropFilter: 'blur(24px)',
+              borderBottom: '1px solid rgba(255,255,255,0.05)',
+              padding: '0 40px', height: 48,
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            }}>
+              <span style={{ fontFamily: F.inter, fontSize: 11, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+                Live Preview
+              </span>
+              <span style={{ fontFamily: F.inter, fontSize: 10, color: 'rgba(255,255,255,0.18)' }}>
+                Renderização em tempo real
+              </span>
             </div>
 
-            {/* Estilos injetados para o conteúdo do Quill renderizado no preview */}
-            <style jsx global>{`
-                .article-preview-content p { margin-bottom: 1.5em; }
-                .article-preview-content h2 { font-family: 'Space Grotesk', sans-serif; font-size: 1.8rem; font-weight: 600; color: white; margin-top: 2em; margin-bottom: 1em; }
-                .article-preview-content h3 { font-family: 'Space Grotesk', sans-serif; font-size: 1.4rem; font-weight: 500; color: white; margin-top: 1.5em; margin-bottom: 0.8em; }
-                .article-preview-content a { color: #8B0000; text-decoration: underline; text-underline-offset: 4px; }
-                .article-preview-content blockquote { border-left: 4px solid #8B0000; padding-left: 1.5em; font-style: italic; color: rgba(255,255,255,0.7); margin: 2em 0; }
-                .article-preview-content ul { list-style-type: disc; padding-left: 1.5em; margin-bottom: 1.5em; }
-                .article-preview-content ol { list-style-type: decimal; padding-left: 1.5em; margin-bottom: 1.5em; }
-                .article-preview-content img { border-radius: 0.5rem; margin: 2em auto; display: block; max-width: 100%; border: 1px solid rgba(255,255,255,0.1); }
-                .article-preview-content iframe { width: 100%; aspect-ratio: 16/9; border-radius: 0.5rem; margin: 2em 0; border: 1px solid rgba(255,255,255,0.1); }
-            `}</style>
+            <div style={{ maxWidth: 640, margin: '0 auto', padding: '64px 40px 120px' }}>
+
+              {/* Article header */}
+              <div style={{ marginBottom: 56, textAlign: 'center' }}>
+                <span style={{ fontFamily: F.inter, fontWeight: 600, fontSize: 11, color: '#8B0000', letterSpacing: '0.14em', textTransform: 'uppercase', display: 'block', marginBottom: 20 }}>
+                  BREAK NEWS
+                </span>
+                <h1 style={{
+                  fontFamily: F.space, fontWeight: 700,
+                  fontSize: 'clamp(26px, 4vw, 42px)',
+                  letterSpacing: '-0.03em', lineHeight: 1.1,
+                  color: 'white', marginBottom: 20,
+                }}>
+                  {formData.card_title || 'Título do artigo aparecerá aqui'}
+                </h1>
+                <p style={{ fontFamily: F.inter, fontWeight: 300, fontSize: 18, color: 'rgba(255,255,255,0.5)', lineHeight: 1.7, maxWidth: 500, margin: '0 auto 28px' }}>
+                  {formData.card_legend || 'A legenda de apoio será exibida aqui, complementando o título.'}
+                </p>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, fontFamily: F.inter, fontWeight: 600, fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>
+                  <span>{formData.author || 'Autor'}</span>
+                  <span>·</span>
+                  <span>{new Date().toLocaleDateString('pt-BR')}</span>
+                </div>
+              </div>
+
+              {formData.card_image && (
+                <div style={{ width: '100%', aspectRatio: '16/9', borderRadius: 12, overflow: 'hidden', marginBottom: 56, border: '1px solid rgba(255,255,255,0.07)' }}>
+                  <img src={formData.card_image} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                </div>
+              )}
+
+              <div
+                className="article-preview-content"
+                style={{ fontFamily: F.inter, fontSize: 17, lineHeight: 1.8, color: 'rgba(255,255,255,0.72)' }}
+                dangerouslySetInnerHTML={{ __html: formData.article_content || '<p style="color:rgba(255,255,255,0.2);font-style:italic;text-align:center;margin-top:60px">O conteúdo do artigo será renderizado aqui...</p>' }}
+              />
+
+              {formData.sources && (
+                <div style={{ marginTop: 64, paddingTop: 32, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                  <span style={{ fontFamily: F.inter, fontSize: 11, color: 'rgba(255,255,255,0.25)', letterSpacing: '0.1em', textTransform: 'uppercase', display: 'block', marginBottom: 16 }}>
+                    Fontes & Referências
+                  </span>
+                  <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {formData.sources.split(',').map((s, i) => s.trim() && (
+                      <li key={i} style={{ fontFamily: F.inter, fontSize: 13, color: 'rgba(255,255,255,0.45)' }}>
+                        [{i + 1}] {s.trim()}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+            </div>
+          </motion.div>
+
         </div>
-    );
+      </div>
+
+      <style jsx global>{`
+        .article-preview-content p { margin-bottom: 1.5em; }
+        .article-preview-content h2 { font-family: 'Space Grotesk', sans-serif; font-size: 1.75rem; font-weight: 700; color: white; margin-top: 2em; margin-bottom: 1em; letter-spacing: -0.02em; }
+        .article-preview-content h3 { font-family: 'Space Grotesk', sans-serif; font-size: 1.35rem; font-weight: 600; color: white; margin-top: 1.5em; margin-bottom: 0.75em; letter-spacing: -0.02em; }
+        .article-preview-content a { color: #8B0000; text-decoration: underline; text-underline-offset: 4px; }
+        .article-preview-content blockquote { border-left: 3px solid rgba(139,0,0,0.45); padding-left: 1.5em; font-style: italic; color: rgba(255,255,255,0.55); margin: 2em 0; }
+        .article-preview-content ul { list-style-type: disc; padding-left: 1.5em; margin-bottom: 1.5em; }
+        .article-preview-content ol { list-style-type: decimal; padding-left: 1.5em; margin-bottom: 1.5em; }
+        .article-preview-content img { border-radius: 10px; margin: 2em auto; display: block; max-width: 100%; border: 1px solid rgba(255,255,255,0.07); }
+        .article-preview-content iframe { width: 100%; aspect-ratio: 16/9; border-radius: 10px; margin: 2em 0; border: 1px solid rgba(255,255,255,0.07); }
+        .ql-toolbar.ql-snow { background: #161616 !important; border: none !important; border-bottom: 1px solid rgba(255,255,255,0.08) !important; }
+        .ql-container.ql-snow { border: none !important; }
+        .ql-toolbar.ql-snow .ql-stroke { stroke: rgba(255,255,255,0.5); }
+        .ql-toolbar.ql-snow .ql-fill { fill: rgba(255,255,255,0.5); }
+        .ql-toolbar.ql-snow button:hover .ql-stroke { stroke: white; }
+        .ql-toolbar.ql-snow button:hover .ql-fill { fill: white; }
+        .ql-toolbar.ql-snow .ql-picker-label { color: rgba(255,255,255,0.5); }
+        .ql-editor { background: white; color: #111; min-height: 400px; font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.7; }
+      `}</style>
+    </>
+  );
 }

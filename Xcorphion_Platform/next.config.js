@@ -1,10 +1,5 @@
-const path = require('path');
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  turbopack: {
-    root: path.resolve(__dirname, '..'),
-  },
   i18n: {
     locales: ['pt', 'en', 'es'],
     defaultLocale: 'pt',

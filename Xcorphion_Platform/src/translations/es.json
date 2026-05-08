@@ -1,5 +1,5 @@
 {
-  "common": { "back": "Volver", "joinWaitlist": "Unirse a la lista de espera" },
+  "common": { "back": "Volver", "joinWaitlist": "Waitlist" },
   "omma": {
     "heroDesc": "El primer sistema de IA que aprende de tu estado — sin preguntar, sin formularios, sin perfiles.",
     "featuresLabel": "Qué es OMMΩ",
@@ -15,8 +15,8 @@
     "quoteText": "Construimos OMMΩ para que en 10 años ningún sistema de IA necesite preguntar cómo estás. Ya lo sabrá por la forma en que interactúas con él.",
     "quoteAttr": "— Xcorphion",
     "ctaTitle": "Sé el primero en usar OMMΩ",
-    "ctaSubtitle": "Plazas limitadas para el programa de acceso anticipado.",
-    "ctaBtn": "Unirse a la Waitlist"
+    "ctaSubtitle": "Plazas limitadas. Acceso a través de la Sesión 1 de investigación.",
+    "ctaBtn": "Waitlist"
   },
   "footer": {
     "tagline": "The first mind that sees yours.",

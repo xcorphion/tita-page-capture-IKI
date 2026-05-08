@@ -1,6 +1,8 @@
 import Head from 'next/head';
 import Link from 'next/link';
+import { useState } from 'react';
 import { useTranslation } from '../../hooks/useTranslation';
+import WaitlistGateModal from '../WaitlistGate/WaitlistGateModal';
 
 const F = {
   space: "'Space Grotesk', sans-serif",
@@ -9,6 +11,7 @@ const F = {
 
 export default function ComingSoon({ productKey, backHref = '/' }) {
   const { t } = useTranslation();
+  const [gateOpen, setGateOpen] = useState(false);
   const name = t(`products.${productKey}.name`);
   const desc = t(`products.${productKey}.desc`);
 
@@ -91,14 +94,15 @@ export default function ComingSoon({ productKey, backHref = '/' }) {
           </p>
 
           {/* cta */}
-          <Link href="/omma" style={{
+          <button onClick={() => setGateOpen(true)} style={{
             display: 'inline-flex', alignItems: 'center', gap: 10,
             fontFamily: F.inter, fontWeight: 500, fontSize: 15,
             color: '#fff',
             background: '#8B0000',
             padding: '14px 32px',
             borderRadius: 8,
-            textDecoration: 'none',
+            border: 'none',
+            cursor: 'pointer',
             boxShadow: '0 0 28px rgba(139,0,0,0.28)',
             transition: 'background 0.25s, box-shadow 0.25s, transform 0.18s',
           }}
@@ -115,7 +119,8 @@ export default function ComingSoon({ productKey, backHref = '/' }) {
           >
             {t('common.joinWaitlist')}
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
-          </Link>
+          </button>
+          <WaitlistGateModal isOpen={gateOpen} onClose={() => setGateOpen(false)} />
 
           {/* divider line */}
           <div style={{

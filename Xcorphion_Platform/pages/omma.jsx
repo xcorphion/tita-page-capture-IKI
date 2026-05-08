@@ -1,7 +1,8 @@
 import Head from 'next/head';
 import Link from 'next/link';
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from '../src/hooks/useTranslation';
+import WaitlistGateModal from '../src/components/WaitlistGate/WaitlistGateModal';
 
 const BrainIcon = () => (
   <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -45,6 +46,7 @@ const CARD_ICONS = [BrainIcon, ActivityIcon, ShieldIcon];
 
 export default function OmmaPage() {
   const { t } = useTranslation();
+  const [gateOpen, setGateOpen] = useState(false);
 
   const CARDS = [
     {
@@ -85,7 +87,7 @@ export default function OmmaPage() {
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
         <style>{`
           *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -140,8 +142,8 @@ export default function OmmaPage() {
 
           .hero-badge {
             display: inline-flex; align-items: center; gap: 8px;
-            font-family: 'JetBrains Mono', monospace; font-size: 11px;
-            letter-spacing: 0.25em; color: var(--dim);
+            font-family: 'Inter', sans-serif; font-weight: 500; font-size: 11px;
+            letter-spacing: 0.2em; color: var(--dim);
             animation: rise 0.9s cubic-bezier(0.22,1,0.36,1) 0.15s both;
           }
 
@@ -166,8 +168,8 @@ export default function OmmaPage() {
           }
 
           .hero-tag {
-            font-family: 'JetBrains Mono', monospace; font-size: 11px;
-            letter-spacing: 0.32em; color: var(--red); text-transform: uppercase;
+            font-family: 'Inter', sans-serif; font-weight: 600; font-size: 11px;
+            letter-spacing: 0.28em; color: var(--red); text-transform: uppercase;
             animation: rise 0.9s cubic-bezier(0.22,1,0.36,1) 0.45s both;
           }
 
@@ -231,8 +233,8 @@ export default function OmmaPage() {
             color: rgba(255,255,255,0.78); max-width: 700px;
           }
           .quote-attr {
-            font-family: 'JetBrains Mono', monospace; font-size: 11px;
-            letter-spacing: 0.22em; color: var(--red); text-transform: uppercase;
+            font-family: 'Inter', sans-serif; font-weight: 600; font-size: 11px;
+            letter-spacing: 0.18em; color: var(--red); text-transform: uppercase;
             margin-top: 22px;
           }
 
@@ -255,22 +257,22 @@ export default function OmmaPage() {
 
           /* ── misc ───────────────────────────────── */
           .back-link {
-            font-family: 'JetBrains Mono', monospace; font-size: 11px;
-            color: var(--dim); text-decoration: none; letter-spacing: 0.08em;
+            font-family: 'Inter', sans-serif; font-weight: 400; font-size: 11px;
+            color: var(--dim); text-decoration: none; letter-spacing: 0.06em;
             display: inline-flex; align-items: center; gap: 7px;
             transition: color 0.2s;
           }
           .back-link:hover { color: var(--muted); }
 
           .version-tag {
-            font-family: 'JetBrains Mono', monospace; font-size: 10px;
-            color: var(--dim); letter-spacing: 0.15em;
+            font-family: 'Inter', sans-serif; font-weight: 500; font-size: 10px;
+            color: var(--dim); letter-spacing: 0.12em;
             border: 1px solid var(--border); padding: 3px 8px; border-radius: 4px;
           }
 
           .section-label {
-            font-family: 'JetBrains Mono', monospace; font-size: 10px;
-            letter-spacing: 0.3em; color: var(--dim); text-transform: uppercase;
+            font-family: 'Inter', sans-serif; font-weight: 500; font-size: 10px;
+            letter-spacing: 0.25em; color: var(--dim); text-transform: uppercase;
             margin-bottom: 14px;
           }
           .section-title {
@@ -393,10 +395,11 @@ export default function OmmaPage() {
             }}>
               {t('omma.ctaSubtitle')}
             </p>
-            <button className="cta-btn">
+            <button onClick={() => setGateOpen(true)} className="cta-btn">
               {t('omma.ctaBtn')}
               <ArrowRightIcon />
             </button>
+            <WaitlistGateModal isOpen={gateOpen} onClose={() => setGateOpen(false)} />
           </div>
         </section>
 
@@ -406,10 +409,10 @@ export default function OmmaPage() {
           borderTop: '1px solid rgba(255,255,255,0.04)',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         }}>
-          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: 'rgba(255,255,255,0.18)', letterSpacing: '0.1em' }}>
+          <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 500, fontSize: 10, color: 'rgba(255,255,255,0.18)', letterSpacing: '0.1em' }}>
             © 2025 XCORPHION
           </span>
-          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: 'rgba(255,255,255,0.18)', letterSpacing: '0.1em' }}>
+          <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 500, fontSize: 10, color: 'rgba(255,255,255,0.18)', letterSpacing: '0.1em' }}>
             OMMΩ — SOMATIC AI
           </span>
         </footer>

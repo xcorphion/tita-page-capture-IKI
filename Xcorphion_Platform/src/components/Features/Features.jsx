@@ -42,7 +42,7 @@ const Features = () => {
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          className="block font-mono text-xs text-accent-1 tracking-[0.2em] uppercase text-center mb-16"
+          className="block font-inter text-xs text-accent-1 tracking-[0.2em] uppercase text-center mb-16"
         >
           ARQUITETURA PERCEPTIVA
         </motion.span>
@@ -59,7 +59,7 @@ const Features = () => {
             >
               <div className="absolute top-0 left-0 w-full h-[2px] bg-transparent group-hover:bg-accent-1 transition-all duration-300"></div>
               
-              <span className="block font-mono text-xs text-accent-1 mb-6">
+              <span className="block font-inter text-xs text-accent-1 mb-6">
                 {feature.id}
               </span>
               

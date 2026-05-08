@@ -19,7 +19,7 @@ const Pipeline = () => {
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="block font-mono text-xs text-accent-1 tracking-[0.2em] uppercase mb-8"
+            className="block font-inter text-xs text-accent-1 tracking-[0.2em] uppercase mb-8"
           >
             PIPELINE EMOCIONAL
           </motion.span>
@@ -43,8 +43,8 @@ const Pipeline = () => {
                 transition={{ duration: 0.5, delay: i * 0.15 }}
                 className="flex items-center gap-6"
               >
-                <span className="font-mono text-sm text-accent-1">{step.id}</span>
-                <span className="font-mono text-sm text-text-muted leading-none">{step.text}</span>
+                <span className="font-inter text-sm text-accent-1">{step.id}</span>
+                <span className="font-inter text-sm text-text-muted leading-none">{step.text}</span>
               </motion.div>
             ))}
           </div>

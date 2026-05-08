@@ -8,10 +8,6 @@ export default async function handler(req, res) {
     const { session_id, participant_code, engagement_rating, engagement_genuine, text_final } = req.body;
     const participant_id = hashParticipantId(participant_code);
 
-    // Capture fingerprint for session-lock identification
-    const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'unknown';
-    const ua = req.headers['user-agent'] || 'unknown';
-
     try {
         console.log(`[SessionEnd] Iniciando fim de sessão para ${session_id}`);
         const db = await connectToDatabase();
@@ -87,10 +83,6 @@ export default async function handler(req, res) {
             $set: {}
         };
         
-        if (sessionsBeforeEnd === 0) {
-            participantUpdate.$set.fingerprint = { ip, user_agent: ua, captured_at: new Date() };
-        }
-
         const isEngaged = Boolean(engagement_genuine);
         
         // Ativar engajamento e status de sessões
