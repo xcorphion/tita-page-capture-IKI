@@ -34,7 +34,7 @@ async function main() {
     const client = new MongoClient(uri);
     try {
         await client.connect();
-        const db = client.db();
+        const db = client.db('Research_System');
         const participants = db.collection('participants');
 
         let code;
@@ -76,7 +76,7 @@ async function main() {
         console.log(`✓ Sessão 1: LIBERADA`);
         console.log(`✓ Sessão 2: AGUARDANDO (requer admin)`);
         console.log(`✓ Sessão 3: AGUARDANDO (requer admin)`);
-        console.log(`Link de convite: ${appUrl}/study/convite/${code}`);
+        console.log(`Link de convite: ${appUrl}/study/convite/${participant_id}`);
 
     } catch (e) {
         console.error("Erro ao criar participante:", e);

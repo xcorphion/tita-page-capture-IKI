@@ -1,4 +1,5 @@
 import Head from 'next/head';
+import Link from 'next/link';
 import { connectToDatabase } from '@xcorphion/shared';
 
 export default function Convite({ participant, error, appUrl }) {
@@ -169,9 +170,9 @@ export default function Convite({ participant, error, appUrl }) {
                         <div style={{ fontSize: '2.5rem', fontWeight: 'bold', letterSpacing: '0.15em', color: '#eee', marginBottom: 25 }}>
                             {participant_code}
                         </div>
-                        <a href={session_link} style={{ display: 'inline-block', background: '#eee', color: '#000', padding: '12px 30px', borderRadius: 8, fontSize: '1.05rem', fontWeight: 'bold', textDecoration: 'none', transition: 'all 0.2s' }}>
+                        <Link href={session_link} style={{ display: 'inline-block', background: '#eee', color: '#000', padding: '12px 30px', borderRadius: 8, fontSize: '1.05rem', fontWeight: 'bold', textDecoration: 'none', transition: 'all 0.2s' }}>
                             Iniciar Sessão {sessionNumber}
-                        </a>
+                        </Link>
                     </div>
                 </div>
             </div>
@@ -184,7 +185,8 @@ export async function getServerSideProps(context) {
     
     try {
         const db = await connectToDatabase();
-        const participant = await db.collection('participants').findOne({ participant_code: codigo });
+        const participant = await db.collection('participants').findOne({ participant_id: codigo })
+            ?? await db.collection('participants').findOne({ participant_code: codigo });
 
         if (!participant) {
             return { props: { error: true } };

@@ -6,6 +6,7 @@ import Layout from '@xcorphion/platform/src/components/xcorphion/Layout';
 export default function IKIResearchPage() {
     const router = useRouter();
     const { respondentId } = router.query;
+    const base = router.basePath;
 
     // ── Estados de UI ────────────────────────────────────────────────────────
     const [status, setStatus] = useState('loading');
@@ -48,7 +49,7 @@ export default function IKIResearchPage() {
         const checkParticipant = async () => {
             console.log(`[DEBUG][FIX-7] Validando status do participante...`);
             try {
-                const res = await fetch(`/api/participant/${respondentId}`);
+                const res = await fetch(`${base}/api/participant/${respondentId}`);
                 if (!res.ok) throw new Error();
                 const data = await res.json();
                 console.log(`[DEBUG][FIX-7] Participante carregado. Sessões: ${data.sessions_completed}, Onboarding: ${data.onboarding_complete}`);
@@ -95,7 +96,7 @@ export default function IKIResearchPage() {
 
         console.log(`[DEBUG][FIX-5][START] Enviando Lote: ${count} eventos.`);
         try {
-            await fetch('/api/events/batch', {
+            await fetch(`${base}/api/events/batch`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -115,7 +116,7 @@ export default function IKIResearchPage() {
         console.log(`[DEBUG][FIX-7][END] Jitter: ${jitter}ms`);
 
         try {
-            const res = await fetch('/api/session/start', {
+            const res = await fetch(`${base}/api/session/start`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -221,7 +222,7 @@ export default function IKIResearchPage() {
     const completeOnboarding = async (wpm) => {
         console.log(`[DEBUG][FIX-6][START] Gravando Baseline WPM...`);
         try {
-            await fetch(`/api/participant/${respondentId}`, {
+            await fetch(`${base}/api/participant/${respondentId}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ wpm_baseline: wpm, device_profile: { userAgent: navigator.userAgent } })
@@ -240,7 +241,7 @@ export default function IKIResearchPage() {
         console.log(`[DEBUG][FIX-10][FIX-11][FIX-12] Enviando EMA: Valência=${v}, Arousal=${a}, RelTime=${rel_ts}ms`);
 
         try {
-            await fetch('/api/ema', {
+            await fetch(`${base}/api/ema`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -269,7 +270,7 @@ export default function IKIResearchPage() {
         console.log(`[DEBUG][FIX-12][FIX-13][START] Encerrando Sessão. Rating=${pendingRatingRef.current}, Genuino=${genuine}`);
         await flushBatch();
         try {
-            await fetch('/api/session/end', {
+            await fetch(`${base}/api/session/end`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
