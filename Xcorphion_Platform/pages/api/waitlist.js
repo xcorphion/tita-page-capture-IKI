@@ -1,4 +1,4 @@
-import { connectToDatabase } from '@xcorphion/shared';
+import { connectToDatabase } from '../../lib/mongodb';
 import { rateLimit } from '../../lib/rateLimit';
 
 export default async function handler(req, res) {

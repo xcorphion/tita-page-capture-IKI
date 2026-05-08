@@ -1,4 +1,4 @@
-import { connectToDatabase } from '@xcorphion/shared';
+import { connectToDatabase } from '../../lib/mongodb';
 import crypto from 'crypto';
 import { rateLimit } from '../../lib/rateLimit';
 

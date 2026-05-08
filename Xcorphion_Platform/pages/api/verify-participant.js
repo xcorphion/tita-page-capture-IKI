@@ -1,4 +1,4 @@
-import { connectToDatabase } from '@xcorphion/shared';
+import { connectToDatabase } from '../../lib/mongodb';
 import { rateLimit } from '../../lib/rateLimit';
 
 const CODE_RE = /^[A-Z0-9]{1,20}$/;

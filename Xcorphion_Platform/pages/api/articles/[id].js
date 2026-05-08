@@ -1,4 +1,4 @@
-import { connectToDatabase } from '@xcorphion/shared';
+import { connectToDatabase } from '../../../lib/mongodb';
 import { checkAdminAuth } from '../../../lib/adminAuth';
 
 function sanitizeHtml(html) {
