@@ -1,5 +1,24 @@
 /** @type {import('next').NextConfig} */
 
+// CSP permissivo para os iframes estáticos que carregam React/Tailwind de CDN
+// unsafe-inline necessário porque os .html têm scripts inline de render
+const HTML_CSP = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://unpkg.com",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.tailwindcss.com",
+  "font-src 'self' https://fonts.gstatic.com data:",
+  "img-src 'self' data: blob:",
+  "connect-src 'self'",
+  "frame-ancestors 'self'",
+  "base-uri 'self'",
+  "object-src 'none'",
+].join('; ');
+
+const htmlIframeHeaders = [
+  { key: 'Content-Security-Policy', value: HTML_CSP },
+  { key: 'X-Content-Type-Options', value: 'nosniff' },
+];
+
 // Three.js / react-three-fiber may spawn blob: workers for offscreen rendering
 // unsafe-eval required by Next.js react-refresh in development only
 const isDev = process.env.NODE_ENV !== 'production';
@@ -39,7 +58,12 @@ const nextConfig = {
     buildActivity: false,
   },
   async headers() {
-    return [{ source: '/:path*', headers: securityHeaders }];
+    return [
+      { source: '/sidebar.html',       headers: htmlIframeHeaders },
+      { source: '/headline-full.html', headers: htmlIframeHeaders },
+      { source: '/manifesto-full.html', headers: htmlIframeHeaders },
+      { source: '/:path*',             headers: securityHeaders },
+    ];
   },
   async rewrites() {
     return [
