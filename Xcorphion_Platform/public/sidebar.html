@@ -54,6 +54,17 @@
                 window.parent.postMessage({ type: 'SIDEBAR_RESIZE', isExpanded }, '*');
             }, [isExpanded]);
 
+            // Ouvir scroll spy da página pai
+            useEffect(() => {
+                const handler = (event) => {
+                    if (event.data?.type === 'SCROLL_ACTIVE' && event.data.id) {
+                        setActiveItem(event.data.id);
+                    }
+                };
+                window.addEventListener('message', handler);
+                return () => window.removeEventListener('message', handler);
+            }, []);
+
             return React.createElement(motion.nav, {
                 initial: { x: -100 },
                 animate: { x: 0 },
