@@ -25,7 +25,7 @@ const FloatingNav = () => {
                 setIframeWidth(event.data.isExpanded ? '420px' : '220px');
             } else if (event.data?.type === 'SIDEBAR_NAVIGATE') {
                 if (event.data.id === 'research') {
-                    window.location.href = '/research';
+                    window.location.href = '/study';
                     return;
                 }
                 if (event.data.id === 'omma') {
