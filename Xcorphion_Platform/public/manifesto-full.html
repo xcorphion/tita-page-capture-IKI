@@ -50,6 +50,32 @@
         const { useState, useEffect } = React;
         const { motion } = window.Motion;
 
+        const lang = new URLSearchParams(window.location.search).get('lang') || 'pt';
+        const MT = {
+            pt: {
+                titleLine1: "Primeiro launch",
+                titleLine2: "da Xcorphion",
+                desc: "Construímos o OMMΩ para que em 10 anos nenhum sistema de IA precise perguntar como você está. Ele já saberá pelo modo como você interage com ele.",
+                cta: "Conhecer OMMΩ",
+                competitors: "Concorrentes"
+            },
+            en: {
+                titleLine1: "First launch",
+                titleLine2: "by Xcorphion",
+                desc: "We built OMMΩ so that in 10 years no AI system needs to ask how you're doing. It will already know by the way you interact with it.",
+                cta: "Meet OMMΩ",
+                competitors: "Competitors"
+            },
+            es: {
+                titleLine1: "Primer lanzamiento",
+                titleLine2: "de Xcorphion",
+                desc: "Construimos OMMΩ para que en 10 años ningún sistema de IA necesite preguntar cómo estás. Ya lo sabrá por la forma en que interactúas con él.",
+                cta: "Conocer OMMΩ",
+                competitors: "Competidores"
+            }
+        };
+        const mt = MT[lang] || MT.pt;
+
         // ═══════════════════════════════════════════
         // DADOS DOS CONCORRENTES
         // ═══════════════════════════════════════════
@@ -57,7 +83,7 @@
             { name: "Claude Opus 4.7", company: "Anthropic", params: "500B", barWidth: 18,  color: "#8B0000" },
             { name: "Llama Behemoth",  company: "Meta AI",   params: "2.0T", barWidth: 35,  color: "#8B0000" },
             { name: "GPT-5.5 Instant", company: "OpenAI",    params: "3.2T", barWidth: 100, color: "#8B0000" },
-            { name: "OMMΩ",            company: "Xcorphion", params: "80B",  barWidth: 3,   color: "#94A3B8" },
+            { name: "OMMΩ",            company: "Xcorphion", params: "??B",  barWidth: 3,   color: "#94A3B8" },
         ];
 
         // ═══════════════════════════════════════════
@@ -135,22 +161,23 @@
                             key: "title",
                             className: "font-space font-medium text-[56px] leading-[1.1] tracking-tight text-white mb-6"
                         }, [
-                            "Primeiro launch",
+                            mt.titleLine1,
                             React.createElement("br", { key: "br1" }),
-                            "da Xcorphion"
+                            mt.titleLine2
                         ]),
 
                         // Parágrafo
                         React.createElement("p", {
                             key: "sub",
                             className: "font-inter text-[18px] leading-[1.6] text-white/60 max-w-md mb-10"
-                        }, "Construímos o OMMΩ para que em 10 anos nenhum sistema de IA precise perguntar como você está. Ele já saberá pelo modo como você interage com ele."),
+                        }, mt.desc),
 
                         // Botão Retangular (Rounded 8px)
                         React.createElement("button", {
                             key: "btn",
+                            onClick: () => { window.parent.location.href = '/omma'; },
                             className: "bg-[#8B0000] hover:bg-[#990000] text-white font-inter font-semibold text-[15px] px-8 py-3.5 rounded-[8px] transition-all duration-300 shadow-[0_0_20px_rgba(139,0,0,0.2)] hover:shadow-[0_0_30px_rgba(139,0,0,0.4)] pointer-events-auto"
-                        }, "Conhecer OMMΩ")
+                        }, mt.cta)
                     ]),
 
                     // COLUNA DIREITA — Tabela de Concorrentes
@@ -164,7 +191,7 @@
                     }, [
                         // Título da tabela
                         React.createElement("div", { key: "table-header", className: "pb-4 border-b border-white/5 mb-2" },
-                            React.createElement("span", { className: "font-inter text-[11px] text-white/25 uppercase tracking-[0.2em]" }, "Concorrentes")
+                            React.createElement("span", { className: "font-inter text-[11px] text-white/25 uppercase tracking-[0.2em]" }, mt.competitors)
                         ),
 
                         // Linhas de dados

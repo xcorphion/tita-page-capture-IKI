@@ -36,7 +36,14 @@ export default function ResearchFinishPage() {
 
                     <div className="mt-16 flex flex-col items-center gap-6">
                         <div className="h-px w-24 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-                        <button 
+                        <a
+                            href={`${process.env.NEXT_PUBLIC_PLATFORM_URL || 'https://xcorphion.online'}/study?code=${respondentId}`}
+                            className="inline-flex items-center gap-3 bg-[#8B0000] hover:bg-[#9e0000] text-white text-sm font-medium px-8 py-3.5 rounded-lg transition-all duration-300 shadow-[0_0_24px_rgba(139,0,0,0.25)] hover:shadow-[0_0_40px_rgba(139,0,0,0.45)]"
+                        >
+                            Entrar na lista de espera do OMMΩ
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                        </a>
+                        <button
                             onClick={() => router.push('/')}
                             className="text-[10px] uppercase tracking-[0.4em] text-white/30 hover:text-white transition-all duration-500 hover:tracking-[0.6em]"
                         >

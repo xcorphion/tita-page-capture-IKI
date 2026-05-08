@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 
 const initDebug = (moduleName) => console.log(`[DEBUG][INIT] Módulo montado: ${moduleName}`);
 const callDebug = (action) => console.log(`[DEBUG][CALL] Ação disparada: ${action}`);
 
 const FloatingNav = () => {
-    // Definimos a largura base do iframe. Quando retraído: ~160px (para caber a sombra). Quando expandido: ~360px.
-    const [iframeWidth, setIframeWidth] = useState('160px');
+    const { locale } = useRouter();
+    const [iframeWidth, setIframeWidth] = useState('220px');
 
     useEffect(() => {
         initDebug('FloatingNav (Iframe Orchestrator)');
@@ -21,10 +22,14 @@ const FloatingNav = () => {
 
         const handleMessage = (event) => {
             if (event.data?.type === 'SIDEBAR_RESIZE') {
-                setIframeWidth(event.data.isExpanded ? '360px' : '160px');
+                setIframeWidth(event.data.isExpanded ? '420px' : '220px');
             } else if (event.data?.type === 'SIDEBAR_NAVIGATE') {
                 if (event.data.id === 'research') {
                     window.location.href = '/research';
+                    return;
+                }
+                if (event.data.id === 'omma') {
+                    window.location.href = '/omma';
                     return;
                 }
                 const targetId = sectionMap[event.data.id];
@@ -62,8 +67,8 @@ const FloatingNav = () => {
     }, []);
 
     return (
-        <iframe 
-            src="/sidebar.html"
+        <iframe
+            src={`/sidebar.html?lang=${locale || 'pt'}`}
             style={{ 
                 width: iframeWidth, 
                 transition: 'width 0.6s cubic-bezier(0.22, 1, 0.36, 1)', 

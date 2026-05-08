@@ -1,58 +1,132 @@
+import Link from 'next/link';
+import { useTranslation } from '../../hooks/useTranslation';
 
-const Footer = () => {
+const F = {
+  space: "'Space Grotesk', sans-serif",
+  inter: "'Inter', sans-serif",
+};
+
+const ColLabel = ({ children }) => (
+  <span style={{
+    display: 'block', fontFamily: F.space, fontWeight: 600, fontSize: 11,
+    color: '#8B0000', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 20,
+  }}>
+    {children}
+  </span>
+);
+
+const NavLink = ({ href, children, isNext, tag }) => {
+  const baseStyle = {
+    display: 'flex', alignItems: 'center', gap: 8,
+    fontFamily: F.inter, fontSize: 14,
+    color: 'rgba(240,234,232,0.35)',
+    textDecoration: 'none', transition: 'color 0.2s',
+  };
+  const handlers = {
+    onMouseEnter: e => { e.currentTarget.style.color = '#B22222'; },
+    onMouseLeave: e => { e.currentTarget.style.color = 'rgba(240,234,232,0.35)'; },
+  };
+  const inner = (
+    <>
+      {children}
+      {tag && (
+        <span style={{ fontFamily: F.inter, fontSize: 9, color: 'rgba(240,234,232,0.2)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+          {tag}
+        </span>
+      )}
+    </>
+  );
+  return isNext
+    ? <Link href={href} style={baseStyle} {...handlers}>{inner}</Link>
+    : <a href={href} style={baseStyle} {...handlers}>{inner}</a>;
+};
+
+const Col = ({ label, children }) => (
+  <div>
+    <ColLabel>{label}</ColLabel>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 13 }}>
+      {children}
+    </div>
+  </div>
+);
+
+export default function Footer() {
+  const { t } = useTranslation();
+
   return (
-    <footer className="bg-bg-primary border-t border-accent-dim pt-24 pb-12 px-6 md:px-12">
-      <div className="max-w-[1440px] mx-auto">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-12 mb-24">
-          <div className="col-span-2 md:col-span-1">
-            <span className="font-space font-bold text-sm text-text-primary tracking-widest uppercase">
-              Xcorpion Corporation
+    <footer style={{
+      backgroundColor: '#000',
+      borderTop: '1px solid #3D0000',
+      paddingTop: 72, paddingBottom: 40,
+    }}>
+      {/* alinhado com max-w-6xl mx-auto px-8 do BreakNews */}
+      <div style={{ maxWidth: 1152, margin: '0 auto', paddingLeft: 32, paddingRight: 32 }}>
+
+        {/* grid */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '1.4fr 1fr 1fr 1fr 1fr',
+          gap: '48px 40px',
+          marginBottom: 64,
+        }}>
+
+          {/* ── Brand ─────────────────────────── */}
+          <div>
+            <span style={{ display: 'block', fontFamily: F.space, fontWeight: 700, fontSize: 13, color: '#F0EAE8', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 20 }}>
+              Xcorphion
             </span>
-            <p className="mt-4 font-inter text-sm text-text-muted italic leading-relaxed">
-              The first mind<br />that sees yours.
+            <p style={{ fontFamily: F.inter, fontSize: 13, color: 'rgba(240,234,232,0.45)', fontStyle: 'italic', lineHeight: 1.65, maxWidth: 200 }}>
+              {t('footer.tagline')}
+            </p>
+            <p style={{ fontFamily: F.inter, fontSize: 11, color: 'rgba(240,234,232,0.18)', letterSpacing: '0.06em', marginTop: 24 }}>
+              {t('footer.location')}
             </p>
           </div>
 
-          <div>
-            <span className="block font-mono text-xs text-accent-1 tracking-[0.15em] uppercase mb-6">Produto</span>
-            <div className="space-y-4">
-              <a href="#" className="block font-inter text-sm text-text-dim hover:text-accent-hot transition-colors duration-200">TITAN — OMMA</a>
-              <a href="#waitlist" className="block font-inter text-sm text-text-dim hover:text-accent-hot transition-colors duration-200">Waitlist</a>
-              <a href="#" className="block font-inter text-sm text-text-dim hover:text-accent-hot transition-colors duration-200">API (em breve)</a>
-              <a href="#" className="block font-inter text-sm text-text-dim hover:text-accent-hot transition-colors duration-200">White Label</a>
-            </div>
-          </div>
+          {/* ── OMMΩ ──────────────────────────── */}
+          <Col label={t('footer.colOmma')}>
+            <NavLink href="/omma" isNext>{t('footer.ommaPersonal')}</NavLink>
+            <NavLink href="/omma-business" isNext tag={t('footer.soon')}>{t('footer.ommaBusiness')}</NavLink>
+            <NavLink href="/omma-chat" isNext tag={t('footer.soon')}>{t('footer.ommaChat')}</NavLink>
+            <NavLink href="/omma-solutions" isNext tag={t('footer.soon')}>{t('footer.ommaSolutions')}</NavLink>
+            <NavLink href="/omma-api" isNext tag={t('footer.soon')}>{t('footer.ommaApi')}</NavLink>
+          </Col>
 
-          <div>
-            <span className="block font-mono text-xs text-accent-1 tracking-[0.15em] uppercase mb-6">Empresa</span>
-            <div className="space-y-4">
-              <a href="#" className="block font-inter text-sm text-text-dim hover:text-accent-hot transition-colors duration-200">Sobre</a>
-              <a href="#" className="block font-inter text-sm text-text-dim hover:text-accent-hot transition-colors duration-200">Contato</a>
-              <a href="#" className="block font-inter text-sm text-text-dim hover:text-accent-hot transition-colors duration-200">Xcorpion Corp</a>
-            </div>
-          </div>
+          {/* ── Plataforma ────────────────────── */}
+          <Col label={t('footer.colPlatform')}>
+            <NavLink href="/#section-breaknews">{t('footer.breakNews')}</NavLink>
+            <NavLink href="/models" isNext tag={t('footer.soon')}>{t('footer.models')}</NavLink>
+            <NavLink href="/white-label" isNext tag={t('footer.soon')}>{t('footer.whiteLabel')}</NavLink>
+          </Col>
 
-          <div>
-            <span className="block font-mono text-xs text-accent-1 tracking-[0.15em] uppercase mb-6">Pesquisa</span>
-            <div className="space-y-4">
-              <a href="#" className="block font-inter text-sm text-text-dim hover:text-accent-hot transition-colors duration-200">Damásio Framework</a>
-              <a href="#" className="block font-inter text-sm text-text-dim hover:text-accent-hot transition-colors duration-200">Keystroke Dynamics</a>
-              <a href="#" className="block font-inter text-sm text-text-dim hover:text-accent-hot transition-colors duration-200">Publicações</a>
-            </div>
-          </div>
+          {/* ── Pesquisa ──────────────────────── */}
+          <Col label={t('footer.colResearch')}>
+            <NavLink href="/study" isNext>{t('footer.ourResearch')}</NavLink>
+            <NavLink href="/research">{t('footer.damasio')}</NavLink>
+            <NavLink href="/research">{t('footer.participate')}</NavLink>
+          </Col>
+
+          {/* ── Empresa ───────────────────────── */}
+          <Col label={t('footer.colCompany')}>
+            <NavLink href="/#section-manifesto">{t('footer.manifesto')}</NavLink>
+            <NavLink href="/sobre" isNext tag={t('footer.soon')}>{t('footer.about')}</NavLink>
+            <NavLink href="/contact" isNext tag={t('footer.soon')}>{t('footer.contact')}</NavLink>
+          </Col>
+
         </div>
 
-        <div className="pt-8 border-t border-accent-dim flex flex-col md:flex-row justify-between items-center gap-4">
-          <span className="font-mono text-[10px] text-text-dim uppercase tracking-wider">
-            © 2025 Xcorpion Corporation. All rights reserved.
-          </span>
-          <span className="font-mono text-[10px] text-text-dim uppercase tracking-wider">
-            TITAN — OMMA · v0.1-alpha
+        {/* bottom bar */}
+        <div style={{
+          paddingTop: 24, borderTop: '1px solid #3D0000',
+          display: 'flex', flexWrap: 'wrap',
+          justifyContent: 'space-between', alignItems: 'center', gap: 12,
+        }}>
+          <span style={{ fontFamily: F.inter, fontSize: 11, color: 'rgba(240,234,232,0.18)', letterSpacing: '0.04em' }}>
+            {t('footer.copyright')}
           </span>
         </div>
+
       </div>
     </footer>
   );
-};
-
-export default Footer;
+}

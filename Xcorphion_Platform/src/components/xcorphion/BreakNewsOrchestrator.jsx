@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from '../../hooks/useTranslation';
 
 const BreakNewsOrchestrator = () => {
     const [articles, setArticles] = useState([]);
     const [loading, setLoading] = useState(true);
     const carouselRef = useRef(null);
+    const { t } = useTranslation();
 
     useEffect(() => {
         const fetchArticles = async () => {
@@ -40,7 +42,8 @@ const BreakNewsOrchestrator = () => {
             
             <div className="w-full absolute top-0 h-[1px]" style={{ background: 'linear-gradient(90deg, transparent, rgba(139, 0, 0, 0.4), transparent)' }} />
             
-            <div className="max-w-6xl mx-auto w-full px-8 relative z-10">
+            <div className="relative z-10">
+                <div className="max-w-6xl mx-auto px-8">
                 <motion.div
                     initial={{ opacity: 0, x: -30 }}
                     whileInView={{ opacity: 1, x: 0 }}
@@ -48,24 +51,25 @@ const BreakNewsOrchestrator = () => {
                     viewport={{ once: true }}
                     className="mb-16"
                 >
-                    <h2 className="font-space text-5xl md:text-[56px] font-medium text-white tracking-tight mb-6">Break News</h2>
+                    <h2 className="font-space text-5xl md:text-[56px] font-medium text-white tracking-tight mb-6">{t('breaknews.title')}</h2>
                     <p className="font-inter text-lg text-white/50 max-w-2xl">
-                        Acompanhe nossos últimos relatórios técnicos, ensaios e marcos de desenvolvimento na criação da Inteligência Artificial Somática.
+                        {t('breaknews.subtitle')}
                     </p>
                 </motion.div>
+                </div>
 
                 {loading ? (
                     <div className="flex justify-center items-center py-20">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#8B0000]"></div>
                     </div>
                 ) : articles.length === 0 ? (
-                    <div className="text-white/40 italic font-inter py-10">Nenhuma notícia publicada ainda.</div>
+                    <div className="px-8 text-white/40 italic font-inter py-10">{t('breaknews.noArticles')}</div>
                 ) : (
                     <div className="relative">
-                        {/* Carrossel Scroll Horizontal */}
-                        <div 
+                        {/* Carrossel full-width, cards saem da tela */}
+                        <div
                             ref={carouselRef}
-                            className="flex gap-8 overflow-x-auto pb-12 pt-4 snap-x snap-mandatory hide-scrollbar"
+                            className="flex gap-6 overflow-x-auto pb-12 pt-4 snap-x snap-mandatory hide-scrollbar px-8"
                             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                         >
                             {articles.map((article, index) => (
@@ -76,9 +80,9 @@ const BreakNewsOrchestrator = () => {
                                     transition={{ duration: 0.5, delay: index * 0.1 }}
                                     viewport={{ once: true, margin: "-50px" }}
                                     onClick={() => navigateToArticle(article.custom_id)}
-                                    className="flex-none w-[350px] md:w-[400px] snap-start group cursor-pointer"
+                                    className="flex-none w-[278px] md:w-[318px] snap-start group cursor-pointer"
                                 >
-                                    <div className="bg-[#0a0a0a] border border-white/10 rounded-xl overflow-hidden hover:border-[#8B0000]/50 transition duration-300 flex flex-col h-full relative">
+                                    <div className="bg-[#0a0a0a] border border-white/10 rounded-xl overflow-hidden hover:border-[#8B0000]/50 transition duration-300 flex flex-col h-full relative" style={{ boxShadow: 'none' }}>
                                         
                                         {/* Imagem Quadrada */}
                                         <div className="w-full aspect-square overflow-hidden bg-black/50">
@@ -89,7 +93,7 @@ const BreakNewsOrchestrator = () => {
                                                     className="w-full h-full object-cover group-hover:scale-105 transition duration-700 ease-in-out"
                                                 />
                                             ) : (
-                                                <div className="w-full h-full flex items-center justify-center text-white/20 font-mono text-xs">
+                                                <div className="w-full h-full flex items-center justify-center text-white/20 font-inter text-xs">
                                                     Sem Imagem
                                                 </div>
                                             )}
@@ -107,8 +111,8 @@ const BreakNewsOrchestrator = () => {
                                             </p>
 
                                             {/* Arrow estética apontando pra direita */}
-                                            <div className="mt-auto flex items-center gap-3 text-[#8B0000] font-mono text-sm uppercase tracking-widest group-hover:text-white transition-colors duration-300">
-                                                Ler Artigo
+                                            <div className="mt-auto flex items-center gap-3 text-[#8B0000] font-inter text-sm uppercase tracking-widest group-hover:text-white transition-colors duration-300">
+                                                {t('breaknews.readMore')}
                                                 <svg className="w-5 h-5 transform group-hover:translate-x-2 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                                                 </svg>
@@ -119,16 +123,6 @@ const BreakNewsOrchestrator = () => {
                             ))}
                         </div>
                         
-                        {/* Instrução visual para arrastar */}
-                        {articles.length > 3 && (
-                            <div className="absolute right-0 top-1/2 -translate-y-1/2 w-32 h-[80%] bg-gradient-to-l from-black pointer-events-none flex justify-end items-center pr-4">
-                                <div className="text-white/20 animate-pulse">
-                                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 5l7 7-7 7" />
-                                    </svg>
-                                </div>
-                            </div>
-                        )}
                     </div>
                 )}
             </div>

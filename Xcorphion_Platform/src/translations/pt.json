@@ -1,0 +1,61 @@
+{
+  "common": { "back": "Voltar", "joinWaitlist": "Entrar na lista de espera" },
+  "omma": {
+    "heroDesc": "O primeiro sistema de IA que aprende com seu estado — sem perguntar, sem formulários, sem perfis.",
+    "featuresLabel": "O que é OMMΩ",
+    "featuresTitle": "Inteligência que",
+    "featuresAccent": "sente antes",
+    "featuresEnd": "de pensar",
+    "card0Title": "Consciência Somática",
+    "card0Desc": "OMMΩ detecta padrões no modo como você interage — velocidade, ritmo, comportamento — sem precisar perguntar como você está.",
+    "card1Title": "Aprendizado Contínuo",
+    "card1Desc": "Cada sessão refina o modelo. Com o tempo, o sistema converge para uma representação única de você, não de um perfil genérico.",
+    "card2Title": "Privacidade Nativa",
+    "card2Desc": "Os dados nunca saem do seu dispositivo. O aprendizado é local, federado e criptografado por design.",
+    "quoteText": "Construímos o OMMΩ para que em 10 anos nenhum sistema de IA precise perguntar como você está. Ele já saberá pelo modo como você interage com ele.",
+    "quoteAttr": "— Xcorphion",
+    "ctaTitle": "Seja o primeiro a usar o OMMΩ",
+    "ctaSubtitle": "Vagas limitadas para o programa de acesso antecipado.",
+    "ctaBtn": "Entrar na Waitlist"
+  },
+  "footer": {
+    "tagline": "The first mind that sees yours.",
+    "location": "São Paulo, Brasil",
+    "colOmma": "OMMΩ",
+    "colPlatform": "Plataforma",
+    "colResearch": "Pesquisa",
+    "colCompany": "Empresa",
+    "ommaPersonal": "OMMΩ Personal",
+    "ommaBusiness": "OMMΩ Business",
+    "ommaChat": "OMMΩ Chat",
+    "ommaSolutions": "OMMΩ Solutions",
+    "ommaApi": "OMMΩ API",
+    "breakNews": "Break News",
+    "models": "Models",
+    "whiteLabel": "White Label",
+    "ourResearch": "Nossa Pesquisa",
+    "damasio": "Antônio Damásio",
+    "participate": "Participar",
+    "manifesto": "Manifesto",
+    "about": "Sobre",
+    "contact": "Contact",
+    "soon": "em breve",
+    "copyright": "© 2025 Xcorphion Corporation. Todos os direitos reservados."
+  },
+  "products": {
+    "ommaBusiness": { "name": "OMMΩ Business", "desc": "Implemente Inteligência Somática em sua organização. Workflows adaptativos, análise de estado de equipes e decisões orientadas por contexto somático." },
+    "ommaChat": { "name": "OMMΩ Chat", "desc": "Uma interface conversacional que aprende seu estado enquanto você escreve. Sem formulários. Sem onboarding. Apenas presença." },
+    "ommaSolutions": { "name": "OMMΩ Solutions", "desc": "Integrações e implementações somáticas sob medida para empresas que querem levar consciência contextual aos seus produtos e processos." },
+    "ommaApi": { "name": "OMMΩ API", "desc": "Acesso programático ao núcleo somático do OMMΩ. Construa aplicações que sentem o contexto — não apenas que processam dados." },
+    "models": { "name": "Models", "desc": "Os modelos que alimentam o OMMΩ. Arquiteturas desenvolvidas com o Damásio Framework para compreensão somática e contextual em tempo real." },
+    "whiteLabel": { "name": "White Label", "desc": "Leve a tecnologia OMMΩ para seu produto com identidade própria. Capacidades somáticas completas sob sua marca, sem comprometer a experiência." },
+    "sobre": { "name": "Sobre a Xcorphion", "desc": "A história, a missão e as pessoas que constroem a primeira Inteligência Artificial verdadeiramente somática do mundo." },
+    "contact": { "name": "Contact", "desc": "Entre em contato com a equipe Xcorphion para parcerias, imprensa, pesquisa colaborativa ou para simplesmente trocar uma ideia." }
+  },
+  "breaknews": {
+    "title": "Break News",
+    "subtitle": "Acompanhe nossos últimos relatórios técnicos, ensaios e marcos de desenvolvimento na criação da Inteligência Artificial Somática.",
+    "readMore": "Ler artigo",
+    "noArticles": "Nenhuma notícia publicada ainda."
+  }
+}

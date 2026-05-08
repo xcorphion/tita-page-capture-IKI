@@ -34,16 +34,46 @@
         const { useState, useEffect } = React;
         const { motion, AnimatePresence } = window.Motion;
 
+        const lang = new URLSearchParams(window.location.search).get('lang') || 'pt';
+        const ST = {
+            pt: {
+                navItems: [
+                    { id: 'home', icon: 'home', label: 'Xcorphion Home', detail: 'Início da jornada' },
+                    { id: 'mission', icon: 'layers', label: 'Manifesto', detail: 'Nossa visão de IA' },
+                    { id: 'break-news', icon: 'newspaper', label: 'Break News', detail: 'Artigos Editoriais' },
+                    { id: 'research', icon: 'microscope', label: 'Pesquisa', detail: 'Damásio & KeyStrokers' },
+                    { id: 'omma', icon: 'cpu', label: 'OMMΩ', detail: 'Somatic AI' },
+                ],
+                settings: 'Configurações'
+            },
+            en: {
+                navItems: [
+                    { id: 'home', icon: 'home', label: 'Xcorphion Home', detail: 'Start of the journey' },
+                    { id: 'mission', icon: 'layers', label: 'Manifesto', detail: 'Our AI vision' },
+                    { id: 'break-news', icon: 'newspaper', label: 'Break News', detail: 'Editorial Articles' },
+                    { id: 'research', icon: 'microscope', label: 'Research', detail: 'Damásio & KeyStrokers' },
+                    { id: 'omma', icon: 'cpu', label: 'OMMΩ', detail: 'Somatic AI' },
+                ],
+                settings: 'Settings'
+            },
+            es: {
+                navItems: [
+                    { id: 'home', icon: 'home', label: 'Xcorphion Home', detail: 'Inicio del viaje' },
+                    { id: 'mission', icon: 'layers', label: 'Manifiesto', detail: 'Nuestra visión de IA' },
+                    { id: 'break-news', icon: 'newspaper', label: 'Break News', detail: 'Artículos Editoriales' },
+                    { id: 'research', icon: 'microscope', label: 'Investigación', detail: 'Damásio & KeyStrokers' },
+                    { id: 'omma', icon: 'cpu', label: 'OMMΩ', detail: 'IA Somática' },
+                ],
+                settings: 'Configuración'
+            }
+        };
+        const st = ST[lang] || ST.pt;
+
         const SidebarPrototype = () => {
             const [isExpanded, setIsExpanded] = useState(false);
             const [activeItem, setActiveItem] = useState('home');
 
-            const navItems = [
-                { id: 'home', icon: 'home', label: 'Xcorphion Home', detail: 'Início da jornada' },
-                { id: 'mission', icon: 'layers', label: 'Manifesto', detail: 'Nossa visão de IA' },
-                { id: 'break-news', icon: 'newspaper', label: 'Break News', detail: 'Artigos Editoriais' },
-                { id: 'research', icon: 'microscope', label: 'Pesquisa', detail: 'Damásio & KeyStrokers' },
-            ];
+            const navItems = st.navItems;
 
             useEffect(() => {
                 lucide.createIcons();
@@ -78,7 +108,8 @@
                         backgroundColor: isExpanded ? 'rgba(15, 5, 5, 0.95)' : 'rgba(255, 255, 255, 0.05)'
                     },
                     transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
-                    className: "h-full flex flex-col items-stretch overflow-hidden backdrop-blur-2xl border border-white/10 rounded-[2rem] shadow-[0_20px_60px_rgba(0,0,0,0.8)] relative"
+                    className: "h-full flex flex-col items-stretch overflow-hidden backdrop-blur-2xl border border-white/10 rounded-[2rem] relative",
+                    style: { boxShadow: 'none' }
                 },
                     // Logo
                     React.createElement("div", { key: "logo-container", className: "h-20 flex items-center justify-center px-4 overflow-hidden relative" }, [
@@ -156,7 +187,7 @@
                     React.createElement("div", { key: "sidebar-footer", className: "p-3 border-t border-white/5" },
                         React.createElement("button", { className: "flex items-center p-3 rounded-2xl text-gray-500 hover:text-white transition-all w-full" },
                             React.createElement("i", { "data-lucide": "settings", className: "w-5 h-5" }),
-                            isExpanded && React.createElement("span", { className: "ml-4 text-sm font-medium" }, "Configurações")
+                            isExpanded && React.createElement("span", { className: "ml-4 text-sm font-medium" }, st.settings)
                         )
                     )
                 )

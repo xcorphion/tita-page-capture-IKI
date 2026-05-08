@@ -35,6 +35,26 @@
         const { useState, useEffect } = React;
         const { motion } = window.Motion;
 
+        const lang = new URLSearchParams(window.location.search).get('lang') || 'pt';
+        const HT = {
+            pt: {
+                line1: "Cada modelo que lançarmos será menor,",
+                line2: "mais eficiente e mais preciso",
+                line3: "que o anterior."
+            },
+            en: {
+                line1: "Every model we launch will be smaller,",
+                line2: "more efficient and more precise",
+                line3: "than the last."
+            },
+            es: {
+                line1: "Cada modelo que lancemos será más pequeño,",
+                line2: "más eficiente y más preciso",
+                line3: "que el anterior."
+            }
+        };
+        const ht = HT[lang] || HT.pt;
+
         const EsquadroGrid = () => {
             return React.createElement(motion.div, {
                 initial: { opacity: 0 },
@@ -73,11 +93,11 @@
                         {
                             className: "font-space font-semibold text-[30px] leading-relaxed tracking-tight text-white/90 drop-shadow-2xl"
                         },
-                        "Cada modelo que lançarmos será menor,",
+                        ht.line1,
                         React.createElement("br"),
-                        React.createElement("span", { className: "text-[#990000] font-bold [-webkit-text-stroke:0.5px_#990000]" }, "mais eficiente e mais preciso"),
+                        React.createElement("span", { className: "text-[#990000] font-bold [-webkit-text-stroke:0.5px_#990000]" }, ht.line2),
                         React.createElement("br"),
-                        "que o anterior."
+                        ht.line3
                     )
                 )
             );

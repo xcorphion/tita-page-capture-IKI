@@ -1,15 +1,18 @@
 import { useEffect } from 'react';
+import { useRouter } from 'next/router';
 
 const initDebug = (moduleName) => console.log(`[DEBUG][INIT] Módulo montado: ${moduleName}`);
 
 const ManifestoOrchestrator = () => {
+    const { locale } = useRouter();
+
     useEffect(() => {
         initDebug('ManifestoOrchestrator (Iframe Orchestrator)');
     }, []);
 
     return (
-        <iframe 
-            src="/manifesto-full.html"
+        <iframe
+            src={`/manifesto-full.html?lang=${locale || 'pt'}`}
             style={{ 
                 display: 'block',
                 width: '100%',

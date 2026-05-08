@@ -10,6 +10,7 @@
   "description": "Monorepo for Xcorphion Platform and Research System",
   "main": "server.js",
   "scripts": {
+    "dev": "npm run dev:platform & npm run dev:research",
     "dev:platform": "npm run dev -w @xcorphion/platform",
     "dev:research": "npm run dev -w @xcorphion/research",
     "build:platform": "npm run build -w @xcorphion/platform",
