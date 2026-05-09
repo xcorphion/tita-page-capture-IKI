@@ -247,6 +247,7 @@
                     if (h > 0) window.parent.postMessage({ type: 'MANIFESTO_HEIGHT', height: h }, '*');
                 };
                 requestAnimationFrame(report);
+                setTimeout(report, 300);
                 window.addEventListener('resize', report);
                 return () => window.removeEventListener('resize', report);
             }, []);
