@@ -20,6 +20,7 @@ export default function AdminPanel() {
   const [participants, setParticipants] = useState([]);
   const [error, setError]               = useState('');
   const [statusFilter, setStatusFilter] = useState('TODOS');
+  const [copiedCode, setCopiedCode]     = useState(null);
 
   const fetchParticipants = async (pwd) => {
     try {
@@ -43,8 +44,38 @@ export default function AdminPanel() {
 
   const handleLogin = (e) => { e.preventDefault(); fetchParticipants(password); };
 
-  const handleAction = async (participant_code, action) => {
-    if (!confirm('Tem certeza?')) return;
+  const copyInviteLink = (code) => {
+    const url = `${window.location.origin}/study/convite/${code}`;
+    navigator.clipboard.writeText(url).then(() => {
+      setCopiedCode(code);
+      setTimeout(() => setCopiedCode(null), 1800);
+    });
+  };
+
+  const handleAction = async (participant_code, action, participant) => {
+    if (action === 'deactivate') {
+      const hasData = (participant.sessions_completed > 0)
+        || participant.session_1_status === 'CONCLUIDA'
+        || participant.session_2_status === 'CONCLUIDA'
+        || participant.session_3_status === 'CONCLUIDA'
+        || participant.onboarding_complete;
+      const name = participant.participant_name || participant.participant_code;
+      if (hasData) {
+        const ok = confirm(
+          `⚠️ ATENÇÃO — ${name} tem dados registrados.\n\n` +
+          `Isso vai deletar permanentemente:\n` +
+          `• Todos os eventos de digitação\n` +
+          `• Todas as respostas EMA\n` +
+          `• Todas as sessões\n\n` +
+          `Digite OK para confirmar.`
+        );
+        if (!ok) return;
+      } else {
+        if (!confirm(`Desativar ${name}?`)) return;
+      }
+    } else {
+      if (!confirm('Tem certeza?')) return;
+    }
     try {
       const res = await fetch('/api/admin/participants', {
         method: 'POST',
@@ -103,7 +134,15 @@ export default function AdminPanel() {
           <tbody>
             {filtered.map(p => (
               <tr key={p._id || p.participant_id} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.015)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'} style={{ transition: 'background 0.15s' }}>
-                <td style={{ ...tdStyle, fontFamily: F.space, fontWeight: 600, color: 'white', fontSize: 13 }}>{p.participant_code || p.participant_id}</td>
+                <td style={{ ...tdStyle }}>
+                  <span
+                    onClick={() => copyInviteLink(p.participant_code)}
+                    title="Clique para copiar link do convite"
+                    style={{ fontFamily: F.space, fontWeight: 600, fontSize: 13, color: copiedCode === p.participant_code ? 'rgba(120,200,120,0.9)' : 'white', cursor: 'pointer', userSelect: 'none', transition: 'color 0.2s' }}
+                  >
+                    {copiedCode === p.participant_code ? '✓ copiado' : (p.participant_code || p.participant_id)}
+                  </span>
+                </td>
                 <td style={tdStyle}>{p.participant_name || '—'}</td>
                 <td style={tdStyle}>{p.referrer_name || '—'}</td>
                 <td style={tdStyle}>
@@ -113,28 +152,35 @@ export default function AdminPanel() {
                   { status: p.session_1_status, eng: p.session_1_engagement, devMismatch: false, ipMismatch: false },
                   { status: p.session_2_status, eng: p.session_2_engagement, devMismatch: p.session_2_device_mismatch, ipMismatch: p.session_2_ip_mismatch },
                   { status: p.session_3_status, eng: p.session_3_engagement, devMismatch: p.session_3_device_mismatch, ipMismatch: p.session_3_ip_mismatch },
-                ].map((s, i) => (
-                  <td key={i} style={tdStyle}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 13 }}>
-                      {s.status || '—'}
-                      {(s.devMismatch || s.ipMismatch) && <span title={[s.devMismatch && 'Device diferente', s.ipMismatch && 'IP diferente'].filter(Boolean).join(' · ')} style={{ fontSize: 11, color: 'rgba(220,140,60,0.9)', cursor: 'default' }}>⚠</span>}
-                    </span>
-                    <span style={{ fontFamily: F.inter, fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 2, display: 'block' }}>Eng: {s.eng === true ? 'Sim' : s.eng === false ? 'Não' : '—'}</span>
-                  </td>
-                ))}
+                ].map((s, i) => {
+                  const progress = s.status === 'CONCLUIDA' ? 100 : s.status === 'EM_ANDAMENTO' ? 50 : s.status === 'BLOQUEADA' || s.status === 'INATIVO' ? 0 : s.status === 'AGUARDANDO' ? 0 : s.status === 'LIBERADA' ? 15 : 0;
+                  const barColor = s.status === 'CONCLUIDA' ? (s.eng === false ? 'rgba(220,140,60,0.7)' : 'rgba(120,200,120,0.7)') : s.status === 'BLOQUEADA' ? 'rgba(255,255,255,0.12)' : 'rgba(139,0,0,0.6)';
+                  return (
+                    <td key={i} style={tdStyle}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 5 }}>
+                        <span style={{ fontSize: 12, color: s.status === 'CONCLUIDA' ? 'rgba(255,255,255,0.8)' : 'rgba(255,255,255,0.4)' }}>{s.status || '—'}</span>
+                        {(s.devMismatch || s.ipMismatch) && <span title={[s.devMismatch && 'Device diferente', s.ipMismatch && 'IP diferente'].filter(Boolean).join(' · ')} style={{ fontSize: 11, color: 'rgba(220,140,60,0.9)', cursor: 'default' }}>⚠</span>}
+                      </div>
+                      <div style={{ width: '100%', height: 3, borderRadius: 2, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
+                        <div style={{ height: '100%', width: `${progress}%`, background: barColor, borderRadius: 2, transition: 'width 0.4s ease' }} />
+                      </div>
+                      <span style={{ fontFamily: F.inter, fontSize: 10, color: 'rgba(255,255,255,0.25)', marginTop: 4, display: 'block' }}>Eng: {s.eng === true ? 'Sim' : s.eng === false ? 'Não' : '—'}</span>
+                    </td>
+                  );
+                })}
                 <td style={{ ...tdStyle, whiteSpace: 'nowrap' }}>
                   <div style={{ display: 'flex', gap: 8 }}>
                     {p.status === 'ATIVO' && p.session_1_engagement === true && !p.admin_authorized_s2 && p.session_2_status === 'AGUARDANDO' && (
-                      <button onClick={() => handleAction(p.participant_id, 'authorize_s2')} style={{ fontFamily: F.inter, fontSize: 11, fontWeight: 500, color: 'rgba(120,200,120,0.9)', background: 'rgba(120,200,120,0.08)', border: '1px solid rgba(120,200,120,0.2)', borderRadius: 6, padding: '5px 10px', cursor: 'pointer', transition: 'all 0.15s' }}>Lib. S2</button>
+                      <button onClick={() => handleAction(p.participant_id, 'authorize_s2', p)} style={{ fontFamily: F.inter, fontSize: 11, fontWeight: 500, color: 'rgba(120,200,120,0.9)', background: 'rgba(120,200,120,0.08)', border: '1px solid rgba(120,200,120,0.2)', borderRadius: 6, padding: '5px 10px', cursor: 'pointer', transition: 'all 0.15s' }}>Lib. S2</button>
                     )}
                     {p.status === 'ATIVO' && p.session_2_engagement === true && !p.admin_authorized_s3 && p.session_3_status === 'AGUARDANDO' && (
-                      <button onClick={() => handleAction(p.participant_id, 'authorize_s3')} style={{ fontFamily: F.inter, fontSize: 11, fontWeight: 500, color: 'rgba(120,200,120,0.9)', background: 'rgba(120,200,120,0.08)', border: '1px solid rgba(120,200,120,0.2)', borderRadius: 6, padding: '5px 10px', cursor: 'pointer', transition: 'all 0.15s' }}>Lib. S3</button>
+                      <button onClick={() => handleAction(p.participant_id, 'authorize_s3', p)} style={{ fontFamily: F.inter, fontSize: 11, fontWeight: 500, color: 'rgba(120,200,120,0.9)', background: 'rgba(120,200,120,0.08)', border: '1px solid rgba(120,200,120,0.2)', borderRadius: 6, padding: '5px 10px', cursor: 'pointer', transition: 'all 0.15s' }}>Lib. S3</button>
                     )}
                     {p.status === 'ATIVO' && (
-                      <button onClick={() => handleAction(p.participant_id, 'deactivate')} style={{ fontFamily: F.inter, fontSize: 11, fontWeight: 500, color: 'rgba(200,80,80,0.9)', background: 'rgba(200,80,80,0.06)', border: '1px solid rgba(200,80,80,0.18)', borderRadius: 6, padding: '5px 10px', cursor: 'pointer', transition: 'all 0.15s' }}>Desativar</button>
+                      <button onClick={() => handleAction(p.participant_id, 'deactivate', p)} style={{ fontFamily: F.inter, fontSize: 11, fontWeight: 500, color: 'rgba(200,80,80,0.9)', background: 'rgba(200,80,80,0.06)', border: '1px solid rgba(200,80,80,0.18)', borderRadius: 6, padding: '5px 10px', cursor: 'pointer', transition: 'all 0.15s' }}>Desativar</button>
                     )}
                     {p.status === 'BLOQUEADO' && (
-                      <button onClick={() => handleAction(p.participant_id, 'reactivate')} style={{ fontFamily: F.inter, fontSize: 11, fontWeight: 500, color: 'rgba(100,160,255,0.9)', background: 'rgba(100,160,255,0.06)', border: '1px solid rgba(100,160,255,0.18)', borderRadius: 6, padding: '5px 10px', cursor: 'pointer', transition: 'all 0.15s' }}>Reativar</button>
+                      <button onClick={() => handleAction(p.participant_id, 'reactivate', p)} style={{ fontFamily: F.inter, fontSize: 11, fontWeight: 500, color: 'rgba(100,160,255,0.9)', background: 'rgba(100,160,255,0.06)', border: '1px solid rgba(100,160,255,0.18)', borderRadius: 6, padding: '5px 10px', cursor: 'pointer', transition: 'all 0.15s' }}>Reativar</button>
                     )}
                   </div>
                 </td>
