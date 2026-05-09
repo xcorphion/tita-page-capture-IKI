@@ -33,7 +33,7 @@ const BreakNewsOrchestrator = () => {
     };
 
     return (
-        <div className="w-full min-h-screen relative overflow-hidden bg-transparent flex flex-col justify-center py-24 font-inter">
+        <div className="w-full relative overflow-hidden bg-transparent flex flex-col justify-center py-14 md:py-20 font-inter">
             {/* Grid background similar ao que havia */}
             <div className="absolute inset-0 z-0 opacity-20 pointer-events-none" style={{
                 backgroundSize: '30px 30px',

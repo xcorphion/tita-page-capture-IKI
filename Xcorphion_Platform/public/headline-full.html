@@ -10,24 +10,68 @@
     <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        html, body { 
-            background: transparent !important; 
-            background-color: transparent !important; 
-            color: white; 
-            font-family: 'Inter', sans-serif; 
-            overflow: hidden; 
-            margin: 0; 
+        html, body {
+            background: transparent !important;
+            background-color: transparent !important;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            margin: 0;
         }
         .font-space { font-family: 'Space Grotesk', sans-serif; }
-        
+
+        /* ── Grid: desktop — canto superior direito ── */
         .grid-bg {
             background-size: 40px 40px;
             background-image:
-                linear-gradient(to right, rgba(255, 255, 255, 0.15) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(255, 255, 255, 0.15) 1px, transparent 1px);
+                linear-gradient(to right,  rgba(255,255,255,0.15) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255,255,255,0.15) 1px, transparent 1px);
         }
+        .esquadro-grid {
+            position: absolute;
+            top: 0;
+            right: 0;
+            pointer-events: none;
+            z-index: 20;
+            width: min(700px, 100vw);
+            height: min(504px, 72vw);
+        }
+        .esquadro-grid-inner {
+            width: 100%;
+            height: 100%;
+            -webkit-mask-image: linear-gradient(to top right, transparent 30%, black 60%);
+            mask-image:         linear-gradient(to top right, transparent 30%, black 60%);
+        }
+
+        /* ── Headline: desktop — canto superior direito ── */
+        .headline-container {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: flex-start;
+            justify-content: flex-end;
+            pointer-events: none;
+            padding-right: clamp(12px, 3vw, 30px);
+            padding-top:   clamp(12px, 3vw, 30px);
+        }
+
+        /* ── Mobile: ambos descem pro canto inferior direito ── */
         @media (max-width: 640px) {
-            .esquadro-grid { display: none !important; }
+            .esquadro-grid {
+                top: auto;
+                bottom: 0;
+                width: min(420px, 100vw);
+                height: min(300px, 76vw);
+            }
+            .esquadro-grid-inner {
+                -webkit-mask-image: linear-gradient(to bottom right, transparent 20%, black 55%);
+                mask-image:         linear-gradient(to bottom right, transparent 20%, black 55%);
+            }
+            .headline-container {
+                align-items: flex-end;
+                padding-top: 0;
+                padding-bottom: clamp(72px, 14vw, 96px);
+            }
         }
     </style>
 </head>
@@ -58,65 +102,55 @@
         };
         const ht = HT[lang] || HT.pt;
 
-        const EsquadroGrid = () => {
-            return React.createElement(motion.div, {
+        const EsquadroGrid = () => React.createElement(
+            motion.div,
+            {
                 initial: { opacity: 0 },
                 animate: { opacity: 1 },
                 transition: { duration: 1.5, delay: 0.3 },
-                className: "absolute top-0 right-0 pointer-events-none z-20 esquadro-grid",
-                style: {
-                    width: 'min(700px, 100vw)',
-                    height: 'min(504px, 72vw)'
-                }
-            }, 
-                React.createElement("div", { 
-                    className: "w-full h-full grid-bg",
-                    style: {
-                        maskImage: 'linear-gradient(to top right, transparent 30%, black 60%)',
-                        WebkitMaskImage: 'linear-gradient(to top right, transparent 30%, black 60%)',
-                    }
-                })
-            );
-        };
+                className: 'esquadro-grid',
+            },
+            React.createElement('div', { className: 'grid-bg esquadro-grid-inner' })
+        );
 
-        const HeadlinePrototype = () => {
-            return React.createElement(
-                "div",
-                { className: "absolute inset-0 flex items-start justify-end pr-[clamp(12px,3vw,30px)] pt-[clamp(12px,3vw,30px)] pointer-events-none" },
+        const HeadlinePrototype = () => React.createElement(
+            'div',
+            { className: 'headline-container' },
+            React.createElement(
+                motion.div,
+                {
+                    initial: { opacity: 0, y: 20 },
+                    animate: { opacity: 1, y: 0 },
+                    transition: { duration: 1, ease: [0.22, 1, 0.36, 1] },
+                    style: { maxWidth: '90vw', textAlign: 'right', position: 'relative', pointerEvents: 'auto' },
+                },
                 React.createElement(
-                    motion.div,
+                    'h1',
                     {
-                        initial: { opacity: 0, y: 20 },
-                        animate: { opacity: 1, y: 0 },
-                        transition: { duration: 1, ease: [0.22, 1, 0.36, 1] },
-                        className: "max-w-4xl text-right relative pointer-events-auto"
+                        className: 'font-space font-semibold leading-relaxed tracking-tight text-white/90 drop-shadow-2xl',
+                        style: { fontSize: 'clamp(15px, 3.8vw, 30px)' },
                     },
-                    React.createElement(
-                        "h1",
-                        {
-                            className: "font-space font-semibold text-[clamp(16px,4vw,30px)] leading-relaxed tracking-tight text-white/90 drop-shadow-2xl"
-                        },
-                        ht.line1,
-                        React.createElement("br"),
-                        React.createElement("span", { className: "text-[#990000] font-bold [-webkit-text-stroke:0.5px_#990000]" }, ht.line2),
-                        React.createElement("br"),
-                        ht.line3
-                    )
+                    ht.line1,
+                    React.createElement('br'),
+                    React.createElement('span', {
+                        style: { color: '#990000', fontWeight: 700, WebkitTextStroke: '0.5px #990000' },
+                    }, ht.line2),
+                    React.createElement('br'),
+                    ht.line3
                 )
-            );
-        };
+            )
+        );
 
-        const App = () => {
-            return React.createElement("div", { className: "h-screen w-screen relative overflow-hidden" }, [
-                React.createElement(EsquadroGrid, { key: "esquadro" }),
-                React.createElement("div", { key: "headline", className: "relative z-30 w-full h-full" }, 
-                    React.createElement(HeadlinePrototype, null)
-                )
-            ]);
-        };
+        const App = () => React.createElement(
+            'div',
+            { className: 'h-screen w-screen relative overflow-hidden' },
+            React.createElement(EsquadroGrid, { key: 'esquadro' }),
+            React.createElement('div', { key: 'headline', className: 'relative z-30 w-full h-full' },
+                React.createElement(HeadlinePrototype)
+            )
+        );
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(React.createElement(App));
+        ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
     </script>
 </body>
 </html>

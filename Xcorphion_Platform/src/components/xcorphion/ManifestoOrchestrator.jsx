@@ -26,7 +26,6 @@ const ManifestoOrchestrator = () => {
                 display: 'block',
                 width: '100%',
                 height: iframeHeight,
-                minHeight: '100vh',
                 background: 'transparent',
                 backgroundColor: 'transparent',
             }}

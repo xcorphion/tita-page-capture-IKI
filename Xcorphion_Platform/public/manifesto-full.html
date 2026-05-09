@@ -177,7 +177,6 @@
         const ManifestoSection = () => {
             return React.createElement("section", {
                 className: "w-full relative overflow-hidden",
-                style: { minHeight: '100vh' }
             }, [
                 // Divisor superior com glow vermelho
                 React.createElement("div", { key: "divider-top", className: "divider-glow w-full" }),
@@ -185,8 +184,7 @@
                 // Conteúdo Principal — Layout lado a lado
                 React.createElement("div", {
                     key: "content",
-                    className: "relative z-10 max-w-6xl mx-auto px-4 sm:px-8 py-10 sm:py-24 flex flex-col sm:flex-row items-start sm:items-center gap-8 sm:gap-16",
-                    style: { minHeight: '100vh' }
+                    className: "relative z-10 max-w-6xl mx-auto px-4 sm:px-8 py-12 sm:py-20 flex flex-col sm:flex-row items-start sm:items-center gap-8 sm:gap-16",
                 }, [
                     // COLUNA ESQUERDA — Texto
                     React.createElement(motion.div, {

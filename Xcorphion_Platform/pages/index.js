@@ -43,14 +43,14 @@ export default function Home() {
         */}
         <section
           id="section-manifesto"
-          style={{ position: 'relative', width: '100%', minHeight: '100vh' }}
+          style={{ position: 'relative', width: '100%' }}
         >
           <ManifestoOrchestrator />
         </section>
 
-        <section 
+        <section
           id="section-breaknews"
-          style={{ position: 'relative', width: '100%', minHeight: '100vh' }}
+          style={{ position: 'relative', width: '100%' }}
         >
           <BreakNewsOrchestrator />
         </section>
