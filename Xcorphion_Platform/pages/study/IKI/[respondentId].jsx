@@ -121,19 +121,36 @@ export default function IKIResearchPage() {
     };
 
     const runJitterBenchmark = async () => {
-        const timestamps = [];
-        for (let i = 0; i < 12; i++) {
-            await new Promise(r => setTimeout(r, 200));
-            timestamps.push(performance.now());
+        // 12 probes × 200 ms = ~2.4 s nominal. AbortController caps total time at 5 s.
+        // Returns null on timeout or insufficient samples — session/start accepts null jitter.
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+        try {
+            const timestamps = [];
+            for (let i = 0; i < 12; i++) {
+                if (controller.signal.aborted) break;
+                await new Promise((resolve, reject) => {
+                    const id = setTimeout(resolve, 200);
+                    controller.signal.addEventListener('abort', () => { clearTimeout(id); reject(); }, { once: true });
+                });
+                timestamps.push(performance.now());
+            }
+            if (timestamps.length < 2) return null;
+            const intervals = timestamps.slice(1).map((t, i) => t - timestamps[i]);
+            const deviations = intervals.map(v => Math.abs(v - 200));
+            return Math.round(deviations.reduce((a, b) => a + b) / deviations.length);
+        } catch {
+            return null;
+        } finally {
+            clearTimeout(timeoutId);
         }
-        const intervals = timestamps.slice(1).map((t, i) => t - timestamps[i]);
-        const deviations = intervals.map(v => Math.abs(v - 200));
-        return Math.round(deviations.reduce((a, b) => a + b) / deviations.length);
     };
 
     const handleWritingKey = (e) => {
         if (showEma || showEnd) return;
 
+        // keydown → IKI pipeline (fase 1: inter-keystroke intervals)
+        // keyup   → dwell time / flight time pipeline (fase 2: not yet implemented)
         const timestamp_rel_ms = Math.round(e.nativeEvent.timeStamp - sessionStartHighResRef.current);
         const event = {
             event_type: e.type,
