@@ -16,6 +16,7 @@ export default function IKIResearchPage() {
     const [endStep, setEndStep] = useState('rating');
     const [promptText, setPromptText] = useState('');
     const [jitterWarning, setJitterWarning] = useState(false);
+    const [onboardingError, setOnboardingError] = useState('');
 
     const sessionIdRef = useRef('');
     const sessionTokenRef = useRef('');
@@ -29,6 +30,7 @@ export default function IKIResearchPage() {
     const pendingRatingRef = useRef(null);
     const writingAreaRef = useRef(null);
     const wpmStartTimeRef = useRef(0);
+    const wpmIntervalRef = useRef(null);
 
     const EMA_CHAR_INTERVAL = 200;
     const BATCH_SIZE = 50;
@@ -72,7 +74,7 @@ export default function IKIResearchPage() {
             }
         }, 1000);
 
-        return () => clearInterval(batchInterval);
+        return () => { clearInterval(batchInterval); clearInterval(wpmIntervalRef.current); };
     }, [respondentId]);
 
     const flushBatch = async () => {
@@ -187,7 +189,7 @@ export default function IKIResearchPage() {
         const isValidKey = e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey;
         if (isValidKey) {
             wpmStartTimeRef.current = Date.now();
-            const interval = setInterval(() => {
+            wpmIntervalRef.current = setInterval(() => {
                 const elapsed = (Date.now() - wpmStartTimeRef.current) / 1000;
                 const remaining = Math.max(0, 60 - Math.floor(elapsed));
                 setWpmTimer(remaining);
@@ -195,7 +197,7 @@ export default function IKIResearchPage() {
                 const chars = input?.value.length || 0;
                 setWpmValue(Math.round((chars / 5) / (elapsed / 60)) || 0);
                 if (remaining <= 0) {
-                    clearInterval(interval);
+                    clearInterval(wpmIntervalRef.current);
                     completeOnboarding(Math.round((chars / 5) / (60 / 60)));
                 }
             }, 500);
@@ -213,13 +215,17 @@ export default function IKIResearchPage() {
 
     const completeOnboarding = async (wpm) => {
         try {
-            await fetch(`/api/participant/${respondentId}`, {
+            const res = await fetch(`/api/participant/${respondentId}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ wpm_baseline: wpm, device_profile: buildDeviceProfile() })
             });
+            if (!res.ok) throw new Error(await res.text());
             startSession(1);
-        } catch (e) { console.error(e); }
+        } catch (e) {
+            console.error(e);
+            setOnboardingError('Erro ao salvar perfil. Verifique sua conexão e tente novamente.');
+        }
     };
 
     const handleEmaSubmit = async () => {
@@ -414,6 +420,9 @@ export default function IKIResearchPage() {
                             <span style={{ fontFamily: F.space, fontSize: 10, fontWeight: 600, color: '#8B0000', letterSpacing: '0.16em', textTransform: 'uppercase' }}>Tempo: {wpmTimer}s</span>
                             <span style={{ fontFamily: F.space, fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.25)', letterSpacing: '0.16em', textTransform: 'uppercase' }}>{wpmValue} WPM</span>
                         </div>
+                        {onboardingError && (
+                            <p style={{ fontFamily: F.inter, fontSize: 13, color: 'rgba(210,70,70,0.9)', marginTop: 14, textAlign: 'center' }}>{onboardingError}</p>
+                        )}
                     </div>
                 )}
 

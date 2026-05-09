@@ -284,9 +284,8 @@ export async function getServerSideProps(context) {
       }
     }
 
-    const participant =
-      (await db.collection('participants').findOne({ participant_id: codigo })) ??
-      (await db.collection('participants').findOne({ participant_code: codigo }));
+    // URL uses participant_id (SHA-256 hash) — raw code is never exposed in shared links.
+    const participant = await db.collection('participants').findOne({ participant_id: codigo });
 
     if (!participant) return { props: { error: true, platformUrl } };
     if (participant.status === 'BLOQUEADO') return { props: { blocked: true, platformUrl } };

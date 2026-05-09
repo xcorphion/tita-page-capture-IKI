@@ -19,7 +19,7 @@ export default async function handler(req, res) {
   if (rateLimit(req, { max: 5, windowMs: 10 * 60_000 }))
     return res.status(429).json({ success: false, error: 'Muitas requisições. Aguarde antes de tentar novamente.' });
 
-  const { participant_name } = req.body || {};
+  const { participant_name, referrer_code } = req.body || {};
 
   if (!participant_name || typeof participant_name !== 'string')
     return res.status(400).json({ success: false, error: 'Nome inválido.' });
@@ -53,12 +53,33 @@ export default async function handler(req, res) {
     if (hashConflict)
       return res.status(500).json({ success: false, error: 'Conflito de integridade. Tente novamente.' });
 
+    // Resolve referrer — organic path uses 'system', referrer path captures real name.
+    let referrer_name = 'system';
+    let source = 'organic';
+
+    if (referrer_code) {
+      const rawRef = typeof referrer_code === 'string' ? referrer_code.trim().toUpperCase() : '';
+      if (!/^[A-Z0-9]{1,20}$/.test(rawRef))
+        return res.status(400).json({ success: false, error: 'Código de referência inválido.' });
+
+      const referrerId = hashParticipantId(rawRef);
+      const referrer = await col.findOne(
+        { participant_id: referrerId, status: { $ne: 'BLOQUEADO' } },
+        { projection: { participant_name: 1 } }
+      );
+      if (!referrer)
+        return res.status(400).json({ success: false, error: 'Código de referência não encontrado.' });
+
+      referrer_name = referrer.participant_name;
+      source = 'referrer';
+    }
+
     await col.insertOne(createParticipantDoc({
       participant_id,
       participant_code: code,
       participant_name: name,
-      referrer_name: 'system', // replaced with real referrer name in M3 referrer flow
-      source: 'organic',
+      referrer_name,
+      source,
     }));
 
     return res.status(201).json({ success: true, code });

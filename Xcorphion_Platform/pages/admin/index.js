@@ -44,8 +44,10 @@ export default function AdminPanel() {
 
   const handleLogin = (e) => { e.preventDefault(); fetchParticipants(password); };
 
-  const copyInviteLink = (code) => {
-    const url = `${window.location.origin}/study/convite/${code}`;
+  // URL uses participant_id (hash) — raw code never exposed in shared links.
+  // copiedCode keyed on participant_code for visual feedback on the correct table row.
+  const copyInviteLink = (code, participantId) => {
+    const url = `${window.location.origin}/study/convite/${participantId}`;
     navigator.clipboard.writeText(url).then(() => {
       setCopiedCode(code);
       setTimeout(() => setCopiedCode(null), 1800);
@@ -136,7 +138,7 @@ export default function AdminPanel() {
               <tr key={p._id || p.participant_id} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.015)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'} style={{ transition: 'background 0.15s' }}>
                 <td style={{ ...tdStyle }}>
                   <span
-                    onClick={() => copyInviteLink(p.participant_code)}
+                    onClick={() => copyInviteLink(p.participant_code, p.participant_id)}
                     title="Clique para copiar link do convite"
                     style={{ fontFamily: F.space, fontWeight: 600, fontSize: 13, color: copiedCode === p.participant_code ? 'rgba(120,200,120,0.9)' : 'white', cursor: 'pointer', userSelect: 'none', transition: 'color 0.2s' }}
                   >

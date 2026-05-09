@@ -1,8 +1,23 @@
 import { connectToDatabase } from '../../../lib/mongodb';
 import { hashParticipantId, hashFingerprint, extractIp } from '../../../lib/participant';
 import { rateLimit } from '../../../lib/rateLimit';
+
 function geoLookup(ip) {
     try { return require('geoip-lite').lookup(ip) || null; } catch (_) { return null; }
+}
+
+// Whitelist device_profile fields — prevents arbitrary payloads reaching the DB.
+function sanitizeDeviceProfile(p) {
+    if (!p || typeof p !== 'object') return null;
+    const num = (v) => Number.isFinite(Number(v)) ? Number(v) : null;
+    return {
+        userAgent: typeof p.userAgent === 'string' ? p.userAgent.slice(0, 512) : '',
+        platform:  typeof p.platform  === 'string' ? p.platform.slice(0, 64)   : '',
+        language:  typeof p.language  === 'string' ? p.language.slice(0, 16)   : '',
+        timezone:  typeof p.timezone  === 'string' ? p.timezone.slice(0, 64)   : '',
+        screen: { w: num(p.screen?.w), h: num(p.screen?.h), depth: num(p.screen?.depth), dpr: num(p.screen?.dpr) },
+        hw:     { cores: num(p.hw?.cores), mem: num(p.hw?.mem) },
+    };
 }
 
 const CODE_RE = /^[A-Z0-9]{1,20}$/;
@@ -22,7 +37,8 @@ export default async function handler(req, res) {
     const ip = extractIp(req);
 
     if (req.method === 'POST') {
-        const { wpm_baseline, device_profile } = req.body;
+        const { wpm_baseline } = req.body;
+        const device_profile = sanitizeDeviceProfile(req.body.device_profile);
         try {
             const existing = await participants.findOne({ participant_id });
             if (existing?.onboarding_complete)
