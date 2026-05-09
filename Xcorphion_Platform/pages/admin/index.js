@@ -45,8 +45,8 @@ export default function AdminPanel() {
     try {
       const res = await fetch('/api/admin/participants', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password, participant_code, action }),
+        headers: { 'Content-Type': 'application/json', 'x-admin-password': password },
+        body: JSON.stringify({ participant_code, action }),
       });
       if (res.ok) fetchParticipants(password);
       else alert('Erro ao executar ação');
