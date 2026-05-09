@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 
 const LANGS = [
@@ -10,12 +10,31 @@ const LANGS = [
 export default function LanguageSwitcher() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const current = LANGS.find(l => l.code === (router.locale || 'pt'));
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   const select = (code) => {
     setOpen(false);
     router.push(router.asPath, router.asPath, { locale: code });
   };
+
+  const isHome = router.pathname === '/';
+
+  // Mobile: abaixo da topbar pill (top:16 + height:54 + gap:12 = 82)
+  // Desktop homepage: abaixo da headline (que começa em ~30px e tem ~3 linhas)
+  // Desktop outras páginas: posição original topo-direito
+  const topValue = isMobile
+    ? 82
+    : isHome
+      ? 'clamp(160px, 14vw, 200px)'
+      : 16;
 
   const base = {
     fontFamily: "'Inter', sans-serif",
@@ -25,7 +44,7 @@ export default function LanguageSwitcher() {
   };
 
   return (
-    <div style={{ position: 'fixed', top: 16, right: 16, zIndex: 9999 }}>
+    <div style={{ position: 'fixed', top: topValue, right: 16, zIndex: 9999 }}>
       <div style={{ position: 'relative' }}>
         <button
           onClick={() => setOpen(o => !o)}
@@ -42,9 +61,18 @@ export default function LanguageSwitcher() {
             WebkitBackdropFilter: 'blur(12px)',
           }}
         >
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
           {current?.label}
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ opacity: 0.5, transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}><polyline points="6 9 12 15 18 9"/></svg>
+          <svg
+            width="10" height="10" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" strokeWidth="2.5"
+            style={{ opacity: 0.5, transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}
+          >
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
         </button>
 
         {open && (

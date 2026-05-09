@@ -159,14 +159,24 @@
                     }
                 }, mt.frameLine3),
 
-                React.createElement("span", {
+                React.createElement("a", {
                     key: "note",
+                    href: "https://transformer-circuits.pub/2026/emotions/index.html",
+                    target: "_blank",
+                    rel: "noopener noreferrer",
                     style: {
                         fontFamily: 'Inter, sans-serif',
                         fontSize: '10px',
                         color: 'rgba(139,0,0,0.7)',
-                        letterSpacing: '0.04em'
-                    }
+                        letterSpacing: '0.04em',
+                        textDecoration: 'underline',
+                        textDecorationColor: 'rgba(139,0,0,0.35)',
+                        textUnderlineOffset: '3px',
+                        cursor: 'pointer',
+                        transition: 'color 0.2s',
+                    },
+                    onMouseEnter: (e) => { e.currentTarget.style.color = 'rgba(180,0,0,0.9)'; },
+                    onMouseLeave: (e) => { e.currentTarget.style.color = 'rgba(139,0,0,0.7)'; },
                 }, `↳ ${mt.frameNote}`)
             ]);
         };
