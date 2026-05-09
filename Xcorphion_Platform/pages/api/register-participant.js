@@ -80,6 +80,6 @@ export default async function handler(req, res) {
     return res.status(201).json({ success: true, code });
   } catch (err) {
     console.error('[register-participant]', err);
-    return res.status(500).json({ success: false, error: 'Erro interno. Tente novamente.', _dbg: err?.message ?? String(err) });
+    return res.status(500).json({ success: false, error: 'Erro interno. Tente novamente.' });
   }
 }

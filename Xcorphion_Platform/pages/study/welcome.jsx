@@ -14,8 +14,7 @@ export default function StudyWelcome() {
   const { code } = router.query;
   const [copied, setCopied] = useState(false);
 
-  const researchUrl = process.env.NEXT_PUBLIC_RESEARCH_URL || 'http://localhost:3001';
-  const sessionUrl = code ? `${researchUrl}/study/IKI/${code}` : '#';
+  const sessionUrl = code ? `/study/IKI/${code}` : '#';
 
   const handleCopy = () => {
     if (!code) return;
