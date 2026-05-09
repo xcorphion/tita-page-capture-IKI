@@ -1,6 +1,7 @@
 import { connectToDatabase } from '../../../lib/mongodb';
 import { hashParticipantId } from '../../../lib/participant';
 import { validateSessionToken } from '../../../lib/sessionAuth';
+import { SESSION_STATUS, PARTICIPANT_STATUS } from '../../../lib/schema';
 
 const MAX_TEXT = 20_000;
 
@@ -79,22 +80,22 @@ export default async function handler(req, res) {
 
         if (currentSession === 1) {
             participantUpdate.$set.session_1_engagement = isEngaged;
-            participantUpdate.$set.session_1_status = 'CONCLUIDA';
+            participantUpdate.$set.session_1_status = SESSION_STATUS.CONCLUIDA;
             if (!isEngaged) {
-                participantUpdate.$set.status = 'INATIVO';
-                participantUpdate.$set.session_2_status = 'BLOQUEADA';
-                participantUpdate.$set.session_3_status = 'BLOQUEADA';
+                participantUpdate.$set.status = PARTICIPANT_STATUS.INATIVO;
+                participantUpdate.$set.session_2_status = SESSION_STATUS.BLOQUEADA;
+                participantUpdate.$set.session_3_status = SESSION_STATUS.BLOQUEADA;
             }
         } else if (currentSession === 2) {
             participantUpdate.$set.session_2_engagement = isEngaged;
-            participantUpdate.$set.session_2_status = 'CONCLUIDA';
+            participantUpdate.$set.session_2_status = SESSION_STATUS.CONCLUIDA;
             if (!isEngaged) {
-                participantUpdate.$set.status = 'INATIVO';
-                participantUpdate.$set.session_3_status = 'BLOQUEADA';
+                participantUpdate.$set.status = PARTICIPANT_STATUS.INATIVO;
+                participantUpdate.$set.session_3_status = SESSION_STATUS.BLOQUEADA;
             }
         } else if (currentSession === 3) {
             participantUpdate.$set.session_3_engagement = isEngaged;
-            participantUpdate.$set.session_3_status = 'CONCLUIDA';
+            participantUpdate.$set.session_3_status = SESSION_STATUS.CONCLUIDA;
         }
 
         await db.collection('participants').updateOne({ participant_id }, participantUpdate);

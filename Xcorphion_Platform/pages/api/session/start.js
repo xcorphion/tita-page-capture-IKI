@@ -36,8 +36,35 @@ export default async function handler(req, res) {
             return res.status(404).json({ error: 'Participante não encontrado.' });
         if (participant.status !== PARTICIPANT_STATUS.ATIVO)
             return res.status(403).json({ error: 'Participante inativo ou bloqueado.' });
-        if (participant[sessionStatusField] !== SESSION_STATUS.LIBERADA)
+        if (participant[sessionStatusField] === SESSION_STATUS.EM_ANDAMENTO) {
+            // Session was started but not completed — re-issue token so the participant can resume.
+            const existing = await db.collection('sessions').findOne(
+                { participant_id, prompt_id: pid, status: 'started' },
+                { projection: { session_id: 1, session_start_epoch_ms: 1 } }
+            );
+            if (existing) {
+                const { token, hash: token_hash } = generateSessionToken();
+                await db.collection('sessions').updateOne(
+                    { session_id: existing.session_id },
+                    { $set: { token_hash, resumed_at: new Date() } }
+                );
+                return res.json({
+                    session_id: existing.session_id,
+                    session_start_epoch_ms: existing.session_start_epoch_ms,
+                    prompt_text: PROMPTS[pid],
+                    session_token: token,
+                    resumed: true,
+                    server_now_ms: Date.now(),
+                });
+            }
+            // Orphaned EM_ANDAMENTO (no matching session doc) — reset to LIBERADA.
+            await db.collection('participants').updateOne(
+                { participant_id },
+                { $set: { [sessionStatusField]: SESSION_STATUS.LIBERADA } }
+            );
+        } else if (participant[sessionStatusField] !== SESSION_STATUS.LIBERADA) {
             return res.status(403).json({ error: 'Sessão não autorizada.' });
+        }
 
         // Device + IP mismatch detection for sessions 2 and 3
         if (pid > 1 && device_profile) {

@@ -114,7 +114,8 @@ export default function IKIResearchPage() {
             const data = await res.json();
             sessionIdRef.current = data.session_id;
             sessionTokenRef.current = data.session_token;
-            sessionStartEpochMsRef.current = data.session_start_epoch_ms;
+            // On resumption use server_now_ms so timestamp_abs_ms stays correct for new events.
+            sessionStartEpochMsRef.current = data.resumed ? data.server_now_ms : data.session_start_epoch_ms;
             sessionStartHighResRef.current = performance.now();
             setPromptText(data.prompt_text);
             setStep('writing');
