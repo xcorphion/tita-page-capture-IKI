@@ -37,6 +37,34 @@ export default async function handler(req, res) {
                     { participant_id: participant_code },
                     { $set: { admin_authorized_s3: true, session_3_status: 'LIBERADA' } }
                 );
+            } else if (action === 'reactivate') {
+                const participant = await participants.findOne({ participant_id: participant_code });
+                if (!participant) {
+                    return res.status(404).json({ error: 'Participante não encontrado' });
+                }
+
+                const setFields = {
+                    status: 'ATIVO',
+                    reactivated_at: new Date(),
+                };
+                if (participant.session_2_status === 'BLOQUEADA') setFields.session_2_status = 'AGUARDANDO';
+                if (participant.session_3_status === 'BLOQUEADA') setFields.session_3_status = 'AGUARDANDO';
+
+                await participants.updateOne(
+                    { participant_id: participant_code },
+                    {
+                        $set: setFields,
+                        $unset: { blocked_at: '', admin_deactivated: '', cleanup_complete: '' },
+                    }
+                );
+
+                // Remove IPs do blocklist que vieram apenas deste participante
+                if (participant.known_ips?.length > 0) {
+                    await db.collection('ip_blocklist').deleteMany({
+                        ip: { $in: participant.known_ips },
+                        source_participant_id: participant_code,
+                    });
+                }
             } else if (action === 'deactivate') {
                 const participant = await participants.findOne({ participant_id: participant_code });
                 if (!participant) {

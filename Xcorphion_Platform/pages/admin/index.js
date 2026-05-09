@@ -133,6 +133,9 @@ export default function AdminPanel() {
                     {p.status === 'ATIVO' && (
                       <button onClick={() => handleAction(p.participant_id, 'deactivate')} style={{ fontFamily: F.inter, fontSize: 11, fontWeight: 500, color: 'rgba(200,80,80,0.9)', background: 'rgba(200,80,80,0.06)', border: '1px solid rgba(200,80,80,0.18)', borderRadius: 6, padding: '5px 10px', cursor: 'pointer', transition: 'all 0.15s' }}>Desativar</button>
                     )}
+                    {p.status === 'BLOQUEADO' && (
+                      <button onClick={() => handleAction(p.participant_id, 'reactivate')} style={{ fontFamily: F.inter, fontSize: 11, fontWeight: 500, color: 'rgba(100,160,255,0.9)', background: 'rgba(100,160,255,0.06)', border: '1px solid rgba(100,160,255,0.18)', borderRadius: 6, padding: '5px 10px', cursor: 'pointer', transition: 'all 0.15s' }}>Reativar</button>
+                    )}
                   </div>
                 </td>
               </tr>
