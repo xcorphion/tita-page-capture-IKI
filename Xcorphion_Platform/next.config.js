@@ -56,6 +56,12 @@ const nextConfig = {
     appIsrStatus: false,
     buildActivity: false,
   },
+  experimental: {
+    outputFileTracingIncludes: {
+      '/api/admin/participants': ['./node_modules/geoip-lite/data/**/*'],
+      '/api/participant/[code]': ['./node_modules/geoip-lite/data/**/*'],
+    },
+  },
   async headers() {
     return [
       { source: '/:path*',              headers: securityHeaders },
