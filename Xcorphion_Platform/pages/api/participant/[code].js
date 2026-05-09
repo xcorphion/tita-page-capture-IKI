@@ -1,7 +1,9 @@
 import { connectToDatabase } from '../../../lib/mongodb';
 import { hashParticipantId, hashFingerprint, extractIp } from '../../../lib/participant';
 import { rateLimit } from '../../../lib/rateLimit';
-import geoip from 'geoip-lite';
+function geoLookup(ip) {
+    try { return require('geoip-lite').lookup(ip) || null; } catch (_) { return null; }
+}
 
 const CODE_RE = /^[A-Z0-9]{1,20}$/;
 
@@ -27,7 +29,7 @@ export default async function handler(req, res) {
                 return res.status(409).json({ error: 'Onboarding já concluído.' });
 
             const fingerprint_hash = hashFingerprint(device_profile);
-            const geo = (ip && ip !== 'unknown') ? (geoip.lookup(ip) || null) : null;
+            const geo = (ip && ip !== 'unknown') ? geoLookup(ip) : null;
 
             await participants.updateOne(
                 { participant_id },

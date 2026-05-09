@@ -1,6 +1,9 @@
 import { connectToDatabase } from '../../../lib/mongodb';
-import geoip from 'geoip-lite';
 import { checkAdminAuth } from '../../../lib/adminAuth';
+
+function geoLookup(ip) {
+    try { return require('geoip-lite').lookup(ip) || null; } catch (_) { return null; }
+}
 
 export default async function handler(req, res) {
     if (!checkAdminAuth(req, res)) return;
@@ -81,7 +84,7 @@ export default async function handler(req, res) {
                             ip,
                             blocked_at: blockedAt,
                             source_participant_id: participant_code,
-                            geo: geoip.lookup(ip) || null,
+                            geo: geoLookup(ip),
                         }));
 
                     if (ipDocs.length > 0) {
