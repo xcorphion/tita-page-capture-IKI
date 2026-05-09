@@ -12,11 +12,14 @@ const inputStyle = {
   transition: 'border-color 0.2s',
 };
 
+const STATUS_OPTIONS = ['TODOS', 'ATIVO', 'BLOQUEADO'];
+
 export default function AdminPanel() {
   const [password, setPassword]         = useState('');
   const [isAuthenticated, setIsAuth]    = useState(false);
   const [participants, setParticipants] = useState([]);
   const [error, setError]               = useState('');
+  const [statusFilter, setStatusFilter] = useState('TODOS');
 
   const fetchParticipants = async (pwd) => {
     try {
@@ -74,12 +77,23 @@ export default function AdminPanel() {
   const thStyle = { fontFamily: F.inter, fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.1em', textTransform: 'uppercase', padding: '12px 16px', textAlign: 'left', borderBottom: '1px solid rgba(255,255,255,0.06)', whiteSpace: 'nowrap' };
   const tdStyle = { fontFamily: F.inter, fontSize: 13, color: 'rgba(255,255,255,0.65)', padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.04)', verticalAlign: 'middle' };
 
+  const filtered = statusFilter === 'TODOS' ? participants : participants.filter(p => p.status === statusFilter);
+
   return (
     <div style={{ minHeight: '100vh', background: '#080808', color: 'white', fontFamily: F.inter }}>
       <Head><title>Admin — Xcorphion</title></Head>
       <header style={{ position: 'sticky', top: 0, zIndex: 100, borderBottom: '1px solid rgba(255,255,255,0.05)', background: 'rgba(8,8,8,0.92)', backdropFilter: 'blur(24px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 40px', height: 56 }}>
         <span style={{ fontFamily: F.space, fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.7)', letterSpacing: '-0.01em' }}>Controle de Participantes</span>
-        <span style={{ fontFamily: F.inter, fontSize: 10, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>{participants.length} participante{participants.length !== 1 ? 's' : ''}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ display: 'flex', gap: 4 }}>
+            {STATUS_OPTIONS.map(s => (
+              <button key={s} onClick={() => setStatusFilter(s)} style={{ fontFamily: F.inter, fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', padding: '5px 12px', borderRadius: 6, cursor: 'pointer', transition: 'all 0.15s', border: statusFilter === s ? '1px solid rgba(255,255,255,0.18)' : '1px solid rgba(255,255,255,0.06)', background: statusFilter === s ? 'rgba(255,255,255,0.08)' : 'transparent', color: statusFilter === s ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.3)' }}>
+                {s}
+              </button>
+            ))}
+          </div>
+          <span style={{ fontFamily: F.inter, fontSize: 10, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>{filtered.length}/{participants.length}</span>
+        </div>
       </header>
       <div style={{ padding: '32px 40px', overflowX: 'auto' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 900 }}>
@@ -87,7 +101,7 @@ export default function AdminPanel() {
             <tr>{['Código', 'Nome', 'Indicador', 'Status', 'Sessão 1', 'Sessão 2', 'Sessão 3', 'Ações'].map(h => <th key={h} style={thStyle}>{h}</th>)}</tr>
           </thead>
           <tbody>
-            {participants.map(p => (
+            {filtered.map(p => (
               <tr key={p._id || p.participant_id} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.015)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'} style={{ transition: 'background 0.15s' }}>
                 <td style={{ ...tdStyle, fontFamily: F.space, fontWeight: 600, color: 'white', fontSize: 13 }}>{p.participant_code || p.participant_id}</td>
                 <td style={tdStyle}>{p.participant_name || '—'}</td>
@@ -123,7 +137,7 @@ export default function AdminPanel() {
                 </td>
               </tr>
             ))}
-            {participants.length === 0 && (
+            {filtered.length === 0 && (
               <tr><td colSpan={8} style={{ ...tdStyle, textAlign: 'center', color: 'rgba(255,255,255,0.2)', padding: '48px 16px' }}>Nenhum participante encontrado.</td></tr>
             )}
           </tbody>
