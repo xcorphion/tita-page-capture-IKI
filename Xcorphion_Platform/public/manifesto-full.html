@@ -194,7 +194,7 @@
                 // Conteúdo Principal — Layout lado a lado
                 React.createElement("div", {
                     key: "content",
-                    className: "relative z-10 max-w-6xl mx-auto px-4 sm:px-8 py-12 sm:py-20 flex flex-col sm:flex-row items-start sm:items-center gap-8 sm:gap-16",
+                    className: "relative z-10 max-w-6xl mx-auto px-4 sm:px-8 py-6 sm:py-20 flex flex-col sm:flex-row items-start sm:items-center gap-6 sm:gap-16",
                 }, [
                     // COLUNA ESQUERDA — Texto
                     React.createElement(motion.div, {
@@ -246,7 +246,7 @@
                     const h = document.body.scrollHeight;
                     if (h > 0) window.parent.postMessage({ type: 'MANIFESTO_HEIGHT', height: h }, '*');
                 };
-                report();
+                requestAnimationFrame(report);
                 window.addEventListener('resize', report);
                 return () => window.removeEventListener('resize', report);
             }, []);

@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 
 const ManifestoOrchestrator = () => {
     const { locale } = useRouter();
-    const [iframeHeight, setIframeHeight] = useState('100vh');
+    const [iframeHeight, setIframeHeight] = useState('0px');
 
     useEffect(() => {
         const handler = (event) => {
@@ -22,6 +22,7 @@ const ManifestoOrchestrator = () => {
                 display: 'block',
                 width: '100%',
                 height: iframeHeight,
+                transition: 'height 0.15s ease',
                 background: 'transparent',
                 backgroundColor: 'transparent',
             }}

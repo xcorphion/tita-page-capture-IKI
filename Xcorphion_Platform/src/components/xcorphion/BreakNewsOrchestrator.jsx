@@ -32,7 +32,7 @@ const BreakNewsOrchestrator = () => {
     };
 
     return (
-        <div className="w-full relative overflow-hidden bg-transparent flex flex-col justify-center py-14 md:py-20 font-inter">
+        <div className="w-full relative overflow-hidden bg-transparent flex flex-col justify-center py-8 md:py-20 font-inter">
             {/* Grid background similar ao que havia */}
             <div className="absolute inset-0 z-0 opacity-20 pointer-events-none" style={{
                 backgroundSize: '30px 30px',
@@ -48,7 +48,7 @@ const BreakNewsOrchestrator = () => {
                     whileInView={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.8 }}
                     viewport={{ once: true }}
-                    className="mb-10 md:mb-16"
+                    className="mb-6 md:mb-16"
                 >
                     <h2 className="font-space text-4xl md:text-5xl lg:text-[56px] font-medium text-white tracking-tight mb-4 md:mb-6">{t('breaknews.title')}</h2>
                     <p className="font-inter text-base md:text-lg text-white/50 max-w-2xl">
