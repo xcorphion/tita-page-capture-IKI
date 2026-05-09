@@ -47,9 +47,13 @@ export default function Dashboard() {
       });
       if (res.ok) {
         const result = await res.json();
-        setData(result);
-        setIsAuthenticated(true);
-        setError('');
+        if (result.error) {
+          setError(result.error);
+        } else {
+          setData(result);
+          setIsAuthenticated(true);
+          setError('');
+        }
       } else {
         setError('Acesso negado ou erro no processamento');
       }
