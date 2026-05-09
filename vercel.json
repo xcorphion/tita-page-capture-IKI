@@ -1,9 +1,0 @@
-{
-  "version": 2,
-  "rewrites": [
-    {
-      "source": "/study/:path*",
-      "destination": "https://research-system-rglsbhql3-joao-sollatoris-projects.vercel.app/study/:path*"
-    }
-  ]
-}

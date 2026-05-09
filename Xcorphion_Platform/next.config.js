@@ -51,7 +51,6 @@ const nextConfig = {
     defaultLocale: 'pt',
   },
   reactStrictMode: false,
-  transpilePackages: ["@xcorphion/shared"],
   trailingSlash: false,
   devIndicators: {
     appIsrStatus: false,
@@ -63,14 +62,6 @@ const nextConfig = {
       { source: '/sidebar.html',        headers: htmlIframeHeaders },
       { source: '/headline-full.html',  headers: htmlIframeHeaders },
       { source: '/manifesto-full.html', headers: htmlIframeHeaders },
-    ];
-  },
-  async rewrites() {
-    return [
-      {
-        source: '/study/:path*',
-        destination: 'http://localhost:3001/study/:path*',
-      },
     ];
   },
 }

@@ -8,21 +8,26 @@
     "start": "next start"
   },
   "dependencies": {
+    "@react-three/drei": "^9.117.3",
+    "@react-three/fiber": "^8.17.10",
+    "@react-three/postprocessing": "^2.16.3",
+    "@tailwindcss/postcss": "^4.2.4",
+    "d3-dsv": "^3.0.1",
+    "dotenv": "^17.4.2",
+    "framer-motion": "^11.11.17",
+    "geoip-lite": "^1.4.10",
+    "gsap": "^3.12.5",
+    "lucide-react": "^0.460.0",
+    "mongodb": "^7.2.0",
     "next": "14.2.4",
+    "nodemailer": "^8.0.7",
+    "plotly.js": "^3.5.1",
+    "postcss": "^8.4.31",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "framer-motion": "^11.11.17",
-    "mongodb": "^7.2.0",
-    "dotenv": "^17.4.2",
-    "gsap": "^3.12.5",
-    "three": "^0.170.0",
-    "@react-three/fiber": "^8.17.10",
-    "@react-three/drei": "^9.117.3",
-    "@react-three/postprocessing": "^2.16.3",
-    "lucide-react": "^0.460.0",
-    "postcss": "^8.4.31",
+    "react-plotly.js": "^2.6.0",
+    "react-quill": "^2.0.0",
     "tailwindcss": "^4.2.4",
-    "@tailwindcss/postcss": "^4.2.4",
-    "@xcorphion/shared": "*"
+    "three": "^0.170.0"
   }
 }

@@ -1,18 +1,10 @@
-import { useEffect, useRef } from 'react';
-
-const initDebug = (moduleName) => console.log(`[DEBUG][INIT] Módulo montado: ${moduleName}`);
-const callDebug = (action) => console.log(`[DEBUG][CALL] Ação disparada: ${action}`);
+import { useRef, useEffect } from 'react';
 
 const HeroVideo = () => {
     const videoRef = useRef(null);
 
     useEffect(() => {
-        initDebug('HeroVideo');
-        if (videoRef.current) {
-            videoRef.current.play()
-                .then(() => callDebug('Vídeo iniciado com sucesso'))
-                .catch((err) => callDebug(`Vídeo falhou: ${err.message}`));
-        }
+        videoRef.current?.play().catch(() => {});
     }, []);
 
     return (

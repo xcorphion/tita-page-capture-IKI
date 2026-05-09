@@ -1,15 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 
-const initDebug = (moduleName) => console.log(`[DEBUG][INIT] Módulo montado: ${moduleName}`);
-
 const ManifestoOrchestrator = () => {
     const { locale } = useRouter();
     const [iframeHeight, setIframeHeight] = useState('100vh');
 
     useEffect(() => {
-        initDebug('ManifestoOrchestrator (Iframe Orchestrator)');
-
         const handler = (event) => {
             if (event.data?.type === 'MANIFESTO_HEIGHT') {
                 setIframeHeight(`${event.data.height}px`);

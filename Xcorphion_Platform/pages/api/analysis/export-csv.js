@@ -1,0 +1,79 @@
+import { connectToDatabase } from '../../../lib/mongodb';
+import { format } from 'd3-dsv';
+import { checkAdminAuth } from '../../../lib/adminAuth';
+
+export default async function handler(req, res) {
+    if (!checkAdminAuth(req, res)) return;
+
+    if (req.method !== 'GET') return res.status(405).end();
+
+    try {
+        const db = await connectToDatabase();
+
+        const sessions = await db.collection('sessions').find({ status: 'completed' }).limit(500).toArray();
+        const sessionIds = sessions.map(s => s.session_id);
+
+        const allEvents = await db.collection('events')
+            .find({ session_id: { $in: sessionIds } })
+            .sort({ session_id: 1, timestamp_rel_ms: 1 })
+            .toArray();
+
+        const allEmas = await db.collection('emas')
+            .find({ session_id: { $in: sessionIds } })
+            .toArray();
+
+        const emaMap = allEmas.reduce((acc, ema) => {
+            if (!acc[ema.session_id]) acc[ema.session_id] = [];
+            acc[ema.session_id].push(ema);
+            return acc;
+        }, {});
+
+        const csvData = [];
+
+        for (const session of sessions) {
+            const events = allEvents.filter(e => e.session_id === session.session_id);
+            const emas = (emaMap[session.session_id] || []).sort((a, b) => a.character_count - b.character_count);
+
+            let charCount = 0;
+            let currentEmaIndex = 0;
+
+            for (let i = 1; i < events.length; i++) {
+                const e1 = events[i - 1];
+                const e2 = events[i];
+                const iki = e2.timestamp_rel_ms - e1.timestamp_rel_ms;
+
+                if (iki <= 0 || iki > 30000) continue;
+
+                if (e2.event_type === 'keydown') {
+                    charCount++;
+                    while (currentEmaIndex < emas.length && charCount > emas[currentEmaIndex].character_count) {
+                        currentEmaIndex++;
+                    }
+                    const currentEma = emas[currentEmaIndex] || emas[emas.length - 1];
+
+                    csvData.push({
+                        participant_id: session.participant_id,
+                        session_id: session.session_id,
+                        timestamp_rel_ms: e2.timestamp_rel_ms,
+                        iki_ms: iki,
+                        iki_log1p: Math.log1p(iki),
+                        key_code: e2.key_code,
+                        valence: currentEma?.valence || '',
+                        arousal: currentEma?.arousal || '',
+                        ema_index: currentEmaIndex
+                    });
+                }
+            }
+        }
+
+        const csvString = format(csvData);
+
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', 'attachment; filename=somatic_transformer_dataset.csv');
+        res.status(200).send(csvString);
+
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ error: 'Erro ao exportar CSV' });
+    }
+}

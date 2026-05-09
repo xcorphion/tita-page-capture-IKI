@@ -1,14 +1,7 @@
-import { useEffect } from 'react';
 import { useRouter } from 'next/router';
-
-const initDebug = (moduleName) => console.log(`[DEBUG][INIT] Módulo montado: ${moduleName}`);
 
 const HeadlineOrchestrator = () => {
     const { locale } = useRouter();
-
-    useEffect(() => {
-        initDebug('HeadlineOrchestrator (Iframe Orchestrator)');
-    }, []);
 
     return (
         <iframe

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from '../../hooks/useTranslation';
 
@@ -17,7 +17,6 @@ const BreakNewsOrchestrator = () => {
                     setArticles(data.data);
                 }
             } catch (error) {
-                console.error("Erro ao carregar os artigos:", error);
             } finally {
                 setLoading(false);
             }
