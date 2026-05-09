@@ -22,9 +22,12 @@
         
         .grid-bg {
             background-size: 40px 40px;
-            background-image: 
+            background-image:
                 linear-gradient(to right, rgba(255, 255, 255, 0.15) 1px, transparent 1px),
                 linear-gradient(to bottom, rgba(255, 255, 255, 0.15) 1px, transparent 1px);
+        }
+        @media (max-width: 640px) {
+            .esquadro-grid { display: none !important; }
         }
     </style>
 </head>
@@ -60,10 +63,10 @@
                 initial: { opacity: 0 },
                 animate: { opacity: 1 },
                 transition: { duration: 1.5, delay: 0.3 },
-                className: "absolute top-0 right-0 pointer-events-none z-20",
+                className: "absolute top-0 right-0 pointer-events-none z-20 esquadro-grid",
                 style: {
-                    width: '700px',
-                    height: '504px'
+                    width: 'min(700px, 100vw)',
+                    height: 'min(504px, 72vw)'
                 }
             }, 
                 React.createElement("div", { 
@@ -79,7 +82,7 @@
         const HeadlinePrototype = () => {
             return React.createElement(
                 "div",
-                { className: "absolute inset-0 flex items-start justify-end pr-[30px] pt-[30px] pointer-events-none" },
+                { className: "absolute inset-0 flex items-start justify-end pr-[clamp(12px,3vw,30px)] pt-[clamp(12px,3vw,30px)] pointer-events-none" },
                 React.createElement(
                     motion.div,
                     {
@@ -91,7 +94,7 @@
                     React.createElement(
                         "h1",
                         {
-                            className: "font-space font-semibold text-[30px] leading-relaxed tracking-tight text-white/90 drop-shadow-2xl"
+                            className: "font-space font-semibold text-[clamp(16px,4vw,30px)] leading-relaxed tracking-tight text-white/90 drop-shadow-2xl"
                         },
                         ht.line1,
                         React.createElement("br"),

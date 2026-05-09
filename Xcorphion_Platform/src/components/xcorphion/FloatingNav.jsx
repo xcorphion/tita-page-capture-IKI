@@ -6,7 +6,15 @@ const callDebug = (action) => console.log(`[DEBUG][CALL] Ação disparada: ${act
 
 const FloatingNav = () => {
     const { locale } = useRouter();
-    const [iframeWidth, setIframeWidth] = useState('220px');
+    const [iframeWidth, setIframeWidth] = useState('64px');
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     useEffect(() => {
         initDebug('FloatingNav (Iframe Orchestrator)');
@@ -22,7 +30,7 @@ const FloatingNav = () => {
 
         const handleMessage = (event) => {
             if (event.data?.type === 'SIDEBAR_RESIZE') {
-                setIframeWidth(event.data.isExpanded ? '420px' : '220px');
+                if (!isMobile) setIframeWidth(event.data.isExpanded ? '240px' : '64px');
             } else if (event.data?.type === 'SIDEBAR_NAVIGATE') {
                 if (event.data.id === 'research') {
                     window.location.href = '/study';
@@ -64,17 +72,17 @@ const FloatingNav = () => {
             window.removeEventListener('message', handleMessage);
             observer.disconnect();
         };
-    }, []);
+    }, [isMobile]);
 
     return (
         <iframe
             src={`/sidebar.html?lang=${locale || 'pt'}`}
-            style={{ 
-                width: iframeWidth, 
-                transition: 'width 0.6s cubic-bezier(0.22, 1, 0.36, 1)', 
+            style={{
+                width: isMobile ? '56px' : iframeWidth,
+                transition: 'width 0.6s cubic-bezier(0.22, 1, 0.36, 1)',
                 background: 'transparent',
                 backgroundColor: 'transparent',
-                colorScheme: 'light' // Previne o fundo preto automático do browser
+                colorScheme: 'light',
             }}
             className="fixed top-0 left-0 h-screen border-none z-[100] pointer-events-auto bg-transparent"
             allowtransparency="true"

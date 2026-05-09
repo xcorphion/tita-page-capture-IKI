@@ -40,7 +40,7 @@ export default function StudyWelcome() {
         <header style={{
           borderBottom: '1px solid rgba(255,255,255,0.05)',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '0 40px', height: 56, flexShrink: 0,
+          padding: '0 clamp(16px, 4vw, 40px)', height: 56, flexShrink: 0,
         }}>
           <Link
             href="/study"
@@ -60,7 +60,7 @@ export default function StudyWelcome() {
         </header>
 
         {/* Content */}
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px 40px' }}>
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(32px, 6vw, 60px) clamp(16px, 4vw, 40px)' }}>
           <motion.div
             initial={{ opacity: 0, y: 32 }}
             animate={{ opacity: 1, y: 0 }}

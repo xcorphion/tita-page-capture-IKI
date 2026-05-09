@@ -182,7 +182,7 @@
                 // Conteúdo Principal — Layout lado a lado
                 React.createElement("div", {
                     key: "content",
-                    className: "relative z-10 max-w-6xl mx-auto px-8 py-24 flex items-center gap-16",
+                    className: "relative z-10 max-w-6xl mx-auto px-4 sm:px-8 py-10 sm:py-24 flex flex-col sm:flex-row items-start sm:items-center gap-8 sm:gap-16",
                     style: { minHeight: '100vh' }
                 }, [
                     // COLUNA ESQUERDA — Texto
@@ -197,7 +197,7 @@
                         // Título principal
                         React.createElement("h2", {
                             key: "title",
-                            className: "font-space font-medium text-[56px] leading-[1.1] tracking-tight text-white mb-6"
+                            className: "font-space font-medium text-[clamp(26px,6vw,56px)] leading-[1.1] tracking-tight text-white mb-4 sm:mb-6"
                         }, [
                             mt.titleLine1,
                             React.createElement("br", { key: "br1" }),
@@ -207,7 +207,7 @@
                         // Parágrafo
                         React.createElement("p", {
                             key: "sub",
-                            className: "font-inter text-[18px] leading-[1.6] text-white/60 max-w-md mb-10"
+                            className: "font-inter text-[clamp(14px,2.2vw,18px)] leading-[1.6] text-white/60 max-w-md mb-6 sm:mb-10"
                         }, mt.desc),
 
                         // Botão Retangular (Rounded 8px)
@@ -230,6 +230,15 @@
         };
 
         const App = () => {
+            useEffect(() => {
+                const report = () => {
+                    const h = document.body.scrollHeight;
+                    if (h > 0) window.parent.postMessage({ type: 'MANIFESTO_HEIGHT', height: h }, '*');
+                };
+                report();
+                window.addEventListener('resize', report);
+                return () => window.removeEventListener('resize', report);
+            }, []);
             return React.createElement(ManifestoSection, null);
         };
 

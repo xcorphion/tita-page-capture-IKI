@@ -43,16 +43,16 @@ const BreakNewsOrchestrator = () => {
             <div className="w-full absolute top-0 h-[1px]" style={{ background: 'linear-gradient(90deg, transparent, rgba(139, 0, 0, 0.4), transparent)' }} />
             
             <div className="relative z-10">
-                <div className="max-w-6xl mx-auto px-8">
+                <div className="max-w-6xl mx-auto px-4 md:px-8">
                 <motion.div
                     initial={{ opacity: 0, x: -30 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.8 }}
                     viewport={{ once: true }}
-                    className="mb-16"
+                    className="mb-10 md:mb-16"
                 >
-                    <h2 className="font-space text-5xl md:text-[56px] font-medium text-white tracking-tight mb-6">{t('breaknews.title')}</h2>
-                    <p className="font-inter text-lg text-white/50 max-w-2xl">
+                    <h2 className="font-space text-4xl md:text-5xl lg:text-[56px] font-medium text-white tracking-tight mb-4 md:mb-6">{t('breaknews.title')}</h2>
+                    <p className="font-inter text-base md:text-lg text-white/50 max-w-2xl">
                         {t('breaknews.subtitle')}
                     </p>
                 </motion.div>
@@ -69,7 +69,7 @@ const BreakNewsOrchestrator = () => {
                         {/* Carrossel full-width, cards saem da tela */}
                         <div
                             ref={carouselRef}
-                            className="flex gap-6 overflow-x-auto pb-12 pt-4 snap-x snap-mandatory hide-scrollbar px-8"
+                            className="flex gap-4 md:gap-6 overflow-x-auto pb-12 pt-4 snap-x snap-mandatory hide-scrollbar px-4 md:px-8"
                             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                         >
                             {articles.map((article, index) => (
@@ -80,7 +80,7 @@ const BreakNewsOrchestrator = () => {
                                     transition={{ duration: 0.5, delay: index * 0.1 }}
                                     viewport={{ once: true, margin: "-50px" }}
                                     onClick={() => navigateToArticle(article.custom_id)}
-                                    className="flex-none w-[278px] md:w-[318px] snap-start group cursor-pointer"
+                                    className="flex-none w-[min(278px,80vw)] md:w-[318px] snap-start group cursor-pointer"
                                 >
                                     <div className="bg-[#0a0a0a] border border-white/10 rounded-xl overflow-hidden hover:border-[#8B0000]/50 transition duration-300 flex flex-col h-full relative" style={{ boxShadow: 'none' }}>
                                         
@@ -99,7 +99,7 @@ const BreakNewsOrchestrator = () => {
                                             )}
                                         </div>
 
-                                        <div className="p-8 flex flex-col flex-grow">
+                                        <div className="p-5 md:p-8 flex flex-col flex-grow">
                                             {/* Título Bold Médio */}
                                             <h3 className="font-space text-2xl font-semibold text-white mb-4 line-clamp-2 leading-tight">
                                                 {article.card_title}

@@ -160,7 +160,7 @@ export default function TermsPage() {
         <style>{`
           ::selection { background: rgba(139,0,0,0.25); }
           * { box-sizing: border-box; }
-          @media (max-width: 1100px) { .toc-sidebar { display: none !important; } }
+          @media (max-width: 768px) { .toc-sidebar { display: none !important; } }
         `}</style>
       </Head>
 
@@ -172,7 +172,7 @@ export default function TermsPage() {
           borderBottom: '1px solid rgba(255,255,255,0.05)',
           background: 'rgba(8,8,8,0.92)', backdropFilter: 'blur(24px)',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '0 40px', height: 56,
+          padding: '0 clamp(16px, 4vw, 40px)', height: 56,
         }}>
           <Link
             href="/study"
@@ -192,7 +192,7 @@ export default function TermsPage() {
         </header>
 
         {/* Outer layout: content + sidebar */}
-        <div style={{ maxWidth: 1160, margin: '0 auto', padding: '0 40px', display: 'flex', gap: 64, alignItems: 'flex-start' }}>
+        <div style={{ maxWidth: 1160, margin: '0 auto', padding: '0 clamp(16px, 4vw, 40px)', display: 'flex', gap: 'clamp(24px, 5vw, 64px)', alignItems: 'flex-start' }}>
 
           {/* Main content */}
           <div style={{ flex: 1, minWidth: 0, paddingBottom: 160 }}>

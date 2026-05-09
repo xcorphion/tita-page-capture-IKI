@@ -146,7 +146,7 @@ export default function StudyPage() {
           borderBottom: '1px solid rgba(255,255,255,0.05)',
           background: 'rgba(8,8,8,0.9)', backdropFilter: 'blur(24px)',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '0 40px', height: 56,
+          padding: '0 clamp(16px, 4vw, 40px)', height: 56,
         }}>
           <Link
             href="/"
@@ -166,7 +166,7 @@ export default function StudyPage() {
         </header>
 
         {/* Hero */}
-        <div style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', padding: '88px 40px 80px' }}>
+        <div style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', padding: 'clamp(48px, 8vw, 88px) clamp(16px, 4vw, 40px) clamp(48px, 8vw, 80px)' }}>
           <motion.div
             initial={{ opacity: 0, y: 32 }}
             animate={{ opacity: 1, y: 0 }}
@@ -223,7 +223,7 @@ export default function StudyPage() {
         </div>
 
         {/* Content */}
-        <div style={{ maxWidth: 760, margin: '0 auto', padding: '0 40px 160px' }}>
+        <div style={{ maxWidth: 760, margin: '0 auto', padding: '0 clamp(16px, 4vw, 40px) clamp(80px, 12vw, 160px)' }}>
 
           <Section id="o-que-e-iki" title="O que é IKI e por que ele importa">
             <P>
@@ -335,7 +335,7 @@ export default function StudyPage() {
                     onKeyDown={e => e.key === 'Enter' && handleSubmit()}
                     disabled={status === 'loading'}
                     style={{
-                      flex: 1, minWidth: 200,
+                      flex: 1, minWidth: 0,
                       fontFamily: F.inter, fontSize: 14,
                       color: 'white', background: 'rgba(255,255,255,0.05)',
                       border: '1px solid rgba(255,255,255,0.1)',
@@ -421,7 +421,7 @@ export default function StudyPage() {
                 background: '#0f0f0f',
                 border: '1px solid rgba(255,255,255,0.1)',
                 borderRadius: 18,
-                padding: '44px 40px 40px',
+                padding: 'clamp(28px, 5vw, 44px) clamp(20px, 4vw, 40px) clamp(24px, 4vw, 40px)',
                 boxShadow: '0 32px 80px rgba(0,0,0,0.6)',
               }}
             >

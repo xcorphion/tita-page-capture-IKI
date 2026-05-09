@@ -69,11 +69,14 @@
         };
         const st = ST[lang] || ST.pt;
 
+        const isMobile = window.innerWidth < 768;
+
         const SidebarPrototype = () => {
             const [isExpanded, setIsExpanded] = useState(false);
             const [activeItem, setActiveItem] = useState('home');
 
             const navItems = st.navItems;
+            const expandedWidth = isMobile ? Math.min(240, window.innerWidth - 24) : 240;
 
             useEffect(() => {
                 lucide.createIcons();
@@ -98,13 +101,15 @@
             return React.createElement(motion.nav, {
                 initial: { x: -100 },
                 animate: { x: 0 },
-                onMouseEnter: () => setIsExpanded(true),
-                onMouseLeave: () => setIsExpanded(false),
+                ...(isMobile
+                    ? { onClick: () => setIsExpanded(v => !v) }
+                    : { onMouseEnter: () => setIsExpanded(true), onMouseLeave: () => setIsExpanded(false) }
+                ),
                 className: "absolute top-6 bottom-6 left-6 z-[100] flex flex-col pointer-events-auto"
             },
                 React.createElement(motion.div, {
                     animate: {
-                        width: isExpanded ? 240 : 64,
+                        width: isExpanded ? expandedWidth : (isMobile ? 48 : 64),
                         backgroundColor: isExpanded ? 'rgba(15, 5, 5, 0.95)' : 'rgba(255, 255, 255, 0.05)'
                     },
                     transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
