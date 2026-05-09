@@ -1,9 +1,10 @@
 import { MongoClient } from 'mongodb';
+import { ensureIndexes } from './ensureIndexes';
 
 let client;
 let clientPromise;
 
-export async function connectToDatabase(workspace = 'research') {
+export async function connectToDatabase() {
   const uri = process.env.MONGODB_URI;
   if (!uri) throw new Error('MONGODB_URI não definida.');
 
@@ -13,5 +14,7 @@ export async function connectToDatabase(workspace = 'research') {
   }
 
   const conn = await clientPromise;
-  return conn.db(workspace === 'platform' ? 'Xcorphion_Platform' : 'Research_System');
+  const db = conn.db('Research_System');
+  ensureIndexes(db);
+  return db;
 }
