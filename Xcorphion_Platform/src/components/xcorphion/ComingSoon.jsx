@@ -34,7 +34,7 @@ export default function ComingSoon({ productKey, backHref = '/' }) {
       }}>
         {/* nav */}
         <nav style={{
-          padding: '20px 40px',
+          padding: 'clamp(14px,2vw,20px) clamp(16px,4vw,40px)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -65,7 +65,7 @@ export default function ComingSoon({ productKey, backHref = '/' }) {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '80px 40px',
+          padding: 'clamp(48px,8vw,80px) clamp(16px,4vw,40px)',
           textAlign: 'center',
         }}>
           {/* title */}
@@ -132,7 +132,7 @@ export default function ComingSoon({ productKey, backHref = '/' }) {
 
         {/* footer strip */}
         <div style={{
-          padding: '18px 40px',
+          padding: 'clamp(14px,2vw,18px) clamp(16px,4vw,40px)',
           borderTop: '1px solid rgba(255,255,255,0.04)',
           display: 'flex', justifyContent: 'center',
         }}>

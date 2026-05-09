@@ -57,21 +57,16 @@ export default function Footer() {
     <footer style={{
       backgroundColor: '#000',
       borderTop: '1px solid #3D0000',
-      paddingTop: 72, paddingBottom: 40,
+      paddingTop: 'clamp(40px,6vw,72px)', paddingBottom: 'clamp(24px,4vw,40px)',
     }}>
       {/* alinhado com max-w-6xl mx-auto px-8 do BreakNews */}
-      <div style={{ maxWidth: 1152, margin: '0 auto', paddingLeft: 32, paddingRight: 32 }}>
+      <div style={{ maxWidth: 1152, margin: '0 auto', paddingLeft: 'clamp(16px,3vw,32px)', paddingRight: 'clamp(16px,3vw,32px)' }}>
 
         {/* grid */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '1.4fr 1fr 1fr 1fr 1fr',
-          gap: '48px 40px',
-          marginBottom: 64,
-        }}>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-x-8 gap-y-10 lg:gap-x-10 mb-12 lg:mb-16">
 
           {/* ── Brand ─────────────────────────── */}
-          <div>
+          <div className="col-span-2 md:col-span-1">
             <span style={{ display: 'block', fontFamily: F.space, fontWeight: 700, fontSize: 13, color: '#F0EAE8', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 20 }}>
               Xcorphion
             </span>

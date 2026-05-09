@@ -22,6 +22,9 @@
             overflow: hidden;
             margin: 0;
         }
+        @media (max-width: 640px) {
+            html, body { overflow-y: auto !important; }
+        }
 
         .font-space {
             font-family: 'Space Grotesk', sans-serif;
@@ -192,7 +195,7 @@
                         whileInView: { opacity: 1, y: 0 },
                         transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] },
                         viewport: { once: true },
-                        className: "flex-1 flex flex-col items-start"
+                        className: "w-full sm:flex-1 flex flex-col items-start"
                     }, [
                         // Título principal
                         React.createElement("h2", {
@@ -221,7 +224,7 @@
                     // COLUNA DIREITA — Frame de diferenciação
                     React.createElement("div", {
                         key: "right-col",
-                        className: "flex-1 relative"
+                        className: "w-full sm:flex-1 relative"
                     },
                         React.createElement(DifferentiationFrame, { key: "diff-frame" })
                     )

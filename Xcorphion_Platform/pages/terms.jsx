@@ -258,7 +258,7 @@ export default function TermsPage() {
                 <H2 id="sec-1-title" num="01">Identificação da Controladora</H2>
                 <div style={{ paddingTop: 20 }}>
                   <P>
-                    A pesquisa descrita neste documento é conduzida pela <strong style={{ color: 'rgba(255,255,255,0.8)', fontWeight: 500 }}>Xcorphion Corporation</strong> ("Xcorphion", "nós", "nossa"), pessoa jurídica de direito privado, responsável pelo desenvolvimento do sistema de inteligência artificial OMMΩ. Para fins de comunicação relacionados a esta pesquisa, o contato pode ser feito através dos canais disponíveis em <Link href="https://xcorphion.online/contact" style={{ color: 'rgba(255,255,255,0.75)', textDecoration: 'underline', textDecorationColor: 'rgba(255,255,255,0.25)', textUnderlineOffset: 3, fontWeight: 400, transition: 'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color = 'white'} onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.75)'}>xcorphion.online/contact</Link>.
+                    A pesquisa descrita neste documento é conduzida pela <strong style={{ color: 'rgba(255,255,255,0.8)', fontWeight: 500 }}>Xcorphion Corporation</strong> ("Xcorphion", "nós", "nossa"), pessoa jurídica de direito privado, responsável pelo desenvolvimento do sistema de inteligência artificial OMMΩ. Para fins de comunicação relacionados a esta pesquisa, o contato pode ser feito através dos canais disponíveis em <Link href="https://xcorphion.online/contact" target="_blank" rel="noopener noreferrer" style={{ color: 'rgba(255,255,255,0.75)', textDecoration: 'underline', textDecorationColor: 'rgba(255,255,255,0.25)', textUnderlineOffset: 3, fontWeight: 400, transition: 'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color = 'white'} onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.75)'}>xcorphion.online/contact</Link>.
                   </P>
                 </div>
               </div>
@@ -445,7 +445,7 @@ export default function TermsPage() {
                     ))}
                   </div>
                   <P>
-                    O exercício desses direitos pode ser solicitado através dos canais de contato disponíveis em <Link href="https://xcorphion.online/contact" style={{ color: 'rgba(255,255,255,0.75)', textDecoration: 'underline', textDecorationColor: 'rgba(255,255,255,0.25)', textUnderlineOffset: 3, fontWeight: 400, transition: 'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color = 'white'} onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.75)'}>xcorphion.online/contact</Link>. Solicitações serão respondidas em até 15 dias úteis.
+                    O exercício desses direitos pode ser solicitado através dos canais de contato disponíveis em <Link href="https://xcorphion.online/contact" target="_blank" rel="noopener noreferrer" style={{ color: 'rgba(255,255,255,0.75)', textDecoration: 'underline', textDecorationColor: 'rgba(255,255,255,0.25)', textUnderlineOffset: 3, fontWeight: 400, transition: 'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color = 'white'} onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.75)'}>xcorphion.online/contact</Link>. Solicitações serão respondidas em até 15 dias úteis.
                   </P>
                 </div>
               </div>
@@ -643,7 +643,7 @@ export default function TermsPage() {
         </div>
 
         {/* Footer */}
-        <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', padding: '20px 40px', display: 'flex', justifyContent: 'center' }}>
+        <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', padding: 'clamp(14px,2vw,20px) clamp(16px,4vw,40px)', display: 'flex', justifyContent: 'center' }}>
           <span style={{ fontFamily: F.inter, fontSize: 11, color: 'rgba(255,255,255,0.12)' }}>
             © 2026 Xcorphion Corporation
           </span>

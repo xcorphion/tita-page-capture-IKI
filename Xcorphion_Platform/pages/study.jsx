@@ -383,7 +383,7 @@ export default function StudyPage() {
         </div>
 
         {/* Footer strip */}
-        <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', padding: '20px 40px', display: 'flex', justifyContent: 'center' }}>
+        <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', padding: 'clamp(14px,2vw,20px) clamp(16px,4vw,40px)', display: 'flex', justifyContent: 'center' }}>
           <span style={{ fontFamily: F.inter, fontSize: 11, color: 'rgba(255,255,255,0.12)' }}>
             © 2026 Xcorphion Corporation
           </span>
@@ -423,6 +423,8 @@ export default function StudyPage() {
                 borderRadius: 18,
                 padding: 'clamp(28px, 5vw, 44px) clamp(20px, 4vw, 40px) clamp(24px, 4vw, 40px)',
                 boxShadow: '0 32px 80px rgba(0,0,0,0.6)',
+                maxHeight: '90dvh',
+                overflowY: 'auto',
               }}
             >
               {/* Close button */}

@@ -74,9 +74,11 @@ export default function WaitlistGateModal({ isOpen, onClose }) {
               background: '#0c0c0c',
               border: '1px solid rgba(255,255,255,0.08)',
               borderRadius: 16,
-              padding: '48px 40px 40px',
+              padding: 'clamp(28px,4vw,48px) clamp(16px,4vw,40px)',
               maxWidth: 480,
               width: '100%',
+              maxHeight: '90dvh',
+              overflowY: 'auto',
               textAlign: 'center',
               position: 'relative',
             }}

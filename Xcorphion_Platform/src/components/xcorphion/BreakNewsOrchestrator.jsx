@@ -80,7 +80,7 @@ const BreakNewsOrchestrator = () => {
                                     transition={{ duration: 0.5, delay: index * 0.1 }}
                                     viewport={{ once: true, margin: "-50px" }}
                                     onClick={() => navigateToArticle(article.custom_id)}
-                                    className="flex-none w-[min(278px,80vw)] md:w-[318px] snap-start group cursor-pointer"
+                                    className="flex-none w-4/5 sm:w-[278px] md:w-[318px] snap-start group cursor-pointer"
                                 >
                                     <div className="bg-[#0a0a0a] border border-white/10 rounded-xl overflow-hidden hover:border-[#8B0000]/50 transition duration-300 flex flex-col h-full relative" style={{ boxShadow: 'none' }}>
                                         

@@ -13,12 +13,13 @@ const HeadlineOrchestrator = () => {
     return (
         <iframe
             src={`/headline-full.html?lang=${locale || 'pt'}`}
-            style={{ 
+            style={{
                 display: 'block',
-                width: '100%', 
-                height: '100%', 
+                width: '100%',
+                height: '100%',
                 background: 'transparent',
                 backgroundColor: 'transparent',
+                border: 'none',
             }}
             className="border-none"
             allowtransparency="true"

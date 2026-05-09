@@ -163,7 +163,7 @@ export default function ArticlePage() {
         borderBottom: '1px solid rgba(255,255,255,0.05)',
         background: 'rgba(8,8,8,0.88)', backdropFilter: 'blur(24px)',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '0 40px', height: 56,
+        padding: '0 clamp(16px,4vw,40px)', height: 56,
       }}>
         <button
           onClick={() => router.push('/')}
@@ -205,7 +205,7 @@ export default function ArticlePage() {
           initial={{ opacity: 0, y: 48 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-          style={{ position: 'relative', zIndex: 10, maxWidth: 1200, margin: '0 auto', padding: '0 40px 64px', width: '100%' }}
+          style={{ position: 'relative', zIndex: 10, maxWidth: 1200, margin: '0 auto', padding: `0 clamp(16px,4vw,40px) clamp(32px,5vw,64px)`, width: '100%' }}
         >
           <h1 style={{
             fontFamily: F.space, fontWeight: 800,
@@ -241,18 +241,21 @@ export default function ArticlePage() {
       </div>
 
       {/* Body: sidebar + content */}
-      <div style={{
-        maxWidth: 1200, margin: '0 auto', padding: '72px 40px 120px',
-        display: 'grid', gridTemplateColumns: '240px 1fr', gap: '0 80px',
-        alignItems: 'start',
-      }}>
+      <div
+        className="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-y-10 lg:gap-x-20"
+        style={{
+          maxWidth: 1200, margin: '0 auto',
+          padding: 'clamp(40px,6vw,72px) clamp(16px,4vw,40px) clamp(60px,10vw,120px)',
+          alignItems: 'start',
+        }}
+      >
 
         {/* Sidebar */}
         <motion.aside
           initial={{ opacity: 0, x: -16 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-          style={{ position: 'sticky', top: 80 }}
+          className="lg:sticky lg:top-20"
         >
           <div style={{ marginBottom: 36 }}>
             <span style={{ fontFamily: F.inter, fontSize: 11, color: 'rgba(255,255,255,0.25)', letterSpacing: '0.08em', textTransform: 'uppercase', display: 'block', marginBottom: 12 }}>
@@ -321,7 +324,7 @@ export default function ArticlePage() {
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
             style={{
               marginTop: 72,
-              padding: '36px 40px',
+              padding: 'clamp(24px,4vw,36px) clamp(16px,4vw,40px)',
               borderLeft: '3px solid #8B0000',
               background: 'rgba(139,0,0,0.04)',
               borderRadius: '0 12px 12px 0',

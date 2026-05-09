@@ -6,7 +6,7 @@ const callDebug = (action) => console.log(`[DEBUG][CALL] Ação disparada: ${act
 
 const FloatingNav = () => {
     const { locale } = useRouter();
-    const [iframeWidth, setIframeWidth] = useState('64px');
+    const [iframeWidth, setIframeWidth] = useState('88px');
     const [isMobile, setIsMobile] = useState(false);
 
     useEffect(() => {
@@ -30,7 +30,9 @@ const FloatingNav = () => {
 
         const handleMessage = (event) => {
             if (event.data?.type === 'SIDEBAR_RESIZE') {
-                if (!isMobile) setIframeWidth(event.data.isExpanded ? '240px' : '64px');
+                const expanded = event.data.isExpanded;
+                const expandedW = isMobile ? Math.min(264, window.innerWidth - 8) : 264;
+                setIframeWidth(expanded ? `${expandedW}px` : '88px');
             } else if (event.data?.type === 'SIDEBAR_NAVIGATE') {
                 if (event.data.id === 'research') {
                     window.location.href = '/study';
@@ -78,7 +80,7 @@ const FloatingNav = () => {
         <iframe
             src={`/sidebar.html?lang=${locale || 'pt'}`}
             style={{
-                width: isMobile ? '56px' : iframeWidth,
+                width: iframeWidth,
                 transition: 'width 0.6s cubic-bezier(0.22, 1, 0.36, 1)',
                 background: 'transparent',
                 backgroundColor: 'transparent',

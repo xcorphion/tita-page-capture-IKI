@@ -289,7 +289,7 @@ export default function OmmaPage() {
       {/* NAV */}
       <nav style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50,
-        padding: '18px 40px',
+        padding: 'clamp(14px,2vw,18px) clamp(16px,4vw,40px)',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         borderBottom: '1px solid rgba(255,255,255,0.04)',
         backdropFilter: 'blur(16px)',
@@ -311,7 +311,7 @@ export default function OmmaPage() {
         <section style={{
           minHeight: '100vh',
           display: 'flex', flexDirection: 'column', justifyContent: 'center',
-          padding: '120px 48px 80px',
+          padding: 'clamp(100px,12vw,120px) clamp(16px,4vw,48px) clamp(60px,8vw,80px)',
           position: 'relative', overflow: 'hidden',
         }}>
           {/* glow */}
@@ -346,7 +346,7 @@ export default function OmmaPage() {
         </section>
 
         {/* ── FEATURES ────────────────────────────── */}
-        <section style={{ padding: '80px 48px', maxWidth: 1080, margin: '0 auto' }}>
+        <section style={{ padding: 'clamp(48px,8vw,80px) clamp(16px,4vw,48px)', maxWidth: 1080, margin: '0 auto' }}>
           <div className="reveal" style={{ marginBottom: 48 }}>
             <p className="section-label">{t('omma.featuresLabel')}</p>
             <h2 className="section-title">
@@ -368,7 +368,7 @@ export default function OmmaPage() {
 
         {/* ── QUOTE ───────────────────────────────── */}
         <section style={{
-          padding: '90px 48px',
+          padding: 'clamp(48px,8vw,90px) clamp(16px,4vw,48px)',
           borderTop: '1px solid rgba(255,255,255,0.04)',
           borderBottom: '1px solid rgba(255,255,255,0.04)',
         }}>
@@ -384,7 +384,7 @@ export default function OmmaPage() {
         </section>
 
         {/* ── CTA ─────────────────────────────────── */}
-        <section style={{ padding: '100px 48px', textAlign: 'center' }}>
+        <section style={{ padding: 'clamp(56px,10vw,100px) clamp(16px,4vw,48px)', textAlign: 'center' }}>
           <div className="reveal">
             <h2 className="section-title" style={{ fontSize: 'clamp(30px, 4.5vw, 50px)', marginBottom: 16 }}>
               {t('omma.ctaTitle')}
@@ -405,7 +405,7 @@ export default function OmmaPage() {
 
         {/* ── FOOTER ──────────────────────────────── */}
         <footer style={{
-          padding: '22px 48px',
+          padding: 'clamp(14px,2vw,22px) clamp(16px,4vw,48px)',
           borderTop: '1px solid rgba(255,255,255,0.04)',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         }}>
