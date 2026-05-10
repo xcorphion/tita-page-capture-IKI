@@ -4,7 +4,7 @@ import { createParticipantDoc, PARTICIPANT_STATUS } from '../../lib/schema';
 import crypto from 'crypto';
 import { rateLimit } from '../../lib/rateLimit';
 import { sendMailSilent } from '../../lib/mailer';
-import { tplWelcome, tplReferralConfirmed, tplAdminAlert } from '../../lib/emailTemplates';
+import { tplReferralConfirmed, tplAdminAlert } from '../../lib/emailTemplates';
 
 const CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // sem O, 0, I, 1
 
@@ -29,11 +29,7 @@ export default async function handler(req, res) {
   if (rateLimit(req, { max: 5, windowMs: 10 * 60_000 }))
     return res.status(429).json({ success: false, error: 'Muitas requisições. Aguarde antes de tentar novamente.' });
 
-  const { participant_name, referrer_code, email: rawEmail } = req.body || {};
-
-  const contactEmail = rawEmail && typeof rawEmail === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(rawEmail.trim())
-    ? rawEmail.trim().toLowerCase()
-    : null;
+  const { participant_name, referrer_code } = req.body || {};
 
   if (!participant_name || typeof participant_name !== 'string')
     return res.status(400).json({ success: false, error: 'Nome inválido.' });
@@ -88,6 +84,7 @@ export default async function handler(req, res) {
     // Resolve referrer — organic path uses 'system', referrer path captures real name.
     let referrer_name = 'system';
     let source = 'organic';
+    let referrer = null;
 
     if (referrer_code) {
       const rawRef = typeof referrer_code === 'string' ? referrer_code.trim().toUpperCase() : '';
@@ -95,7 +92,7 @@ export default async function handler(req, res) {
         return res.status(400).json({ success: false, error: 'Código de referência inválido.' });
 
       const referrerId = hashParticipantId(rawRef);
-      const referrer = await col.findOne(
+      referrer = await col.findOne(
         { participant_id: referrerId, status: { $ne: PARTICIPANT_STATUS.BLOQUEADO } },
         { projection: { participant_name: 1, contact_email: 1 } }
       );
@@ -114,19 +111,7 @@ export default async function handler(req, res) {
       source,
       connect_code: connectCode,
       respondent_number,
-      contact_email: contactEmail,
     }));
-
-    const PLATFORM_URL = process.env.NEXT_PUBLIC_PLATFORM_URL || 'https://xcorphion.online';
-    const sessionLink = `${PLATFORM_URL}/study/IKI/${code}`;
-
-    if (contactEmail) {
-      sendMailSilent({
-        to: contactEmail,
-        subject: 'Bem-vindo à pesquisa OMMΩ — Xcorphion',
-        html: tplWelcome({ name, code, sessionLink }),
-      });
-    }
 
     if (source === 'referrer' && referrer?.contact_email) {
       sendMailSilent({

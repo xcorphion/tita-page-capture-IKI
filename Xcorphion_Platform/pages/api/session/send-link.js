@@ -1,6 +1,6 @@
 import { connectToDatabase } from '../../../lib/mongodb';
 import { sendMail } from '../../../lib/mailer';
-import { tplSessionLink } from '../../../lib/emailTemplates';
+import { tplSessionLink, tplWelcome } from '../../../lib/emailTemplates';
 import { rateLimit } from '../../../lib/rateLimit';
 import { SESSION_STATUS } from '../../../lib/schema';
 
@@ -41,12 +41,23 @@ export default async function handler(req, res) {
 
     const platformUrl = process.env.NEXT_PUBLIC_PLATFORM_URL || 'https://xcorphion.online';
     const studyLink = `${platformUrl}/study?code=${code}`;
+    const sessionLink = `${platformUrl}/study/IKI/${code}`;
+    const isFirstTime = !participant.contact_email;
 
     await sendMail({
       to: email.trim(),
       subject: 'Seu acesso à pesquisa OMMΩ — Xcorphion',
       html: tplSessionLink({ code, studyLink }),
     });
+
+    // E01: boas-vindas com o código — enviado na primeira vez que o email é registrado
+    if (isFirstTime) {
+      await sendMail({
+        to: email.trim(),
+        subject: 'Bem-vindo à pesquisa OMMΩ — Xcorphion',
+        html: tplWelcome({ name: participant.participant_name, code, sessionLink }),
+      }).catch(() => {});
+    }
 
     return res.status(200).json({ ok: true });
   } catch (e) {
