@@ -3,7 +3,7 @@ import { randomUUID } from 'crypto';
 import { hashParticipantId, hashFingerprint, extractIp } from '../../../lib/participant';
 import { generateSessionToken } from '../../../lib/sessionAuth';
 import { rateLimit } from '../../../lib/rateLimit';
-import { SESSION_STATUS, PARTICIPANT_STATUS } from '../../../lib/schema';
+import { SESSION_STATUS, SESSION_DOC_STATUS, PARTICIPANT_STATUS } from '../../../lib/schema';
 
 // One prompt per session. Index matches prompt_id (1-based; index 0 unused).
 const PROMPTS = [
@@ -24,11 +24,10 @@ export default async function handler(req, res) {
     if (!Number.isInteger(pid) || pid < 1 || pid > 3)
         return res.status(400).json({ error: 'prompt_id inválido.' });
 
-    const participant_id = hashParticipantId(participant_code);
-    const sessionStatusField = `session_${pid}_status`;
-    const ip = extractIp(req);
-
     try {
+        const participant_id = hashParticipantId(participant_code);
+        const sessionStatusField = `session_${pid}_status`;
+        const ip = extractIp(req);
         const db = await connectToDatabase();
         const participant = await db.collection('participants').findOne({ participant_id });
 
@@ -39,14 +38,14 @@ export default async function handler(req, res) {
         if (participant[sessionStatusField] === SESSION_STATUS.EM_ANDAMENTO) {
             // Session was started but not completed — re-issue token so the participant can resume.
             const existing = await db.collection('sessions').findOne(
-                { participant_id, prompt_id: pid, status: 'started' },
+                { participant_id, prompt_id: pid, status: SESSION_DOC_STATUS.STARTED },
                 { projection: { session_id: 1, session_start_epoch_ms: 1 } }
             );
             if (existing) {
                 const { token, hash: token_hash } = generateSessionToken();
                 await db.collection('sessions').updateOne(
                     { session_id: existing.session_id },
-                    { $set: { token_hash, resumed_at: new Date() } }
+                    { $set: { token_hash, resumed_at: new Date(), session_interrupted: true } }
                 );
                 return res.json({
                     session_id: existing.session_id,
@@ -86,14 +85,16 @@ export default async function handler(req, res) {
         const sessionStartEpochMs = Date.now();
         const { token, hash: token_hash } = generateSessionToken();
 
+        const jitterMs = Number.isFinite(Number(jitter_benchmark_ms)) ? Number(jitter_benchmark_ms) : null;
+
         await db.collection('sessions').insertOne({
             session_id: sessionId,
             participant_id,
             prompt_id: pid,
             session_start_epoch_ms: sessionStartEpochMs,
-            jitter_benchmark_ms: jitter_benchmark_ms !== undefined ? Number(jitter_benchmark_ms) : null,
+            jitter_benchmark_ms: jitterMs,
             token_hash,
-            status: 'started',
+            status: SESSION_DOC_STATUS.STARTED,
             created_at: new Date(),
         });
 

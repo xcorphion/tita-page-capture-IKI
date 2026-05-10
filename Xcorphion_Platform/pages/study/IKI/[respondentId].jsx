@@ -16,7 +16,12 @@ export default function IKIResearchPage() {
     const [endStep, setEndStep] = useState('rating');
     const [promptText, setPromptText] = useState('');
     const [jitterWarning, setJitterWarning] = useState(false);
+    const [resumeWarning, setResumeWarning] = useState(false);
     const [onboardingError, setOnboardingError] = useState('');
+    const [emaValence, setEmaValence] = useState(50);
+    const [emaArousal, setEmaArousal] = useState(50);
+    const [vTouched, setVTouched] = useState(false);
+    const [aTouched, setATouched] = useState(false);
 
     const sessionIdRef = useRef('');
     const sessionTokenRef = useRef('');
@@ -31,6 +36,9 @@ export default function IKIResearchPage() {
     const writingAreaRef = useRef(null);
     const wpmStartTimeRef = useRef(0);
     const wpmIntervalRef = useRef(null);
+    const emaValenceRef = useRef(50);
+    const emaArousalRef = useRef(50);
+    const emaTimeoutRef = useRef(null);
 
     const EMA_CHAR_INTERVAL = 200;
     const BATCH_SIZE = 50;
@@ -74,8 +82,19 @@ export default function IKIResearchPage() {
             }
         }, 1000);
 
-        return () => { clearInterval(batchInterval); clearInterval(wpmIntervalRef.current); };
+        return () => { clearInterval(batchInterval); clearInterval(wpmIntervalRef.current); clearTimeout(emaTimeoutRef.current); };
     }, [respondentId]);
+
+    useEffect(() => {
+        if (!showEma) return;
+        setEmaValence(50); setEmaArousal(50);
+        setVTouched(false); setATouched(false);
+        emaValenceRef.current = 50; emaArousalRef.current = 50;
+        // Auto-submit after 5 min — textarea is disabled while EMA is open so charCount is stable.
+        const id = setTimeout(() => handleEmaSubmitCore(emaValenceRef.current, emaArousalRef.current), 5 * 60_000);
+        emaTimeoutRef.current = id;
+        return () => clearTimeout(id);
+    }, [showEma]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const flushBatch = async () => {
         if (eventBufferRef.current.length === 0) return;
@@ -120,6 +139,7 @@ export default function IKIResearchPage() {
             setPromptText(data.prompt_text);
             setStep('writing');
             if (jitter > 30) setJitterWarning(true);
+            if (data.resumed) setResumeWarning(true);
         } catch (e) { console.error(e); }
     };
 
@@ -229,11 +249,9 @@ export default function IKIResearchPage() {
         }
     };
 
-    const handleEmaSubmit = async () => {
-        const v = parseInt(document.getElementById('v-slider').value);
-        const a = parseInt(document.getElementById('a-slider').value);
+    const handleEmaSubmitCore = async (v, a) => {
+        clearTimeout(emaTimeoutRef.current);
         const rel_ts = Date.now() - sessionStartEpochMsRef.current;
-
         try {
             await fetch('/api/ema', {
                 method: 'POST',
@@ -256,6 +274,8 @@ export default function IKIResearchPage() {
             }
         } catch (e) { console.error(e); }
     };
+
+    const handleEmaSubmit = () => handleEmaSubmitCore(emaValenceRef.current, emaArousalRef.current);
 
     const handleFinalSubmit = async (genuine) => {
         await flushBatch();
@@ -429,6 +449,18 @@ export default function IKIResearchPage() {
 
                 {step === 'writing' && (
                     <div style={{ width: '100%', maxWidth: 880 }} className="step-enter">
+                        {resumeWarning && (
+                            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16, background: 'rgba(255,200,0,0.05)', border: '1px solid rgba(255,200,0,0.18)', borderRadius: 12, padding: '16px 20px', marginBottom: 28 }}>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,200,0,0.7)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 1 }}>
+                                    <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                                </svg>
+                                <div style={{ flex: 1 }}>
+                                    <p style={{ fontFamily: F.space, fontSize: 12, fontWeight: 600, color: 'rgba(255,200,0,0.7)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 4 }}>Sessão Retomada</p>
+                                    <p style={{ fontFamily: F.inter, fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.65, fontWeight: 300 }}>Esta sessão foi interrompida anteriormente. Para melhores resultados, escreva sem interrupções a partir daqui.</p>
+                                </div>
+                                <button onClick={() => setResumeWarning(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.2)', fontSize: 18, lineHeight: 1, flexShrink: 0 }}>✕</button>
+                            </div>
+                        )}
                         {jitterWarning && (
                             <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16, background: 'rgba(139,0,0,0.07)', border: '1px solid rgba(139,0,0,0.25)', borderRadius: 12, padding: '16px 20px', marginBottom: 28 }}>
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8B0000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 1 }}>
@@ -473,13 +505,17 @@ export default function IKIResearchPage() {
                                         <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: F.inter, fontSize: 9, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 16 }}>
                                             <span>Muito Negativo</span><span>Muito Positivo</span>
                                         </div>
-                                        <input type="range" id="v-slider" min="0" max="100" defaultValue="50" />
+                                        <input type="range" min="0" max="100" value={emaValence}
+                                            onChange={e => { const n = Number(e.target.value); setEmaValence(n); setVTouched(true); emaValenceRef.current = n; }} />
+                                        {!vTouched && <p style={{ fontFamily: F.inter, fontSize: 10, color: 'rgba(139,0,0,0.55)', textAlign: 'center', marginTop: 10, letterSpacing: '0.08em' }}>mova o controle</p>}
                                     </div>
                                     <div style={{ marginBottom: 40 }}>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: F.inter, fontSize: 9, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 16 }}>
                                             <span>Muito Calmo</span><span>Muito Agitado</span>
                                         </div>
-                                        <input type="range" id="a-slider" min="0" max="100" defaultValue="50" />
+                                        <input type="range" min="0" max="100" value={emaArousal}
+                                            onChange={e => { const n = Number(e.target.value); setEmaArousal(n); setATouched(true); emaArousalRef.current = n; }} />
+                                        {!aTouched && <p style={{ fontFamily: F.inter, fontSize: 10, color: 'rgba(139,0,0,0.55)', textAlign: 'center', marginTop: 10, letterSpacing: '0.08em' }}>mova o controle</p>}
                                     </div>
                                     <button onClick={handleEmaSubmit} style={{ width: '100%', fontFamily: F.inter, fontWeight: 500, fontSize: 13, color: 'white', background: '#8B0000', border: 'none', borderRadius: 10, padding: '14px 24px', cursor: 'pointer', letterSpacing: '0.06em', boxShadow: '0 0 24px rgba(139,0,0,0.22)', transition: 'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = '#9e0000'} onMouseLeave={e => e.currentTarget.style.background = '#8B0000'}>Continuar</button>
                                 </div>

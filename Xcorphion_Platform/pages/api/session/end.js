@@ -1,7 +1,7 @@
 import { connectToDatabase } from '../../../lib/mongodb';
 import { hashParticipantId } from '../../../lib/participant';
 import { validateSessionToken } from '../../../lib/sessionAuth';
-import { SESSION_STATUS, PARTICIPANT_STATUS } from '../../../lib/schema';
+import { SESSION_STATUS, SESSION_DOC_STATUS, PARTICIPANT_STATUS } from '../../../lib/schema';
 
 const MAX_TEXT = 20_000;
 
@@ -23,9 +23,11 @@ export default async function handler(req, res) {
     const rating = Number(engagement_rating);
     if (!Number.isInteger(rating) || rating < 1 || rating > 5)
         return res.status(400).json({ error: 'engagement_rating deve ser um inteiro entre 1 e 5.' });
-    const participant_id = hashParticipantId(participant_code);
+    if (typeof engagement_genuine !== 'boolean')
+        return res.status(400).json({ error: 'engagement_genuine inválido.' });
 
     try {
+        const participant_id = hashParticipantId(participant_code);
         const db = await connectToDatabase();
         if (!await validateSessionToken(db, session_id, session_token))
             return res.status(401).json({ error: 'Token de sessão inválido.' });
@@ -60,7 +62,7 @@ export default async function handler(req, res) {
                     engagement_rating: Number(engagement_rating),
                     engagement_genuine: Boolean(engagement_genuine),
                     text_final,
-                    status: 'completed',
+                    status: SESSION_DOC_STATUS.COMPLETED,
                     completed_at: new Date(),
                     normalizer_params: { iki_log_mean, iki_log_std }
                 }
@@ -68,7 +70,8 @@ export default async function handler(req, res) {
         );
 
         const participant = await db.collection('participants').findOne({ participant_id });
-        const sessionsBeforeEnd = participant?.sessions_completed || 0;
+        if (!participant) return res.status(404).json({ error: 'Participante não encontrado.' });
+        const sessionsBeforeEnd = participant.sessions_completed || 0;
         const currentSession = sessionsBeforeEnd + 1;
 
         const participantUpdate = {

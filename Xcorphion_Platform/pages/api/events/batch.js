@@ -9,18 +9,23 @@ const MAX_EVENT_TS_MS = 7_200_000;
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).end();
     const { session_id, participant_code, session_token, events } = req.body;
-    const participant_id = hashParticipantId(participant_code);
-    if (!events || events.length === 0) return res.json({ received: 0 });
+    if (typeof participant_code !== 'string' || !participant_code)
+        return res.status(400).json({ error: 'participant_code ausente.' });
+    if (!events || !Array.isArray(events) || events.length === 0) return res.json({ received: 0 });
     if (events.length > MAX_BATCH)
         return res.status(400).json({ error: `Batch excede o limite de ${MAX_BATCH} eventos.` });
 
+    const VALID_EVENT_TYPES = new Set(['keydown', 'keyup']);
     const outOfWindow = events.some(
         e => !Number.isFinite(e.timestamp_rel_ms) || e.timestamp_rel_ms < 0 || e.timestamp_rel_ms > MAX_EVENT_TS_MS
+            || !VALID_EVENT_TYPES.has(e.event_type)
+            || typeof e.key_code !== 'string' || e.key_code.length === 0 || e.key_code.length > 64
     );
     if (outOfWindow)
         return res.status(400).json({ error: 'Evento com timestamp fora da janela permitida.' });
 
     try {
+        const participant_id = hashParticipantId(participant_code);
         const db = await connectToDatabase();
 
         if (!await validateSessionToken(db, session_id, session_token))

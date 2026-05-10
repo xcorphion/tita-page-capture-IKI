@@ -1,5 +1,6 @@
 import { connectToDatabase } from '../../../lib/mongodb';
 import { checkAdminAuth } from '../../../lib/adminAuth';
+import { SESSION_STATUS, SESSION_DOC_STATUS, PARTICIPANT_STATUS } from '../../../lib/schema';
 
 function geoLookup(ip) {
     try { return require('geoip-lite').lookup(ip) || null; } catch (_) { return null; }
@@ -30,12 +31,12 @@ export default async function handler(req, res) {
             if (action === 'authorize_s2') {
                 await participants.updateOne(
                     { participant_id: participant_code },
-                    { $set: { admin_authorized_s2: true, session_2_status: 'LIBERADA' } }
+                    { $set: { admin_authorized_s2: true, session_2_status: SESSION_STATUS.LIBERADA } }
                 );
             } else if (action === 'authorize_s3') {
                 await participants.updateOne(
                     { participant_id: participant_code },
-                    { $set: { admin_authorized_s3: true, session_3_status: 'LIBERADA' } }
+                    { $set: { admin_authorized_s3: true, session_3_status: SESSION_STATUS.LIBERADA } }
                 );
             } else if (action === 'reactivate') {
                 const participant = await participants.findOne({ participant_id: participant_code });
@@ -43,12 +44,19 @@ export default async function handler(req, res) {
                     return res.status(404).json({ error: 'Participante não encontrado' });
                 }
 
+                // Restore sessions_completed from CONCLUIDA statuses — deactivate unsets this field.
+                const sessionsCompleted =
+                    (participant.session_1_status === SESSION_STATUS.CONCLUIDA ? 1 : 0) +
+                    (participant.session_2_status === SESSION_STATUS.CONCLUIDA ? 1 : 0) +
+                    (participant.session_3_status === SESSION_STATUS.CONCLUIDA ? 1 : 0);
+
                 const setFields = {
-                    status: 'ATIVO',
+                    status: PARTICIPANT_STATUS.ATIVO,
                     reactivated_at: new Date(),
+                    sessions_completed: sessionsCompleted,
                 };
-                if (participant.session_2_status === 'BLOQUEADA') setFields.session_2_status = 'AGUARDANDO';
-                if (participant.session_3_status === 'BLOQUEADA') setFields.session_3_status = 'AGUARDANDO';
+                if (participant.session_2_status === SESSION_STATUS.BLOQUEADA) setFields.session_2_status = SESSION_STATUS.AGUARDANDO;
+                if (participant.session_3_status === SESSION_STATUS.BLOQUEADA) setFields.session_3_status = SESSION_STATUS.AGUARDANDO;
 
                 await participants.updateOne(
                     { participant_id: participant_code },
@@ -76,21 +84,29 @@ export default async function handler(req, res) {
                     knownIps.push(participant.fingerprint.ip);
                 }
 
+                // Step 1: mark in-progress — if the process dies here, a retry skips re-deletion.
+                await participants.updateOne(
+                    { participant_id: participant_code },
+                    { $set: { cleanup_in_progress: true } }
+                );
+
+                // Step 2: delete subcollections (deleteMany is idempotent on retry).
                 await Promise.all([
                     db.collection('events').deleteMany({ participant_id: participant_code }),
                     db.collection('emas').deleteMany({ participant_id: participant_code }),
                     db.collection('sessions').deleteMany({ participant_id: participant_code }),
                 ]);
 
+                // Step 3: finalize — clear flag and set terminal state.
                 await participants.updateOne(
                     { participant_id: participant_code },
                     {
                         $set: {
-                            status: 'BLOQUEADO',
+                            status: PARTICIPANT_STATUS.BLOQUEADO,
                             blocked_at: new Date(),
                             cleanup_complete: true,
-                            session_2_status: 'BLOQUEADA',
-                            session_3_status: 'BLOQUEADA',
+                            session_2_status: SESSION_STATUS.BLOQUEADA,
+                            session_3_status: SESSION_STATUS.BLOQUEADA,
                             admin_deactivated: true,
                         },
                         $unset: {
@@ -99,6 +115,7 @@ export default async function handler(req, res) {
                             device_fingerprint_hash: '',
                             onboarding_complete: '',
                             sessions_completed: '',
+                            cleanup_in_progress: '',
                         }
                     }
                 );

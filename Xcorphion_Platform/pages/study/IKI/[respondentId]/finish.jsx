@@ -33,7 +33,7 @@ export default function ResearchFinishPage() {
   };
 
   const handleSend = async () => {
-    if (!email.trim() || step === 'sending') return;
+    if (!respondentId || !email.trim() || step === 'sending') return;
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
       setEmailError('E-mail inválido.');
       return;

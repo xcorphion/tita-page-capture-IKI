@@ -1,6 +1,7 @@
 import { connectToDatabase } from '../../../lib/mongodb';
 import { hashParticipantId, hashFingerprint, extractIp } from '../../../lib/participant';
 import { rateLimit } from '../../../lib/rateLimit';
+import { PARTICIPANT_STATUS } from '../../../lib/schema';
 
 function geoLookup(ip) {
     try { return require('geoip-lite').lookup(ip) || null; } catch (_) { return null; }
@@ -38,6 +39,8 @@ export default async function handler(req, res) {
 
     if (req.method === 'POST') {
         const { wpm_baseline } = req.body;
+        if (!Number.isFinite(Number(wpm_baseline)) || Number(wpm_baseline) < 0 || Number(wpm_baseline) > 300)
+            return res.status(400).json({ error: 'wpm_baseline inválido.' });
         const device_profile = sanitizeDeviceProfile(req.body.device_profile);
         try {
             const existing = await participants.findOne({ participant_id });
@@ -73,18 +76,9 @@ export default async function handler(req, res) {
     if (req.method !== 'GET') return res.status(405).end();
 
     try {
-        if (ip && ip !== 'unknown') {
-            await participants.updateOne({ participant_id }, { $addToSet: { known_ips: ip } });
-        }
-
-        let doc = await participants.findOne({ participant_code: code });
-        if (!doc) {
-            return res.status(404).json({ error: 'Convite não encontrado.' });
-        }
-
-        if (doc.status === 'BLOQUEADO') {
-            return res.status(403).json({ error: 'BLOQUEADO' });
-        }
+        const doc = await participants.findOne({ participant_code: code });
+        if (!doc) return res.status(404).json({ error: 'Convite não encontrado.' });
+        if (doc.status === PARTICIPANT_STATUS.BLOQUEADO) return res.status(403).json({ error: 'BLOQUEADO' });
 
         if (ip && ip !== 'unknown') {
             const blocked = await db.collection('ip_blocklist').findOne({ ip });
@@ -96,6 +90,10 @@ export default async function handler(req, res) {
                     );
                 }
                 return res.status(403).json({ error: 'IP_BLOQUEADO' });
+            }
+            // Only write if IP is genuinely new — avoids a write on every read.
+            if (!doc.known_ips?.includes(ip)) {
+                await participants.updateOne({ participant_id }, { $addToSet: { known_ips: ip } });
             }
         }
 

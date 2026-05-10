@@ -13,7 +13,7 @@ export default async function handler(req, res) {
     const ts = Number(timestamp_rel_ms);
     if (!Number.isFinite(v) || v < 0 || v > 100 || !Number.isFinite(a) || a < 0 || a > 100)
         return res.status(400).json({ error: 'Valência e arousal devem ser inteiros entre 0 e 100.' });
-    if (!Number.isInteger(pi) || pi < 0 || pi > 50)
+    if (!Number.isInteger(pi) || pi < 0 || pi > 9)
         return res.status(400).json({ error: 'prompt_index inválido.' });
     if (!Number.isFinite(cc) || cc < 0 || cc > 20_000)
         return res.status(400).json({ error: 'character_count inválido.' });

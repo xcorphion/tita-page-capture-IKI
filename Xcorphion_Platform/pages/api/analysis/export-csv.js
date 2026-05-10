@@ -1,6 +1,7 @@
 import { connectToDatabase } from '../../../lib/mongodb';
 import { format } from 'd3-dsv';
 import { checkAdminAuth } from '../../../lib/adminAuth';
+import { SESSION_DOC_STATUS } from '../../../lib/schema';
 
 export default async function handler(req, res) {
     if (!checkAdminAuth(req, res)) return;
@@ -10,11 +11,11 @@ export default async function handler(req, res) {
     try {
         const db = await connectToDatabase();
 
-        const sessions = await db.collection('sessions').find({ status: 'completed' }).limit(500).toArray();
+        const sessions = await db.collection('sessions').find({ status: SESSION_DOC_STATUS.COMPLETED }).limit(500).toArray();
         const sessionIds = sessions.map(s => s.session_id);
 
         const allEvents = await db.collection('events')
-            .find({ session_id: { $in: sessionIds } })
+            .find({ session_id: { $in: sessionIds }, event_type: 'keydown' })
             .sort({ session_id: 1, timestamp_rel_ms: 1 })
             .toArray();
 
@@ -44,25 +45,26 @@ export default async function handler(req, res) {
 
                 if (iki <= 0 || iki > 30000) continue;
 
-                if (e2.event_type === 'keydown') {
-                    charCount++;
-                    while (currentEmaIndex < emas.length && charCount > emas[currentEmaIndex].character_count) {
-                        currentEmaIndex++;
-                    }
-                    const currentEma = emas[currentEmaIndex] || emas[emas.length - 1];
-
-                    csvData.push({
-                        participant_id: session.participant_id,
-                        session_id: session.session_id,
-                        timestamp_rel_ms: e2.timestamp_rel_ms,
-                        iki_ms: iki,
-                        iki_log1p: Math.log1p(iki),
-                        key_code: e2.key_code,
-                        valence: currentEma?.valence || '',
-                        arousal: currentEma?.arousal || '',
-                        ema_index: currentEmaIndex
-                    });
+                // events already filtered to keydown-only — every pair is a true IKI
+                charCount++;
+                while (currentEmaIndex < emas.length && charCount > emas[currentEmaIndex].character_count) {
+                    currentEmaIndex++;
                 }
+                const currentEma = emas[currentEmaIndex] || emas[emas.length - 1];
+
+                csvData.push({
+                    participant_id: session.participant_id,
+                    session_id: session.session_id,
+                    prompt_id: session.prompt_id,
+                    session_interrupted: session.session_interrupted || false,
+                    timestamp_rel_ms: e2.timestamp_rel_ms,
+                    iki_ms: iki,
+                    iki_log1p: Math.log1p(iki),
+                    key_code: e2.key_code,
+                    valence: currentEma?.valence ?? '',
+                    arousal: currentEma?.arousal ?? '',
+                    ema_index: currentEmaIndex
+                });
             }
         }
 

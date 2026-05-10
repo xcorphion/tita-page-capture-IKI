@@ -273,10 +273,10 @@ export async function getServerSideProps(context) {
     if (ip && ip !== 'unknown') {
       const blockedIp = await db.collection('ip_blocklist').findOne({ ip });
       if (blockedIp) {
-        const target = await db.collection('participants').findOne({ participant_code: codigo });
+        const target = await db.collection('participants').findOne({ participant_id: codigo });
         if (target && blockedIp.source_participant_id !== target.participant_id) {
           await db.collection('participants').updateOne(
-            { participant_code: codigo },
+            { participant_id: codigo },
             { $addToSet: { suspicious_ip_attempts: ip } }
           );
         }
@@ -292,7 +292,7 @@ export async function getServerSideProps(context) {
 
     if (ip && ip !== 'unknown') {
       await db.collection('participants').updateOne(
-        { participant_code: codigo },
+        { participant_id: codigo },
         { $addToSet: { known_ips: ip } }
       );
     }

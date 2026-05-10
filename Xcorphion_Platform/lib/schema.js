@@ -1,6 +1,13 @@
 // Single source of truth for all participant and session state machine values.
 // Handlers must import from here — never use magic strings for status fields.
 
+// Session document lifecycle (sessions collection):
+//   'started' → session/start creates it  →  'completed' → session/end closes it
+export const SESSION_DOC_STATUS = Object.freeze({
+  STARTED:   'started',
+  COMPLETED: 'completed',
+});
+
 export const PARTICIPANT_STATUS = Object.freeze({
   ATIVO:     'ATIVO',
   INATIVO:   'INATIVO',   // auto-set when engagement_genuine = false

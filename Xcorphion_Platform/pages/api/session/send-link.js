@@ -1,6 +1,7 @@
 import { connectToDatabase } from '../../../lib/mongodb';
 import nodemailer from 'nodemailer';
 import { rateLimit } from '../../../lib/rateLimit';
+import { SESSION_STATUS } from '../../../lib/schema';
 
 const CONSENT_TEXT = 'SIM, EU ACEITO';
 
@@ -40,7 +41,7 @@ export default async function handler(req, res) {
     if (!participant)
       return res.status(404).json({ error: 'Participante não encontrado.' });
 
-    if (participant.session_1_status !== 'CONCLUIDA')
+    if (participant.session_1_status !== SESSION_STATUS.CONCLUIDA)
       return res.status(403).json({ error: 'Sessão 1 não concluída.' });
 
     await db.collection('participants').updateOne(

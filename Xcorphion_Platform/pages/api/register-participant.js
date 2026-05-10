@@ -1,6 +1,6 @@
 import { connectToDatabase } from '../../lib/mongodb';
 import { hashParticipantId } from '../../lib/participant';
-import { createParticipantDoc } from '../../lib/schema';
+import { createParticipantDoc, PARTICIPANT_STATUS } from '../../lib/schema';
 import crypto from 'crypto';
 import { rateLimit } from '../../lib/rateLimit';
 
@@ -64,7 +64,7 @@ export default async function handler(req, res) {
 
       const referrerId = hashParticipantId(rawRef);
       const referrer = await col.findOne(
-        { participant_id: referrerId, status: { $ne: 'BLOQUEADO' } },
+        { participant_id: referrerId, status: { $ne: PARTICIPANT_STATUS.BLOQUEADO } },
         { projection: { participant_name: 1 } }
       );
       if (!referrer)

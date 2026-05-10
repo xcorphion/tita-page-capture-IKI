@@ -1,25 +1,27 @@
 import { connectToDatabase } from '../../../lib/mongodb';
 import { getPearsonCorrelation, getCohensD, getTerciles } from '../../../lib/analysis';
 import { checkAdminAuth } from '../../../lib/adminAuth';
+import { SESSION_DOC_STATUS } from '../../../lib/schema';
 
 export default async function handler(req, res) {
     if (!checkAdminAuth(req, res)) return;
 
     if (req.method !== 'GET') return res.status(405).end();
-    const { session_id } = req.query;
+    const session_id = typeof req.query.session_id === 'string' && req.query.session_id ? req.query.session_id : null;
 
     try {
         const db = await connectToDatabase();
 
         const sessions = await db.collection('sessions')
-            .find({ status: 'completed' })
+            .find({ status: SESSION_DOC_STATUS.COMPLETED })
             .sort({ completed_at: 1 })
             .limit(1000)
             .toArray();
 
         if (sessions.length === 0) return res.json({ error: 'Nenhuma sessão concluída encontrada.' });
 
-        const allEmas = await db.collection('emas').find({}).toArray();
+        const sessionIds = sessions.map(s => s.session_id);
+        const allEmas = await db.collection('emas').find({ session_id: { $in: sessionIds } }).toArray();
 
         const cumulativePearson = [];
         const cumulativeCohensD = [];

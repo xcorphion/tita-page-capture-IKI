@@ -1,5 +1,6 @@
 import { connectToDatabase } from '../../lib/mongodb';
 import { rateLimit } from '../../lib/rateLimit';
+import { PARTICIPANT_STATUS, SESSION_STATUS } from '../../lib/schema';
 
 const CODE_RE = /^[A-Z0-9]{1,20}$/;
 
@@ -16,16 +17,16 @@ export default async function handler(req, res) {
     return res.status(400).json({ eligible: false, reason: 'no_code' });
 
   try {
-    const db = await connectToDatabase('research');
+    const db = await connectToDatabase();
     const participant = await db.collection('participants').findOne({ participant_code: code });
 
     if (!participant)
       return res.status(200).json({ eligible: false, reason: 'not_found' });
 
-    if (participant.status === 'INATIVO')
+    if (participant.status === PARTICIPANT_STATUS.INATIVO)
       return res.status(200).json({ eligible: false, reason: 'inactive' });
 
-    const s1done = participant.session_1_status === 'CONCLUIDA';
+    const s1done = participant.session_1_status === SESSION_STATUS.CONCLUIDA;
     const s1engaged = participant.session_1_engagement === true;
 
     if (!s1done)
