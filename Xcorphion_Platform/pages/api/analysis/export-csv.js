@@ -4,7 +4,7 @@ import { checkAdminAuth } from '../../../lib/adminAuth';
 import { SESSION_DOC_STATUS } from '../../../lib/schema';
 
 export default async function handler(req, res) {
-    if (!checkAdminAuth(req, res)) return;
+    if (!(await checkAdminAuth(req, res))) return;
 
     if (req.method !== 'GET') return res.status(405).end();
 

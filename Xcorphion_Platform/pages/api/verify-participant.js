@@ -8,7 +8,7 @@ export default async function handler(req, res) {
   if (req.method !== 'GET')
     return res.status(405).json({ eligible: false, error: 'Method Not Allowed' });
 
-  if (rateLimit(req, { max: 20, windowMs: 60_000 }))
+  if (await rateLimit(req, { max: 20, windowMs: 60_000, bucket: 'verify' }))
     return res.status(429).json({ eligible: false, reason: 'rate_limited' });
 
   const code = typeof req.query.code === 'string' ? req.query.code.trim().toUpperCase() : '';

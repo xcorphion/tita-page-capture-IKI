@@ -7,16 +7,18 @@ export default async function handler(req, res) {
   if (req.method !== 'POST')
     return res.status(405).json({ success: false, error: 'Method Not Allowed' });
 
-  if (rateLimit(req, { max: 10, windowMs: 60 * 60_000 }))
+  if (await rateLimit(req, { max: 10, windowMs: 60 * 60_000, bucket: 'waitlist' }))
     return res.status(429).json({ success: false, error: 'Muitas requisições. Aguarde.' });
 
-  const { email, participant_code } = req.body || {};
-
-  if (!email || typeof email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()))
+  const body = (req.body && typeof req.body === 'object') ? req.body : {};
+  const email = typeof body.email === 'string' ? body.email.trim() : '';
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+    return res.status(400).json({ success: false, error: 'E-mail inválido.' });
+  if (email.length > 254)
     return res.status(400).json({ success: false, error: 'E-mail inválido.' });
 
-  const code = typeof participant_code === 'string' ? participant_code.trim().toUpperCase() : '';
-  if (!code)
+  const code = typeof body.participant_code === 'string' ? body.participant_code.trim().toUpperCase() : '';
+  if (!code || !/^[A-Z0-9]{1,20}$/.test(code))
     return res.status(403).json({ success: false, error: 'Código de participante ausente.' });
 
   try {

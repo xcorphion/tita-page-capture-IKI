@@ -26,7 +26,7 @@ function sanitizeDeviceProfile(p) {
 const CODE_RE = /^[A-Z0-9]{1,20}$/;
 
 export default async function handler(req, res) {
-    if (rateLimit(req, { max: 20, windowMs: 60_000 }))
+    if (await rateLimit(req, { max: 20, windowMs: 60_000, bucket: 'participant' }))
         return res.status(429).json({ error: 'Muitas requisições. Aguarde um momento.' });
 
     const raw = typeof req.query.code === 'string' ? req.query.code.trim().toUpperCase() : '';

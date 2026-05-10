@@ -6,12 +6,12 @@ import { rateLimit } from '../../../lib/rateLimit';
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
-  if (rateLimit(req, { max: 2, windowMs: 60 * 60_000 }))
+  if (await rateLimit(req, { max: 2, windowMs: 60 * 60_000, bucket: 'connect_email' }))
     return res.status(429).json({ error: 'Muitas tentativas. Aguarde.' });
 
   const { participant_code } = req.body || {};
   const code = typeof participant_code === 'string' ? participant_code.trim().toUpperCase() : '';
-  if (!code) return res.status(400).json({ error: 'Código inválido.' });
+  if (!/^[A-Z0-9]{1,20}$/.test(code)) return res.status(400).json({ error: 'Código inválido.' });
 
   try {
     const db = await connectToDatabase();

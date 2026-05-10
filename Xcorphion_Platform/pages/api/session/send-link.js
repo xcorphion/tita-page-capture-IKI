@@ -9,7 +9,7 @@ const CONSENT_TEXT = 'SIM, EU ACEITO';
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
-  if (rateLimit(req, { max: 3, windowMs: 60 * 60_000 }))
+  if (await rateLimit(req, { max: 3, windowMs: 60 * 60_000, bucket: 'send_link' }))
     return res.status(429).json({ error: 'Muitas tentativas. Aguarde antes de tentar novamente.' });
 
   const { participant_code, email, consent_text } = req.body || {};

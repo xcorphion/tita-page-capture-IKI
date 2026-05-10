@@ -4,13 +4,21 @@ import { validateSessionToken } from '../../lib/sessionAuth';
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).end();
-    const { session_id, participant_code, session_token, character_count, valence, arousal, timestamp_rel_ms, prompt_index } = req.body;
-    const participant_id = hashParticipantId(participant_code);
-    const v = Number(valence);
-    const a = Number(arousal);
-    const pi = Number(prompt_index);
-    const cc = Number(character_count);
-    const ts = Number(timestamp_rel_ms);
+
+    const body = (req.body && typeof req.body === 'object') ? req.body : {};
+    const session_id = body.session_id;
+    const participant_code = body.participant_code;
+    const session_token = body.session_token;
+    if (typeof session_id !== 'string' || typeof participant_code !== 'string' || typeof session_token !== 'string')
+        return res.status(400).json({ error: 'Parâmetros inválidos.' });
+    if (!/^[A-Z0-9]{1,20}$/.test(participant_code))
+        return res.status(400).json({ error: 'participant_code inválido.' });
+
+    const v = Number(body.valence);
+    const a = Number(body.arousal);
+    const pi = Number(body.prompt_index);
+    const cc = Number(body.character_count);
+    const ts = Number(body.timestamp_rel_ms);
     if (!Number.isFinite(v) || v < 0 || v > 100 || !Number.isFinite(a) || a < 0 || a > 100)
         return res.status(400).json({ error: 'Valência e arousal devem ser inteiros entre 0 e 100.' });
     if (!Number.isInteger(pi) || pi < 0 || pi > 9)
@@ -20,6 +28,8 @@ export default async function handler(req, res) {
     if (!Number.isFinite(ts) || ts < 0 || ts > 3_600_000)
         return res.status(400).json({ error: 'timestamp_rel_ms inválido.' });
 
+    const participant_id = hashParticipantId(participant_code);
+
     try {
         const db = await connectToDatabase();
         if (!await validateSessionToken(db, session_id, session_token))
@@ -27,11 +37,11 @@ export default async function handler(req, res) {
         await db.collection('emas').insertOne({
             session_id,
             participant_id,
-            prompt_index: Number(prompt_index),
-            character_count: Number(character_count),
-            valence: Number(valence),
-            arousal: Number(arousal),
-            timestamp_rel_ms: Number(timestamp_rel_ms),
+            prompt_index: pi,
+            character_count: cc,
+            valence: v,
+            arousal: a,
+            timestamp_rel_ms: ts,
             created_at: new Date()
         });
         res.json({ ok: true });

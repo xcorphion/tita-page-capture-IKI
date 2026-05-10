@@ -3,6 +3,7 @@ import { checkAdminAuth } from '../../../lib/adminAuth';
 import { SESSION_STATUS, SESSION_DOC_STATUS, PARTICIPANT_STATUS } from '../../../lib/schema';
 import { sendMailSilent } from '../../../lib/mailer';
 import { tplSessionUnlocked } from '../../../lib/emailTemplates';
+import { asString } from '../../../lib/security';
 
 const PLATFORM_URL = process.env.NEXT_PUBLIC_PLATFORM_URL || 'https://xcorphion.online';
 
@@ -11,7 +12,7 @@ function geoLookup(ip) {
 }
 
 export default async function handler(req, res) {
-    if (!checkAdminAuth(req, res)) return;
+    if (!(await checkAdminAuth(req, res))) return;
 
     const db = await connectToDatabase();
     const participants = db.collection('participants');
@@ -20,7 +21,10 @@ export default async function handler(req, res) {
         try {
             const list = await participants.find({})
                 .project({ device_profile: 0, contact_email: 0 })
-                .sort({ created_at: -1 }).toArray();
+                .sort({ created_at: -1 })
+                .limit(2000)
+                .maxTimeMS(10_000)
+                .toArray();
             return res.json({ participants: list });
         } catch (e) {
             console.error(e);
@@ -29,7 +33,11 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'POST') {
-        const { action, participant_code } = req.body;
+        const body = (req.body && typeof req.body === 'object') ? req.body : {};
+        const action = asString(body.action, 40);
+        const participant_code = asString(body.participant_code, 128);
+        if (!action || !participant_code)
+            return res.status(400).json({ error: 'Parâmetros inválidos.' });
 
         try {
             if (action === 'authorize_s2') {

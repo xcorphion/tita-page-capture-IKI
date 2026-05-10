@@ -26,7 +26,7 @@ export default async function handler(req, res) {
   if (req.method !== 'POST')
     return res.status(405).json({ success: false, error: 'Method Not Allowed' });
 
-  if (rateLimit(req, { max: 5, windowMs: 10 * 60_000 }))
+  if (await rateLimit(req, { max: 5, windowMs: 10 * 60_000, bucket: 'register' }))
     return res.status(429).json({ success: false, error: 'Muitas requisições. Aguarde antes de tentar novamente.' });
 
   const { participant_name, referrer_code } = req.body || {};

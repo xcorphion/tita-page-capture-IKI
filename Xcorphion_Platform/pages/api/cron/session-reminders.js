@@ -7,12 +7,21 @@ const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
 export default async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).end();
 
+  // Vercel cron injects `Authorization: Bearer <CRON_SECRET>` automatically.
+  // x-cron-secret header is kept as a manual-trigger fallback (e.g. local test).
+  // Query-string secrets are rejected — they leak into HTTP logs, referers, and history.
   const cronSecret = process.env.CRON_SECRET;
-  const headerSecret = req.headers['x-cron-secret']
-    || (req.headers.authorization?.startsWith('Bearer ') ? req.headers.authorization.slice(7) : null)
-    || req.query.secret;
-  if (cronSecret && headerSecret !== cronSecret)
-    return res.status(401).json({ error: 'Unauthorized' });
+  const provided = typeof req.headers['x-cron-secret'] === 'string'
+    ? req.headers['x-cron-secret']
+    : (typeof req.headers.authorization === 'string' && req.headers.authorization.startsWith('Bearer ')
+        ? req.headers.authorization.slice(7)
+        : '');
+  if (!cronSecret) return res.status(500).json({ error: 'CRON_SECRET não configurado.' });
+  const a = Buffer.from(provided);
+  const b = Buffer.from(cronSecret);
+  const crypto = await import('crypto');
+  const ok = a.length === b.length && a.length > 0 && crypto.timingSafeEqual(a, b);
+  if (!ok) return res.status(401).json({ error: 'Unauthorized' });
 
   try {
     const db = await connectToDatabase();

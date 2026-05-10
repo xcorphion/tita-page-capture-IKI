@@ -5,13 +5,15 @@ import { checkAdminAuth } from '../../../lib/adminAuth';
 import { SESSION_STATUS } from '../../../lib/schema';
 
 export default async function handler(req, res) {
-    if (rateLimit(req, { max: 10, windowMs: 5 * 60_000 }))
+    if (await rateLimit(req, { max: 10, windowMs: 5 * 60_000, bucket: 'unlock' }))
         return res.status(429).json({ error: 'Muitas tentativas. Aguarde.' });
 
-    const { code } = req.query;
+    const code = typeof req.query.code === 'string' ? req.query.code : '';
+    if (!/^[a-f0-9]{64}$/.test(code))
+        return res.status(400).json({ error: 'participant_id inválido.' });
 
     if (req.method === 'GET') {
-        if (!checkAdminAuth(req, res)) return;
+        if (!(await checkAdminAuth(req, res))) return;
         try {
             const db = await connectToDatabase();
             const doc = await db.collection('participants').findOne({ participant_id: code });

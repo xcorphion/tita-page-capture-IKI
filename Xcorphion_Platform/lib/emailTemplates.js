@@ -1,4 +1,11 @@
+import { escapeHtml as esc } from './security';
+
 const PLATFORM_URL = process.env.NEXT_PUBLIC_PLATFORM_URL || 'https://xcorphion.online';
+
+// All dynamic interpolations pass through esc() — participant-controlled fields
+// (names, codes) must never reach the rendered HTML unescaped, since they end
+// up in real inboxes (including the inboxes of *other* participants for the
+// referral flow).
 
 // ─── Base layout ──────────────────────────────────────────────────────────────
 function base(content, footerNote = '') {
@@ -39,9 +46,16 @@ function para(text) {
   </td></tr>`;
 }
 
+// Validate href is a benign scheme — emails should never carry javascript:/data: URIs.
+function safeHref(href) {
+  const s = typeof href === 'string' ? href.trim() : '';
+  if (/^(https?:|mailto:|tel:)/i.test(s)) return esc(s);
+  return '#';
+}
+
 function btn(label, href) {
   return `<tr><td style="padding-bottom:36px">
-    <a href="${href}" style="display:inline-block;background:#8B0000;color:#ffffff;padding:13px 28px;border-radius:8px;text-decoration:none;font-family:sans-serif;font-size:14px;font-weight:500">${label} →</a>
+    <a href="${safeHref(href)}" style="display:inline-block;background:#8B0000;color:#ffffff;padding:13px 28px;border-radius:8px;text-decoration:none;font-family:sans-serif;font-size:14px;font-weight:500">${esc(label)} →</a>
   </td></tr>`;
 }
 
@@ -49,7 +63,7 @@ function codeBlock(code) {
   return `<tr><td style="padding-bottom:32px">
     <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:20px 24px;text-align:center">
       <p style="font-family:sans-serif;font-size:11px;color:rgba(255,255,255,0.3);letter-spacing:0.1em;text-transform:uppercase;margin:0 0 12px">Seu código de acesso</p>
-      <span style="font-family:sans-serif;font-size:34px;font-weight:700;color:#ffffff;letter-spacing:0.2em">${code}</span>
+      <span style="font-family:sans-serif;font-size:34px;font-weight:700;color:#ffffff;letter-spacing:0.2em">${esc(code)}</span>
     </div>
   </td></tr>`;
 }
@@ -58,10 +72,10 @@ function codeBlock(code) {
 export function tplWelcome({ name, code, sessionLink }) {
   return base(
     h1('Bem-vindo à pesquisa OMMΩ.') +
-    para(`Olá, ${name}. Seu perfil foi criado com sucesso. Guarde o código abaixo — ele é o seu acesso exclusivo a todas as sessões.`) +
+    para(`Olá, ${esc(name)}. Seu perfil foi criado com sucesso. Guarde o código abaixo — ele é o seu acesso exclusivo a todas as sessões.`) +
     codeBlock(code) +
     btn('Iniciar Sessão 1', sessionLink),
-    `Código do participante: <strong style="color:rgba(255,255,255,0.35);letter-spacing:0.1em">${code}</strong>`
+    `Código do participante: <strong style="color:rgba(255,255,255,0.35);letter-spacing:0.1em">${esc(code)}</strong>`
   );
 }
 
@@ -69,10 +83,10 @@ export function tplWelcome({ name, code, sessionLink }) {
 export function tplCodeReminder({ name, code, sessionLink }) {
   return base(
     h1('Seu código de acesso.') +
-    para(`Olá, ${name}. Você solicitou o lembrete do seu código de participante.`) +
+    para(`Olá, ${esc(name)}. Você solicitou o lembrete do seu código de participante.`) +
     codeBlock(code) +
     btn('Acessar pesquisa', sessionLink),
-    `Código do participante: <strong style="color:rgba(255,255,255,0.35);letter-spacing:0.1em">${code}</strong>`
+    `Código do participante: <strong style="color:rgba(255,255,255,0.35);letter-spacing:0.1em">${esc(code)}</strong>`
   );
 }
 
@@ -82,16 +96,17 @@ export function tplSessionLink({ code, studyLink }) {
     h1('Sessão 1 concluída.') +
     para('Obrigado pela participação. Quando a Sessão 2 abrir, você receberá uma notificação neste endereço.<br><br>Guarde o link abaixo — ele é o seu acesso exclusivo à área de pesquisa:') +
     btn('Acessar área de pesquisa', studyLink),
-    `Código do participante: <strong style="color:rgba(255,255,255,0.35);letter-spacing:0.1em">${code}</strong>`
+    `Código do participante: <strong style="color:rgba(255,255,255,0.35);letter-spacing:0.1em">${esc(code)}</strong>`
   );
 }
 
 // ─── E04/E05 · Sessão N autorizada ───────────────────────────────────────────
 export function tplSessionUnlocked({ name, session, studyLink }) {
+  const s = Number(session) === 3 ? 3 : 2;
   return base(
-    h1(`Sessão ${session} liberada.`) +
-    para(`Olá, ${name}. Sua Sessão ${session} foi autorizada e está disponível agora. Acesse a pesquisa pelo link abaixo.`) +
-    btn(`Iniciar Sessão ${session}`, studyLink)
+    h1(`Sessão ${s} liberada.`) +
+    para(`Olá, ${esc(name)}. Sua Sessão ${s} foi autorizada e está disponível agora. Acesse a pesquisa pelo link abaixo.`) +
+    btn(`Iniciar Sessão ${s}`, studyLink)
   );
 }
 
@@ -100,7 +115,7 @@ export function tplConnectCode({ name, connectCode }) {
   const conect = `${PLATFORM_URL}/conect`;
   return base(
     h1('Acesse em outro dispositivo.') +
-    para(`Olá, ${name}. Seu equipamento atual não é válido para a pesquisa. Abra <strong style="color:rgba(255,255,255,0.7)">${conect}</strong> em um computador ou notebook e insira o código abaixo.`) +
+    para(`Olá, ${esc(name)}. Seu equipamento atual não é válido para a pesquisa. Abra <strong style="color:rgba(255,255,255,0.7)">${esc(conect)}</strong> em um computador ou notebook e insira o código abaixo.`) +
     codeBlock(connectCode)
   );
 }
@@ -109,7 +124,7 @@ export function tplConnectCode({ name, connectCode }) {
 export function tplResearchComplete({ name }) {
   return base(
     h1('Pesquisa concluída.') +
-    para(`Olá, ${name}. Você completou as 3 sessões da pesquisa OMMΩ. Obrigado pela sua contribuição — seus dados são parte fundamental do desenvolvimento do sistema.`) +
+    para(`Olá, ${esc(name)}. Você completou as 3 sessões da pesquisa OMMΩ. Obrigado pela sua contribuição — seus dados são parte fundamental do desenvolvimento do sistema.`) +
     para('Fique de olho no seu e-mail: em breve compartilharemos os resultados do estudo com todos os participantes.')
   );
 }
@@ -117,8 +132,8 @@ export function tplResearchComplete({ name }) {
 // ─── E08 · Convite de indicação ───────────────────────────────────────────────
 export function tplReferralInvite({ referrerName, inviteLink }) {
   return base(
-    h1(`${referrerName} te convidou.`) +
-    para(`<strong style="color:rgba(255,255,255,0.8)">${referrerName}</strong> convidou você para participar da pesquisa OMMΩ da Xcorphion — um estudo sobre o ritmo somático da digitação e inteligência artificial.<br><br>A participação leva entre 8 e 15 minutos e requer teclado físico.`) +
+    h1(`${esc(referrerName)} te convidou.`) +
+    para(`<strong style="color:rgba(255,255,255,0.8)">${esc(referrerName)}</strong> convidou você para participar da pesquisa OMMΩ da Xcorphion — um estudo sobre o ritmo somático da digitação e inteligência artificial.<br><br>A participação leva entre 8 e 15 minutos e requer teclado físico.`) +
     btn('Aceitar convite e participar', inviteLink)
   );
 }
@@ -127,7 +142,7 @@ export function tplReferralInvite({ referrerName, inviteLink }) {
 export function tplReferralConfirmed({ referrerName, newParticipantName }) {
   return base(
     h1('Seu convite foi aceito.') +
-    para(`Olá, ${referrerName}. <strong style="color:rgba(255,255,255,0.8)">${newParticipantName}</strong> usou seu convite e entrou na pesquisa OMMΩ. Obrigado por expandir a nossa base de dados.`)
+    para(`Olá, ${esc(referrerName)}. <strong style="color:rgba(255,255,255,0.8)">${esc(newParticipantName)}</strong> usou seu convite e entrou na pesquisa OMMΩ. Obrigado por expandir a nossa base de dados.`)
   );
 }
 
@@ -150,19 +165,20 @@ export function tplProductLaunch({ launchUrl }) {
 
 // ─── E14 · Lembrete de sessão ─────────────────────────────────────────────────
 export function tplSessionReminder({ name, session, studyLink }) {
+  const s = Number(session) === 3 ? 3 : 2;
   return base(
-    h1(`Sua Sessão ${session} ainda está disponível.`) +
-    para(`Olá, ${name}. Sua Sessão ${session} foi liberada há alguns dias e ainda não foi iniciada. Quando você estiver pronto, o link abaixo está te esperando.`) +
-    btn(`Acessar Sessão ${session}`, studyLink)
+    h1(`Sua Sessão ${s} ainda está disponível.`) +
+    para(`Olá, ${esc(name)}. Sua Sessão ${s} foi liberada há alguns dias e ainda não foi iniciada. Quando você estiver pronto, o link abaixo está te esperando.`) +
+    btn(`Acessar Sessão ${s}`, studyLink)
   );
 }
 
 // ─── E15 · Alerta admin (texto plano, rápido) ─────────────────────────────────
 export function tplAdminAlert({ event, participantCode, details }) {
   return `<pre style="font-family:monospace;font-size:13px;color:#ccc;background:#111;padding:20px;border-radius:8px;white-space:pre-wrap">[XCORPHION ALERT]
-Evento: ${event}
-Participante: ${participantCode}
-Detalhes: ${details}
+Evento: ${esc(event)}
+Participante: ${esc(participantCode)}
+Detalhes: ${esc(details)}
 Timestamp: ${new Date().toISOString()}
 </pre>`;
 }

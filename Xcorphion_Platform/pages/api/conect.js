@@ -8,7 +8,7 @@ export default async function handler(req, res) {
   if (req.method !== 'POST')
     return res.status(405).json({ valid: false, reason: 'method_not_allowed' });
 
-  if (rateLimit(req, { max: 10, windowMs: 5 * 60_000 }))
+  if (await rateLimit(req, { max: 10, windowMs: 5 * 60_000, bucket: 'conect' }))
     return res.status(429).json({ valid: false, reason: 'rate_limited' });
 
   const raw = typeof req.body?.connect_code === 'string' ? req.body.connect_code.trim().toUpperCase() : '';

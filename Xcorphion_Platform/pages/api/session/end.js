@@ -19,7 +19,17 @@ const EXCLUDED_KEYS = [
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).end();
-    const { session_id, participant_code, session_token, engagement_rating, engagement_genuine, text_final } = req.body;
+    const body = (req.body && typeof req.body === 'object') ? req.body : {};
+    const session_id = body.session_id;
+    const participant_code = body.participant_code;
+    const session_token = body.session_token;
+    const engagement_rating = body.engagement_rating;
+    const engagement_genuine = body.engagement_genuine;
+    const text_final = body.text_final;
+    if (typeof session_id !== 'string' || typeof session_token !== 'string')
+        return res.status(400).json({ error: 'Parâmetros inválidos.' });
+    if (typeof participant_code !== 'string' || !/^[A-Z0-9]{1,20}$/.test(participant_code))
+        return res.status(400).json({ error: 'participant_code inválido.' });
     if (typeof text_final === 'string' && text_final.length > MAX_TEXT)
         return res.status(400).json({ error: 'Texto excede o tamanho máximo permitido.' });
     const rating = Number(engagement_rating);

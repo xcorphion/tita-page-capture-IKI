@@ -8,8 +8,14 @@ const MAX_EVENT_TS_MS = 7_200_000;
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).end();
-    const { session_id, participant_code, session_token, events } = req.body;
-    if (typeof participant_code !== 'string' || !participant_code)
+    const body = (req.body && typeof req.body === 'object') ? req.body : {};
+    const session_id = body.session_id;
+    const participant_code = body.participant_code;
+    const session_token = body.session_token;
+    const events = body.events;
+    if (typeof session_id !== 'string' || typeof session_token !== 'string')
+        return res.status(400).json({ error: 'Parâmetros inválidos.' });
+    if (typeof participant_code !== 'string' || !/^[A-Z0-9]{1,20}$/.test(participant_code))
         return res.status(400).json({ error: 'participant_code ausente.' });
     if (!events || !Array.isArray(events) || events.length === 0) return res.json({ received: 0 });
     if (events.length > MAX_BATCH)

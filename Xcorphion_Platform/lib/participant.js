@@ -1,8 +1,10 @@
 import crypto from 'crypto';
+import { extractIp as _extractIp } from './security';
 
 export function hashParticipantId(code) {
     const salt = process.env.PARTICIPANT_SALT;
     if (!salt) throw new Error('PARTICIPANT_SALT não configurado.');
+    if (typeof code !== 'string' || !code) throw new Error('participant_code inválido.');
     return crypto.createHash('sha256').update(code + salt).digest('hex');
 }
 
@@ -18,8 +20,4 @@ export function hashFingerprint(profile) {
     return crypto.createHash('sha256').update(key).digest('hex');
 }
 
-export function extractIp(req) {
-    return req.headers['x-forwarded-for']?.split(',')[0]?.trim()
-        || req.socket?.remoteAddress
-        || 'unknown';
-}
+export const extractIp = _extractIp;

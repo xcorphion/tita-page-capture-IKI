@@ -15,10 +15,16 @@ const PROMPTS = [
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).end();
-    if (rateLimit(req, { max: 10, windowMs: 10 * 60_000 }))
+    if (await rateLimit(req, { max: 10, windowMs: 10 * 60_000, bucket: 'session_start' }))
         return res.status(429).json({ error: 'Muitas requisições. Aguarde antes de tentar novamente.' });
 
-    const { participant_code, prompt_id, jitter_benchmark_ms, device_profile } = req.body;
+    const body = (req.body && typeof req.body === 'object') ? req.body : {};
+    const participant_code = typeof body.participant_code === 'string' ? body.participant_code : '';
+    if (!/^[A-Z0-9]{1,20}$/.test(participant_code))
+        return res.status(400).json({ error: 'participant_code inválido.' });
+    const prompt_id = body.prompt_id;
+    const jitter_benchmark_ms = body.jitter_benchmark_ms;
+    const device_profile = body.device_profile;
     const pid = Number(prompt_id);
 
     if (!Number.isInteger(pid) || pid < 1 || pid > 3)
