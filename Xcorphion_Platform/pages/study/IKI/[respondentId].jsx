@@ -22,6 +22,11 @@ export default function IKIResearchPage() {
     const [emaArousal, setEmaArousal] = useState(50);
     const [vTouched, setVTouched] = useState(false);
     const [aTouched, setATouched] = useState(false);
+    const [isWebUser, setIsWebUser] = useState(false);
+    const [hasPhysicalKeyboard, setHasPhysicalKeyboard] = useState(null);
+    const [showEquipmentModal, setShowEquipmentModal] = useState(false);
+    const [connectCode, setConnectCode] = useState('');
+    const [respondentNumber, setRespondentNumber] = useState(null);
 
     const sessionIdRef = useRef('');
     const sessionTokenRef = useRef('');
@@ -57,6 +62,10 @@ export default function IKIResearchPage() {
                 if (res.status === 403) { setStatus('blocked'); return; }
                 if (!res.ok) throw new Error();
                 const data = await res.json();
+
+                setIsWebUser(!!data.is_web_user);
+                setConnectCode(data.connect_code || '');
+                setRespondentNumber(data.respondent_number ?? null);
 
                 if (data.sessions_completed >= 3) {
                     setStatus('completed');
@@ -225,13 +234,32 @@ export default function IKIResearchPage() {
         }
     };
 
-    const buildDeviceProfile = () => ({
+    const detectPhysicalKeyboard = () => {
+        const ua = navigator.userAgent;
+        if (/Android/i.test(ua) && /Mobile/i.test(ua)) return false;
+        if (/iPhone|iPod/i.test(ua)) return false;
+        if (/iPad/i.test(ua)) return false;
+        if (/Android/i.test(ua) && !/Mobile/i.test(ua)) return false;
+        return true;
+    };
+
+    const handleConsentAccept = () => {
+        if (isWebUser) {
+            const kbd = detectPhysicalKeyboard();
+            setHasPhysicalKeyboard(kbd);
+            if (!kbd) { setShowEquipmentModal(true); return; }
+        }
+        setStep('wpm');
+    };
+
+    const buildDeviceProfile = (has_physical_keyboard = null) => ({
         userAgent: navigator.userAgent,
         platform:  navigator.platform,
         language:  navigator.language,
         timezone:  Intl.DateTimeFormat().resolvedOptions().timeZone,
         screen:    { w: screen.width, h: screen.height, depth: screen.colorDepth, dpr: devicePixelRatio },
         hw:        { cores: navigator.hardwareConcurrency, mem: navigator.deviceMemory ?? null },
+        has_physical_keyboard,
     });
 
     const completeOnboarding = async (wpm) => {
@@ -239,8 +267,12 @@ export default function IKIResearchPage() {
             const res = await fetch(`/api/participant/${respondentId}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ wpm_baseline: wpm, device_profile: buildDeviceProfile() })
+                body: JSON.stringify({ wpm_baseline: wpm, device_profile: buildDeviceProfile(hasPhysicalKeyboard) })
             });
+            if (res.status === 400) {
+                const data = await res.json();
+                if (data.error === 'KEYBOARD_REQUIRED') { setShowEquipmentModal(true); return; }
+            }
             if (!res.ok) throw new Error(await res.text());
             startSession(1);
         } catch (e) {
@@ -397,7 +429,7 @@ export default function IKIResearchPage() {
                         </p>
 
                         <button
-                            onClick={() => setStep('wpm')}
+                            onClick={handleConsentAccept}
                             style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, fontFamily: "'Inter', sans-serif", fontWeight: 500, fontSize: 14, color: 'white', background: '#8B0000', border: 'none', borderRadius: 10, padding: '15px 28px', cursor: 'pointer', letterSpacing: '0.04em', boxShadow: '0 0 28px rgba(139,0,0,0.22)', transition: 'background 0.2s, box-shadow 0.2s' }}
                             onMouseEnter={e => { e.currentTarget.style.background = '#9e0000'; e.currentTarget.style.boxShadow = '0 0 48px rgba(139,0,0,0.42)'; }}
                             onMouseLeave={e => { e.currentTarget.style.background = '#8B0000'; e.currentTarget.style.boxShadow = '0 0 28px rgba(139,0,0,0.22)'; }}
@@ -558,6 +590,45 @@ export default function IKIResearchPage() {
                     </div>
                 )}
             </div>
+
+            {showEquipmentModal && (
+                <div style={{ position: 'fixed', inset: 0, zIndex: 400, background: 'rgba(0,0,0,0.98)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+                    <div style={{ width: '100%', maxWidth: 460, textAlign: 'center' }}>
+                        <div style={{ width: 52, height: 52, borderRadius: '50%', border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.02)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                            </svg>
+                        </div>
+                        <h2 style={{ fontFamily: F.space, fontWeight: 700, fontSize: 22, color: 'white', letterSpacing: '-0.025em', marginBottom: 14, lineHeight: 1.25 }}>
+                            Participação registrada!
+                        </h2>
+                        <p style={{ fontFamily: F.inter, fontSize: 15, color: 'rgba(255,255,255,0.45)', lineHeight: 1.7, fontWeight: 300, marginBottom: 32 }}>
+                            Seu equipamento não é válido para realizar a pesquisa.<br/>
+                            Troque de aparelho e tente novamente em 5 minutos.
+                        </p>
+                        <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', marginBottom: 32 }} />
+                        <p style={{ fontFamily: F.inter, fontSize: 13, color: 'rgba(255,255,255,0.3)', lineHeight: 1.65, marginBottom: 20 }}>
+                            Para um acesso mais rápido, acesse{' '}
+                            <span style={{ color: 'rgba(255,255,255,0.55)' }}>xcorphion.online/conect</span>{' '}
+                            e digite o código abaixo:
+                        </p>
+                        {connectCode && (
+                            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 14, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, padding: '18px 28px' }}>
+                                <span style={{ fontFamily: F.inter, fontSize: 32, fontWeight: 600, letterSpacing: '0.2em', color: 'white' }}>
+                                    {connectCode}
+                                </span>
+                                <button
+                                    onClick={() => navigator.clipboard?.writeText(connectCode)}
+                                    style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, padding: '6px 10px', cursor: 'pointer', color: 'rgba(255,255,255,0.4)', fontSize: 11, fontFamily: F.inter }}
+                                    title="Copiar"
+                                >
+                                    copiar
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
         </>
     );
 }

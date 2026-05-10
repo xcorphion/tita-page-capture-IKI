@@ -31,18 +31,25 @@ export const SESSION_STATUS = Object.freeze({
 // source values:
 //   'organic'  — participant signed up directly via /study (no referrer)
 //   'referrer' — participant was invited by another participant (referrer flow, M3)
+//
+// connect_code    — 6-char alphanumeric, used by /conect for cross-device session resume
+// respondent_number — sequential integer (atomic counter), for participant-facing display
 export function createParticipantDoc({
   participant_id,
   participant_code,
   participant_name,
   referrer_name,
   source = 'organic',
+  connect_code = null,
+  respondent_number = null,
 }) {
   return {
     participant_id,
     participant_code,
     participant_name,
     referrer_name,
+    connect_code,
+    respondent_number,
     status:               PARTICIPANT_STATUS.ATIVO,
     session_1_status:     SESSION_STATUS.LIBERADA,
     session_2_status:     SESSION_STATUS.AGUARDANDO,

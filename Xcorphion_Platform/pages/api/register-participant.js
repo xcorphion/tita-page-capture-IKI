@@ -4,11 +4,19 @@ import { createParticipantDoc, PARTICIPANT_STATUS } from '../../lib/schema';
 import crypto from 'crypto';
 import { rateLimit } from '../../lib/rateLimit';
 
+const CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // sem O, 0, I, 1
+
 function generateCode() {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // sem O, 0, I, 1
   let code = '';
   for (let i = 0; i < 8; i++)
-    code += chars.charAt(crypto.randomInt(0, chars.length)); // CSPRNG — não Math.random()
+    code += CODE_CHARS.charAt(crypto.randomInt(0, CODE_CHARS.length));
+  return code;
+}
+
+function generateConnectCode() {
+  let code = '';
+  for (let i = 0; i < 6; i++)
+    code += CODE_CHARS.charAt(crypto.randomInt(0, CODE_CHARS.length));
   return code;
 }
 
@@ -53,6 +61,24 @@ export default async function handler(req, res) {
     if (hashConflict)
       return res.status(500).json({ success: false, error: 'Conflito de integridade. Tente novamente.' });
 
+    // connect_code: 6-char, used by /conect for cross-device session resume
+    let connectCode = null;
+    for (let i = 0; i < 10; i++) {
+      const candidate = generateConnectCode();
+      const exists = await col.findOne({ connect_code: candidate });
+      if (!exists) { connectCode = candidate; break; }
+    }
+    if (!connectCode)
+      return res.status(500).json({ success: false, error: 'Falha ao gerar código de acesso. Tente novamente.' });
+
+    // respondent_number: atomic sequential ID via counters collection
+    const counterResult = await db.collection('counters').findOneAndUpdate(
+      { _id: 'participant_seq' },
+      { $inc: { seq: 1 } },
+      { returnDocument: 'after', upsert: true }
+    );
+    const respondent_number = counterResult.seq;
+
     // Resolve referrer — organic path uses 'system', referrer path captures real name.
     let referrer_name = 'system';
     let source = 'organic';
@@ -80,6 +106,8 @@ export default async function handler(req, res) {
       participant_name: name,
       referrer_name,
       source,
+      connect_code: connectCode,
+      respondent_number,
     }));
 
     return res.status(201).json({ success: true, code });

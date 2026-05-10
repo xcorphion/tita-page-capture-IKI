@@ -11,6 +11,7 @@ function geoLookup(ip) {
 function sanitizeDeviceProfile(p) {
     if (!p || typeof p !== 'object') return null;
     const num = (v) => Number.isFinite(Number(v)) ? Number(v) : null;
+    const kb = p.has_physical_keyboard;
     return {
         userAgent: typeof p.userAgent === 'string' ? p.userAgent.slice(0, 512) : '',
         platform:  typeof p.platform  === 'string' ? p.platform.slice(0, 64)   : '',
@@ -18,6 +19,7 @@ function sanitizeDeviceProfile(p) {
         timezone:  typeof p.timezone  === 'string' ? p.timezone.slice(0, 64)   : '',
         screen: { w: num(p.screen?.w), h: num(p.screen?.h), depth: num(p.screen?.depth), dpr: num(p.screen?.dpr) },
         hw:     { cores: num(p.hw?.cores), mem: num(p.hw?.mem) },
+        has_physical_keyboard: kb === true ? true : (kb === false ? false : null),
     };
 }
 
@@ -47,8 +49,16 @@ export default async function handler(req, res) {
             if (existing?.onboarding_complete)
                 return res.status(409).json({ error: 'Onboarding já concluído.' });
 
+            // Web users (source defined via register-participant) must declare a physical keyboard.
+            const isWebUser = !!(existing?.source);
+            if (isWebUser && device_profile?.has_physical_keyboard !== true)
+                return res.status(400).json({ error: 'KEYBOARD_REQUIRED' });
+
             const fingerprint_hash = hashFingerprint(device_profile);
             const geo = (ip && ip !== 'unknown') ? geoLookup(ip) : null;
+            const locality = geo
+                ? { country: geo.country || null, region: geo.region || null, city: geo.city || null, ll: geo.ll || null }
+                : null;
 
             await participants.updateOne(
                 { participant_id },
@@ -58,6 +68,7 @@ export default async function handler(req, res) {
                         device_profile,
                         device_fingerprint_hash: fingerprint_hash,
                         onboarding_complete: true,
+                        locality,
                         'fingerprint.user_agent': device_profile?.userAgent || '',
                         'fingerprint.captured_at': new Date(),
                         'fingerprint.ip': ip,
@@ -107,6 +118,9 @@ export default async function handler(req, res) {
             next_prompt_id: sessionsCompleted + 1,
             onboarding_complete: doc.onboarding_complete,
             locked: isLocked,
+            is_web_user: !!(doc.source),
+            connect_code: doc.connect_code || null,
+            respondent_number: doc.respondent_number ?? null,
         });
     } catch (e) {
         console.error(e);
