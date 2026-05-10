@@ -67,6 +67,7 @@
         const Sidebar = () => {
             const [isExpanded, setIsExpanded] = useState(false);
             const [activeItem, setActiveItem] = useState('home');
+            const [currentLang, setCurrentLang] = useState(lang);
 
             const COLLAPSED_W = 64;
             const EXPANDED_W  = 240;
@@ -197,6 +198,54 @@
                             )
                         )
                     ),
+
+                    // ── Language Switcher ──────────────────────
+                    React.createElement('div', {
+                        style: { padding: '0 12px 20px', flexShrink: 0 },
+                    },
+                        React.createElement('div', {
+                            style: { height: 1, background: 'rgba(255,255,255,0.08)', marginBottom: 12 },
+                        }),
+                        React.createElement('div', {
+                            style: {
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: isExpanded ? 'flex-start' : 'center',
+                                gap: 4,
+                            },
+                        },
+                            React.createElement('div', {
+                                style: {
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    minWidth: 24, color: 'rgba(255,255,255,0.4)',
+                                },
+                            },
+                                React.createElement('i', { 'data-lucide': 'globe', style: { width: 16, height: 16 } })
+                            ),
+                            isExpanded && React.createElement('div', {
+                                style: { display: 'flex', gap: 2, marginLeft: 4 },
+                            },
+                                ['pt', 'en', 'es'].map(code =>
+                                    React.createElement('button', {
+                                        key: code,
+                                        onClick: () => {
+                                            setCurrentLang(code);
+                                            window.parent.postMessage({ type: 'SIDEBAR_LANG_CHANGE', locale: code }, '*');
+                                        },
+                                        style: {
+                                            fontSize: 11, fontWeight: 500, letterSpacing: '0.08em',
+                                            padding: '5px 8px', borderRadius: 6, border: 'none',
+                                            cursor: 'pointer',
+                                            background: currentLang === code ? 'rgba(139,0,0,0.3)' : 'transparent',
+                                            color: currentLang === code ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.4)',
+                                            transition: 'all 0.15s',
+                                            fontFamily: 'Inter, sans-serif',
+                                        },
+                                    }, code.toUpperCase())
+                                )
+                            )
+                        )
+                    )
 
                 )
             );

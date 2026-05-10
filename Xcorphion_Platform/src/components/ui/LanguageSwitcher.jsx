@@ -25,16 +25,8 @@ export default function LanguageSwitcher() {
     router.push(router.asPath, router.asPath, { locale: code });
   };
 
-  const isHome = router.pathname === '/';
-
-  // Mobile: abaixo da topbar pill (top:16 + height:54 + gap:12 = 82)
-  // Desktop homepage: abaixo da headline (que começa em ~30px e tem ~3 linhas)
-  // Desktop outras páginas: posição original topo-direito
-  const topValue = isMobile
-    ? 82
-    : isHome
-      ? 'clamp(160px, 14vw, 200px)'
-      : 16;
+  // No desktop o switcher fica dentro da sidebar (sidebar.html)
+  if (!isMobile) return null;
 
   const base = {
     fontFamily: "'Inter', sans-serif",
@@ -44,7 +36,7 @@ export default function LanguageSwitcher() {
   };
 
   return (
-    <div style={{ position: 'fixed', top: topValue, right: 16, zIndex: 9999 }}>
+    <div style={{ position: 'fixed', top: 82, right: 16, zIndex: 9999 }}>
       <div style={{ position: 'relative' }}>
         <button
           onClick={() => setOpen(o => !o)}

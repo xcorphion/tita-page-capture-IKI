@@ -134,7 +134,8 @@ function MobileTopbar({ locale, activeItem, onNavigate }) {
 }
 
 const FloatingNav = () => {
-    const { locale } = useRouter();
+    const router = useRouter();
+    const { locale } = router;
     const [iframeWidth, setIframeWidth] = useState('88px');
     const [isMobile, setIsMobile] = useState(false);
     const [activeItem, setActiveItem] = useState('home');
@@ -154,6 +155,8 @@ const FloatingNav = () => {
                 }
             } else if (event.data?.type === 'SIDEBAR_NAVIGATE') {
                 handleNavigate(event.data.id);
+            } else if (event.data?.type === 'SIDEBAR_LANG_CHANGE') {
+                router.push(router.asPath, router.asPath, { locale: event.data.locale });
             }
         };
 
