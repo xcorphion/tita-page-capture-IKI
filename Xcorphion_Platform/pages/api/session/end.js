@@ -2,6 +2,8 @@ import { connectToDatabase } from '../../../lib/mongodb';
 import { hashParticipantId } from '../../../lib/participant';
 import { validateSessionToken } from '../../../lib/sessionAuth';
 import { SESSION_STATUS, SESSION_DOC_STATUS, PARTICIPANT_STATUS } from '../../../lib/schema';
+import { sendMailSilent } from '../../../lib/mailer';
+import { tplResearchComplete, tplAdminAlert } from '../../../lib/emailTemplates';
 
 const MAX_TEXT = 20_000;
 
@@ -102,6 +104,27 @@ export default async function handler(req, res) {
         }
 
         await db.collection('participants').updateOne({ participant_id }, participantUpdate);
+
+        if (currentSession === 3 && participant.contact_email) {
+            sendMailSilent({
+                to: participant.contact_email,
+                subject: 'Pesquisa concluída — OMMΩ · Xcorphion',
+                html: tplResearchComplete({ name: participant.participant_name }),
+            });
+        }
+
+        const adminEmail = process.env.ADMIN_EMAIL;
+        if (adminEmail) {
+            sendMailSilent({
+                to: adminEmail,
+                subject: `[Xcorphion] Sessão ${currentSession} concluída — ${participant.participant_code}`,
+                html: tplAdminAlert({
+                    event: `Sessão ${currentSession} concluída`,
+                    participantCode: participant.participant_code,
+                    details: `Nome: ${participant.participant_name} | Engajamento: ${engagement_genuine ? 'genuíno' : 'suspeito'}`,
+                }),
+            });
+        }
 
         res.json({ ok: true });
     } catch (e) {

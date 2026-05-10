@@ -1,5 +1,7 @@
 import { connectToDatabase } from '../../lib/mongodb';
 import { rateLimit } from '../../lib/rateLimit';
+import { sendMailSilent } from '../../lib/mailer';
+import { tplWaitlistConfirm } from '../../lib/emailTemplates';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST')
@@ -36,6 +38,12 @@ export default async function handler(req, res) {
       participant_code: code,
       source: 'study_page',
       registered_at: new Date(),
+    });
+
+    sendMailSilent({
+      to: email.trim(),
+      subject: 'Você está na lista — OMMΩ · Xcorphion',
+      html: tplWaitlistConfirm(),
     });
 
     return res.status(201).json({ success: true, already: false });

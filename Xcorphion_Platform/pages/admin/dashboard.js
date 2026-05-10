@@ -96,9 +96,18 @@ export default function Dashboard() {
     <div style={{ padding: '0 0 60px', background: '#080808', minHeight: '100vh', color: '#fff' }}>
       <Head><title>Pipeline de Análise — Xcorphion</title></Head>
       <header style={{ position: 'sticky', top: 0, zIndex: 100, borderBottom: '1px solid rgba(255,255,255,0.05)', background: 'rgba(8,8,8,0.92)', backdropFilter: 'blur(24px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 40px', height: 56 }}>
-        <span style={{ fontFamily: F.space, fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.7)', letterSpacing: '-0.01em' }}>
-          Pipeline de Análise <span style={{ color: '#8B0000' }}>IKIs × EMAs</span>
-        </span>
+        <div style={{ display: 'flex', gap: 4 }}>
+          {[
+            { href: '/admin',            label: 'Participantes', active: false },
+            { href: '/admin/dashboard',  label: 'Dashboard',     active: true },
+            { href: '/admin/cards',      label: 'Artigos',       active: false },
+            { href: '/admin/marketing',  label: 'Marketing',     active: false },
+          ].map(({ href, label, active }) => (
+            <a key={href} href={href} style={{ fontFamily: F.inter, fontSize: 10, fontWeight: 600, letterSpacing: '0.07em', textTransform: 'uppercase', padding: '5px 12px', borderRadius: 6, textDecoration: 'none', transition: 'all 0.15s', background: active ? 'rgba(255,255,255,0.1)' : 'transparent', color: active ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.32)', border: `1px solid ${active ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.06)'}` }}>
+              {label}
+            </a>
+          ))}
+        </div>
         <div style={{ display: 'flex', gap: 10 }}>
           <button onClick={() => window.location.href = '/api/analysis/export-csv'} style={{ fontFamily: F.inter, fontWeight: 500, fontSize: 11, color: 'rgba(255,255,255,0.7)', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 7, padding: '6px 14px', cursor: 'pointer', letterSpacing: '0.06em', textTransform: 'uppercase', transition: 'all 0.15s' }} onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = 'white'; }} onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = 'rgba(255,255,255,0.7)'; }}>Exportar CSV</button>
           <button onClick={() => fetchData()} style={{ fontFamily: F.inter, fontWeight: 500, fontSize: 11, color: 'white', background: '#8B0000', border: 'none', borderRadius: 7, padding: '6px 14px', cursor: 'pointer', letterSpacing: '0.06em', textTransform: 'uppercase', boxShadow: '0 0 16px rgba(139,0,0,0.2)', transition: 'background 0.15s' }} onMouseEnter={e => e.currentTarget.style.background = '#9e0000'} onMouseLeave={e => e.currentTarget.style.background = '#8B0000'}>Atualizar</button>

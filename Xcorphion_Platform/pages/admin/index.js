@@ -116,7 +116,18 @@ export default function AdminPanel() {
     <div style={{ minHeight: '100vh', background: '#080808', color: 'white', fontFamily: F.inter }}>
       <Head><title>Admin — Xcorphion</title></Head>
       <header style={{ position: 'sticky', top: 0, zIndex: 100, borderBottom: '1px solid rgba(255,255,255,0.05)', background: 'rgba(8,8,8,0.92)', backdropFilter: 'blur(24px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 40px', height: 56 }}>
-        <span style={{ fontFamily: F.space, fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.7)', letterSpacing: '-0.01em' }}>Controle de Participantes</span>
+        <div style={{ display: 'flex', gap: 4 }}>
+          {[
+            { href: '/admin',            label: 'Participantes', active: true },
+            { href: '/admin/dashboard',  label: 'Dashboard',     active: false },
+            { href: '/admin/cards',      label: 'Artigos',       active: false },
+            { href: '/admin/marketing',  label: 'Marketing',     active: false },
+          ].map(({ href, label, active }) => (
+            <a key={href} href={href} style={{ fontFamily: F.inter, fontSize: 10, fontWeight: 600, letterSpacing: '0.07em', textTransform: 'uppercase', padding: '5px 12px', borderRadius: 6, textDecoration: 'none', transition: 'all 0.15s', background: active ? 'rgba(255,255,255,0.1)' : 'transparent', color: active ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.32)', border: `1px solid ${active ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.06)'}` }}>
+              {label}
+            </a>
+          ))}
+        </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{ display: 'flex', gap: 4 }}>
             {STATUS_OPTIONS.map(s => (

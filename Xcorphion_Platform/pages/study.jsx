@@ -40,6 +40,7 @@ export default function StudyPage() {
   // --- Registration modal ---
   const [showModal, setShowModal] = useState(false);
   const [participantName, setParticipantName] = useState('');
+  const [registerEmail, setRegisterEmail] = useState('');
   const [registerStatus, setRegisterStatus] = useState('idle'); // idle | loading | error
   const [registerError, setRegisterError] = useState('');
 
@@ -86,10 +87,15 @@ export default function StudyPage() {
     setRegisterStatus('loading');
     setRegisterError('');
     try {
+      const referrerCode = typeof router.query.referrer === 'string' ? router.query.referrer.trim() : undefined;
+      const body = { participant_name: name };
+      if (referrerCode) body.referrer_code = referrerCode;
+      if (registerEmail.trim()) body.email = registerEmail.trim();
+
       const res = await fetch('/api/register-participant', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ participant_name: name }),
+        body: JSON.stringify(body),
       });
       const data = await res.json();
       if (!res.ok || !data.success) {
@@ -186,7 +192,7 @@ export default function StudyPage() {
             </p>
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
               <button
-                onClick={() => { setParticipantName(''); setRegisterError(''); setRegisterStatus('idle'); setShowModal(true); }}
+                onClick={() => { setParticipantName(''); setRegisterEmail(''); setRegisterError(''); setRegisterStatus('idle'); setShowModal(true); }}
                 style={{
                   display: 'inline-flex', alignItems: 'center', gap: 8,
                   fontFamily: F.inter, fontWeight: 500, fontSize: 14,
@@ -483,6 +489,30 @@ export default function StudyPage() {
                     {registerError}
                   </p>
                 )}
+              </div>
+
+              {/* Optional email */}
+              <div style={{ marginBottom: 20 }}>
+                <p style={{ fontFamily: F.inter, fontSize: 12, color: 'rgba(255,255,255,0.25)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 10 }}>E-mail <span style={{ textTransform: 'none', letterSpacing: 0 }}>(opcional)</span></p>
+                <input
+                  type="email"
+                  placeholder="para receber seu código por e-mail"
+                  value={registerEmail}
+                  onChange={e => setRegisterEmail(e.target.value)}
+                  disabled={registerStatus === 'loading'}
+                  style={{
+                    width: '100%', boxSizing: 'border-box',
+                    fontFamily: F.inter, fontSize: 14,
+                    color: 'white',
+                    background: 'rgba(255,255,255,0.04)',
+                    border: '1px solid rgba(255,255,255,0.08)',
+                    borderRadius: 10, padding: '12px 16px',
+                    outline: 'none', transition: 'border-color 0.2s',
+                    opacity: registerStatus === 'loading' ? 0.6 : 1,
+                  }}
+                  onFocus={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'}
+                  onBlur={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'}
+                />
               </div>
 
               {/* Submit */}

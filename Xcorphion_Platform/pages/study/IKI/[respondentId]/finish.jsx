@@ -19,6 +19,9 @@ export default function ResearchFinishPage() {
   const [email, setEmail]             = useState('');
   const [emailError, setEmailError]   = useState('');
   const [sendError, setSendError]     = useState('');
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteStep, setInviteStep]   = useState('idle'); // idle | sending | sent | error
+  const [inviteError, setInviteError] = useState('');
 
   const consentValid = consentInput === CONSENT_TEXT;
 
@@ -72,6 +75,33 @@ export default function ResearchFinishPage() {
     border: '1px solid rgba(255,255,255,0.1)',
     borderRadius: 10, padding: '13px 16px',
     outline: 'none', transition: 'border-color 0.2s',
+  };
+
+  const handleInvite = async () => {
+    if (!respondentId || !inviteEmail.trim() || inviteStep === 'sending') return;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inviteEmail.trim())) {
+      setInviteError('E-mail inválido.');
+      return;
+    }
+    setInviteError('');
+    setInviteStep('sending');
+    try {
+      const res = await fetch('/api/send-invite', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ participant_code: respondentId, friend_email: inviteEmail.trim() }),
+      });
+      if (res.ok) {
+        setInviteStep('sent');
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setInviteError(data.error || 'Erro ao enviar. Tente novamente.');
+        setInviteStep('error');
+      }
+    } catch {
+      setInviteError('Erro de conexão.');
+      setInviteStep('error');
+    }
   };
 
   const platformUrl = process.env.NEXT_PUBLIC_PLATFORM_URL || 'https://xcorphion.online';
@@ -165,10 +195,41 @@ export default function ResearchFinishPage() {
           )}
 
           {step === 'sent' && (
-            <a href={studyLink} style={{ display: 'inline-flex', alignItems: 'center', gap: 10, fontFamily: F.inter, fontWeight: 500, fontSize: 14, color: 'white', background: '#8B0000', padding: '13px 32px', borderRadius: 8, textDecoration: 'none', boxShadow: '0 0 28px rgba(139,0,0,0.22)', transition: 'background 0.2s, box-shadow 0.2s, transform 0.15s' }} onMouseEnter={e => { e.currentTarget.style.background = '#9e0000'; e.currentTarget.style.boxShadow = '0 0 48px rgba(139,0,0,0.42)'; e.currentTarget.style.transform = 'translateY(-1px)'; }} onMouseLeave={e => { e.currentTarget.style.background = '#8B0000'; e.currentTarget.style.boxShadow = '0 0 28px rgba(139,0,0,0.22)'; e.currentTarget.style.transform = 'none'; }}>
-              Entrar na lista de espera agora
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
-            </a>
+            <>
+              <a href={studyLink} style={{ display: 'inline-flex', alignItems: 'center', gap: 10, fontFamily: F.inter, fontWeight: 500, fontSize: 14, color: 'white', background: '#8B0000', padding: '13px 32px', borderRadius: 8, textDecoration: 'none', boxShadow: '0 0 28px rgba(139,0,0,0.22)', transition: 'background 0.2s, box-shadow 0.2s, transform 0.15s' }} onMouseEnter={e => { e.currentTarget.style.background = '#9e0000'; e.currentTarget.style.boxShadow = '0 0 48px rgba(139,0,0,0.42)'; e.currentTarget.style.transform = 'translateY(-1px)'; }} onMouseLeave={e => { e.currentTarget.style.background = '#8B0000'; e.currentTarget.style.boxShadow = '0 0 28px rgba(139,0,0,0.22)'; e.currentTarget.style.transform = 'none'; }}>
+                Entrar na lista de espera agora
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+              </a>
+
+              <div style={{ marginTop: 40, textAlign: 'left' }}>
+                <div style={{ width: 40, height: 1, background: 'linear-gradient(to right, transparent, rgba(255,255,255,0.12), transparent)', margin: '0 auto 36px' }} />
+                <p style={{ fontFamily: F.inter, fontSize: 12, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 10 }}>Convidar um amigo</p>
+                {inviteStep === 'sent' ? (
+                  <p style={{ fontFamily: F.inter, fontSize: 14, color: 'rgba(255,255,255,0.55)', lineHeight: 1.75 }}>Convite enviado para <strong style={{ color: 'rgba(255,255,255,0.75)', fontWeight: 400 }}>{inviteEmail}</strong>.</p>
+                ) : (
+                  <>
+                    <p style={{ fontFamily: F.inter, fontSize: 14, color: 'rgba(255,255,255,0.4)', lineHeight: 1.7, marginBottom: 16 }}>
+                      Indique alguém que você acredita que teria algo a contribuir. O convite chega por e-mail.
+                    </p>
+                    <input
+                      type="email"
+                      placeholder="email do amigo"
+                      value={inviteEmail}
+                      onChange={e => { setInviteEmail(e.target.value); setInviteError(''); setInviteStep('idle'); }}
+                      onKeyDown={e => e.key === 'Enter' && handleInvite()}
+                      disabled={inviteStep === 'sending'}
+                      style={{ ...inputBase, marginBottom: inviteError ? 8 : 12, opacity: inviteStep === 'sending' ? 0.6 : 1 }}
+                    />
+                    {inviteError && <p style={{ fontFamily: F.inter, fontSize: 12, color: 'rgba(200,80,80,0.9)', marginBottom: 10 }}>{inviteError}</p>}
+                    <button onClick={handleInvite} disabled={inviteStep === 'sending' || !inviteEmail.trim()} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontFamily: F.inter, fontWeight: 500, fontSize: 14, color: 'white', background: inviteStep === 'sending' || !inviteEmail.trim() ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '12px', cursor: inviteStep === 'sending' || !inviteEmail.trim() ? 'default' : 'pointer', transition: 'background 0.2s' }} onMouseEnter={e => { if (inviteStep !== 'sending' && inviteEmail.trim()) e.currentTarget.style.background = 'rgba(255,255,255,0.15)'; }} onMouseLeave={e => { if (inviteStep !== 'sending') e.currentTarget.style.background = inviteEmail.trim() ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.08)'; }}>
+                      {inviteStep === 'sending' ? (
+                        <><div style={{ width: 13, height: 13, border: '2px solid rgba(255,255,255,0.2)', borderTopColor: 'white', borderRadius: '50%', animation: 'spin 0.7s linear infinite', flexShrink: 0 }} />Enviando...</>
+                      ) : 'Enviar convite'}
+                    </button>
+                  </>
+                )}
+              </div>
+            </>
           )}
 
           {(step === 'consent' || step === 'email' || step === 'sending') && (

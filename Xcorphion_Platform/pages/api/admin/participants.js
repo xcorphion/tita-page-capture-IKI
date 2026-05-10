@@ -1,6 +1,10 @@
 import { connectToDatabase } from '../../../lib/mongodb';
 import { checkAdminAuth } from '../../../lib/adminAuth';
 import { SESSION_STATUS, SESSION_DOC_STATUS, PARTICIPANT_STATUS } from '../../../lib/schema';
+import { sendMailSilent } from '../../../lib/mailer';
+import { tplSessionUnlocked } from '../../../lib/emailTemplates';
+
+const PLATFORM_URL = process.env.NEXT_PUBLIC_PLATFORM_URL || 'https://xcorphion.online';
 
 function geoLookup(ip) {
     try { return require('geoip-lite').lookup(ip) || null; } catch (_) { return null; }
@@ -33,11 +37,33 @@ export default async function handler(req, res) {
                     { participant_id: participant_code },
                     { $set: { admin_authorized_s2: true, session_2_status: SESSION_STATUS.LIBERADA } }
                 );
+                const p = await participants.findOne(
+                    { participant_id: participant_code },
+                    { projection: { contact_email: 1, participant_name: 1, participant_code: 1 } }
+                );
+                if (p?.contact_email) {
+                    sendMailSilent({
+                        to: p.contact_email,
+                        subject: 'Sua Sessão 2 foi liberada — Xcorphion',
+                        html: tplSessionUnlocked({ name: p.participant_name, session: 2, studyLink: `${PLATFORM_URL}/study?code=${p.participant_code}` }),
+                    });
+                }
             } else if (action === 'authorize_s3') {
                 await participants.updateOne(
                     { participant_id: participant_code },
                     { $set: { admin_authorized_s3: true, session_3_status: SESSION_STATUS.LIBERADA } }
                 );
+                const p = await participants.findOne(
+                    { participant_id: participant_code },
+                    { projection: { contact_email: 1, participant_name: 1, participant_code: 1 } }
+                );
+                if (p?.contact_email) {
+                    sendMailSilent({
+                        to: p.contact_email,
+                        subject: 'Sua Sessão 3 foi liberada — Xcorphion',
+                        html: tplSessionUnlocked({ name: p.participant_name, session: 3, studyLink: `${PLATFORM_URL}/study?code=${p.participant_code}` }),
+                    });
+                }
             } else if (action === 'reactivate') {
                 const participant = await participants.findOne({ participant_id: participant_code });
                 if (!participant) {

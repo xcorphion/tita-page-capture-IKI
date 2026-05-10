@@ -89,11 +89,18 @@ export default function AdminCardsEditor() {
 
       <div style={{ minHeight: '100vh', background: '#080808', color: 'white', fontFamily: F.inter, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <header style={{ position: 'sticky', top: 0, zIndex: 100, borderBottom: '1px solid rgba(255,255,255,0.05)', background: 'rgba(8,8,8,0.9)', backdropFilter: 'blur(24px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 40px', height: 56, flexShrink: 0 }}>
-          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: F.inter, fontSize: 13, color: 'rgba(255,255,255,0.35)', textDecoration: 'none', transition: 'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.75)'} onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.35)'}>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
-            Voltar
-          </Link>
-          <span style={{ fontFamily: F.space, fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.18)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Redação</span>
+          <div style={{ display: 'flex', gap: 4 }}>
+            {[
+              { href: '/admin',            label: 'Participantes', active: false },
+              { href: '/admin/dashboard',  label: 'Dashboard',     active: false },
+              { href: '/admin/cards',      label: 'Artigos',       active: true },
+              { href: '/admin/marketing',  label: 'Marketing',     active: false },
+            ].map(({ href, label, active }) => (
+              <a key={href} href={href} style={{ fontFamily: F.inter, fontSize: 10, fontWeight: 600, letterSpacing: '0.07em', textTransform: 'uppercase', padding: '5px 12px', borderRadius: 6, textDecoration: 'none', transition: 'all 0.15s', background: active ? 'rgba(255,255,255,0.1)' : 'transparent', color: active ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.32)', border: `1px solid ${active ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.06)'}` }}>
+                {label}
+              </a>
+            ))}
+          </div>
           <button onClick={handleSave} style={{ fontFamily: F.inter, fontWeight: 500, fontSize: 13, color: 'white', background: '#8B0000', border: 'none', borderRadius: 8, padding: '8px 20px', cursor: 'pointer', boxShadow: '0 0 20px rgba(139,0,0,0.25)', transition: 'background 0.2s, box-shadow 0.2s' }} onMouseEnter={e => { e.currentTarget.style.background = '#9e0000'; e.currentTarget.style.boxShadow = '0 0 32px rgba(139,0,0,0.45)'; }} onMouseLeave={e => { e.currentTarget.style.background = '#8B0000'; e.currentTarget.style.boxShadow = '0 0 20px rgba(139,0,0,0.25)'; }}>
             Publicar Artigo
           </button>

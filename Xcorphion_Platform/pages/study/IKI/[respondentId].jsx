@@ -52,10 +52,6 @@ export default function IKIResearchPage() {
     useEffect(() => {
         if (!respondentId) return;
 
-        const script = document.createElement('script');
-        script.src = 'https://unpkg.com/@phosphor-icons/web';
-        document.head.appendChild(script);
-
         const checkParticipant = async () => {
             try {
                 const res = await fetch(`/api/participant/${respondentId}`);
@@ -93,6 +89,16 @@ export default function IKIResearchPage() {
 
         return () => { clearInterval(batchInterval); clearInterval(wpmIntervalRef.current); clearTimeout(emaTimeoutRef.current); };
     }, [respondentId]);
+
+    // E06: when equipment modal appears, silently send connect code to participant's email
+    useEffect(() => {
+        if (!showEquipmentModal || !respondentId) return;
+        fetch('/api/participant/send-connect-code', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ participant_code: respondentId }),
+        }).catch(() => {});
+    }, [showEquipmentModal]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (!showEma) return;
