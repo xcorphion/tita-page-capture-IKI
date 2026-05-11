@@ -48,6 +48,18 @@ export default async function handler(req, res) {
                 { projection: { session_id: 1, session_start_epoch_ms: 1 } }
             );
             if (existing) {
+                // Prevent session hijacking: if the original device fingerprint is known,
+                // only the same device can resume the session.
+                if (device_profile && participant.device_fingerprint_hash) {
+                    const incomingHash = hashFingerprint(device_profile);
+                    if (incomingHash !== participant.device_fingerprint_hash) {
+                        await db.collection('participants').updateOne(
+                            { participant_id },
+                            { $set: { [`session_${pid}_resume_mismatch`]: true } }
+                        );
+                        return res.status(403).json({ error: 'DEVICE_MISMATCH' });
+                    }
+                }
                 const { token, hash: token_hash } = generateSessionToken();
                 await db.collection('sessions').updateOne(
                     { session_id: existing.session_id },

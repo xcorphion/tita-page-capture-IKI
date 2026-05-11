@@ -60,7 +60,6 @@ export default function IKIResearchPage() {
                 const data = await res.json();
 
                 setIsWebUser(!!data.is_web_user);
-                setConnectCode(data.connect_code || '');
                 setRespondentNumber(data.respondent_number ?? null);
 
                 if (data.sessions_completed >= 3) {
@@ -90,14 +89,19 @@ export default function IKIResearchPage() {
         return () => { clearInterval(batchInterval); clearInterval(wpmIntervalRef.current); clearTimeout(emaTimeoutRef.current); };
     }, [respondentId]);
 
-    // E06: when equipment modal appears, silently send connect code to participant's email
+    // E06: when equipment modal appears, send connect code by email and display it on screen.
+    // connect_code is NOT fetched from the initial GET /api/participant — it comes here
+    // only when the modal is actually needed, reducing the exposure window.
     useEffect(() => {
         if (!showEquipmentModal || !respondentId) return;
         fetch('/api/participant/send-connect-code', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ participant_code: respondentId }),
-        }).catch(() => {});
+        })
+            .then(r => r.ok ? r.json() : null)
+            .then(data => { if (data?.connect_code) setConnectCode(data.connect_code); })
+            .catch(() => {});
     }, [showEquipmentModal]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {

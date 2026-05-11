@@ -119,7 +119,6 @@ export default async function handler(req, res) {
             onboarding_complete: doc.onboarding_complete,
             locked: isLocked,
             is_web_user: !!(doc.source),
-            connect_code: doc.connect_code || null,
             respondent_number: doc.respondent_number ?? null,
         });
     } catch (e) {

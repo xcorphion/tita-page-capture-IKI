@@ -28,7 +28,10 @@ export default async function handler(req, res) {
       });
     }
 
-    return res.status(200).json({ ok: true });
+    // Return the connect_code in the response so the equipment modal can display
+    // it immediately without reading it from the initial GET /api/participant/[code].
+    // The caller must already know the participant_code — no new surface is opened.
+    return res.status(200).json({ ok: true, connect_code: participant?.connect_code || null });
   } catch (e) {
     console.error('[send-connect-code]', e.message);
     return res.status(500).json({ error: 'Erro interno.' });
