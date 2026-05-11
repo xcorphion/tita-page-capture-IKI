@@ -3,6 +3,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from '../src/hooks/useTranslation';
 
 const F = {
   space: "'Space Grotesk', sans-serif",
@@ -26,6 +27,7 @@ const P = ({ children, style }) => (
 
 export default function StudyPage() {
   const router = useRouter();
+  const { t } = useTranslation();
   const nameInputRef = useRef(null);
 
   // --- Waitlist flow (for existing session-1 participants) ---
@@ -79,9 +81,9 @@ export default function StudyPage() {
     const name = participantName.trim();
     if (!name || registerStatus === 'loading') return;
 
-    if (name.length < 2) { setRegisterError('Nome muito curto.'); return; }
-    if (name.length > 80) { setRegisterError('Nome muito longo (máx. 80 caracteres).'); return; }
-    if (!/^[\p{L}\p{M} '-]+$/u.test(name)) { setRegisterError('Use apenas letras, espaços, hífens ou apóstrofos.'); return; }
+    if (name.length < 2) { setRegisterError(t('study.modalNameShort')); return; }
+    if (name.length > 80) { setRegisterError(t('study.modalNameLong')); return; }
+    if (!/^[\p{L}\p{M} '-]+$/u.test(name)) { setRegisterError(t('study.modalNameInvalid')); return; }
 
     setRegisterStatus('loading');
     setRegisterError('');
@@ -98,13 +100,13 @@ export default function StudyPage() {
       const data = await res.json();
       if (!res.ok || !data.success) {
         setRegisterStatus('error');
-        setRegisterError(data.error || 'Algo correu mal. Tente novamente.');
+        setRegisterError(data.error || t('study.modalGenericError'));
         return;
       }
       router.push(`/study/welcome?code=${data.code}`);
     } catch {
       setRegisterStatus('error');
-      setRegisterError('Erro de conexão. Verifique sua internet.');
+      setRegisterError(t('study.modalConnectionError'));
     }
   };
 
@@ -121,21 +123,21 @@ export default function StudyPage() {
       const data = await res.json();
       if (!res.ok) {
         setStatus('error');
-        setErrorMsg(data.error || 'Algo correu mal.');
+        setErrorMsg(data.error || t('study.waitlistError'));
         return;
       }
       setStatus(data.already ? 'duplicate' : 'success');
     } catch {
       setStatus('error');
-      setErrorMsg('Erro de conexão. Verifique sua internet.');
+      setErrorMsg(t('study.modalConnectionError'));
     }
   };
 
   return (
     <>
       <Head>
-        <title>Nossa Pesquisa — Xcorphion</title>
-        <meta name="description" content="Como o OMMΩ aprende com seu padrão somático de digitação — IKI, privacidade, metodologia e como participar." />
+        <title>{t('study.pageTitle')}</title>
+        <meta name="description" content={t('study.metaDesc')} />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -161,10 +163,10 @@ export default function StudyPage() {
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               <path d="M19 12H5M12 19l-7-7 7-7" />
             </svg>
-            Voltar
+            {t('common.back')}
           </Link>
           <span style={{ fontFamily: F.space, fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.18)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-            Pesquisa
+            {t('study.headerLabel')}
           </span>
           <div style={{ width: 72 }} />
         </header>
@@ -183,10 +185,10 @@ export default function StudyPage() {
               letterSpacing: '-0.04em', lineHeight: 1.0,
               color: 'white', marginBottom: 28,
             }}>
-              Como o OMMΩ aprende com o seu teclado
+              {t('study.heroTitle')}
             </h1>
             <p style={{ fontFamily: F.inter, fontWeight: 300, fontSize: 20, color: 'rgba(255,255,255,0.5)', lineHeight: 1.65, maxWidth: 600, marginBottom: 48 }}>
-              Uma pesquisa sobre Inter-Keystroke Interval (IKI) — o ritmo somático da sua digitação — e como ele pode ser a interface mais honesta entre humanos e IA.
+              {t('study.heroDesc')}
             </p>
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
               <button
@@ -203,7 +205,7 @@ export default function StudyPage() {
                 onMouseEnter={e => { e.currentTarget.style.background = '#9e0000'; e.currentTarget.style.boxShadow = '0 0 40px rgba(139,0,0,0.45)'; }}
                 onMouseLeave={e => { e.currentTarget.style.background = '#8B0000'; e.currentTarget.style.boxShadow = '0 0 24px rgba(139,0,0,0.25)'; }}
               >
-                Entrar na Waitlist
+                {t('study.ctaWaitlist')}
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
               </button>
               <a
@@ -220,7 +222,7 @@ export default function StudyPage() {
                 onMouseEnter={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.8)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.25)'; }}
                 onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.45)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}
               >
-                Entender a pesquisa primeiro
+                {t('study.ctaLearnFirst')}
               </a>
             </div>
           </motion.div>
@@ -229,62 +231,46 @@ export default function StudyPage() {
         {/* Content */}
         <div style={{ maxWidth: 760, margin: '0 auto', padding: '0 clamp(16px, 4vw, 40px) clamp(80px, 12vw, 160px)' }}>
 
-          <Section id="o-que-e-iki" title="O que é IKI e por que ele importa">
-            <P>
-              Inter-Keystroke Interval é o tempo — em milissegundos — entre cada tecla que você pressiona ao digitar. Não o que você escreve, mas o <em>ritmo</em> com que escreve.
-            </P>
-            <P>
-              Esse ritmo varia com seu estado interno: quando você está concentrado, o padrão é diferente de quando está ansioso, cansado ou no fluxo. O IKI é, em certo sentido, um sinal somático involuntário — uma janela para o estado fisiológico que normalmente fica escondido atrás do texto.
-            </P>
-            <P>
-              A hipótese central da pesquisa, apoiada no Circumplex Model of Affect de James Russell, na tradição de Affective Computing de Rosalind Picard e na Hipótese do Marcador Somático de Antônio Damásio como motivação filosófica, é que esse padrão pode ser capturado, normalizado e usado como contexto em sistemas de IA — sem nenhum dado de conteúdo ou identidade.
-            </P>
+          <Section id="o-que-e-iki" title={t('study.sec1Title')}>
+            <P>{t('study.sec1p1')}</P>
+            <P>{t('study.sec1p2')}</P>
+            <P>{t('study.sec1p3')}</P>
           </Section>
 
           <div style={{ height: 1, background: 'rgba(255,255,255,0.06)' }} />
 
-          <Section id="como-funciona" title="Como a pesquisa funciona">
-            <P>
-              Você recebe um prompt narrativo — uma pergunta sobre uma decisão difícil que tomou recentemente — e escreve livremente em resposta. Enquanto digita, o sistema registra o <em>tempo entre cada tecla</em> (IKI) e, a cada 200 caracteres, faz duas perguntas rápidas sobre seu estado emocional no momento: valência (positivo/negativo) e arousal (calmo/agitado).
-            </P>
-            <P>
-              O texto que você escreve, os eventos de teclado com seus timestamps e suas respostas emocionais são enviados e armazenados nos nossos servidores. O IKI é calculado a partir desses eventos. A participação leva entre 8 e 15 minutos e requer teclado físico.
-            </P>
+          <Section id="como-funciona" title={t('study.sec2Title')}>
+            <P>{t('study.sec2p1')}</P>
+            <P>{t('study.sec2p2')}</P>
           </Section>
 
           <div style={{ height: 1, background: 'rgba(255,255,255,0.06)' }} />
 
-          <Section id="privacidade" title="O que coletamos — e o que não coletamos">
-            <P>
-              <strong>Coletamos:</strong> o texto que você escreve durante a sessão, os eventos de teclado (código da tecla e timestamp), suas respostas nos sliders de humor, velocidade de digitação (WPM) e, ao final da primeira sessão, IP e user-agent para controle de duplicatas.
-            </P>
-            <P>
-              <strong>Não coletamos:</strong> conteúdo do clipboard, histórico do navegador, outros aplicativos abertos, áudio ou vídeo. Os dados não são vendidos nem compartilhados. Seu código de participante é armazenado como hash SHA-256 — não há vínculo direto com seu nome ou identidade fora do contexto da pesquisa.
-            </P>
+          <Section id="privacidade" title={t('study.sec3Title')}>
+            <P>{t('study.sec3Collect')}</P>
+            <P>{t('study.sec3NotCollect')}</P>
           </Section>
 
           <div style={{ height: 1, background: 'rgba(255,255,255,0.06)' }} />
 
-          <Section id="como-participar" title="Como testar no Beta">
-            <P>
-              O acesso à lista de espera é exclusivo para quem completou a Sessão 1 da pesquisa. Se você participou e chegou aqui pelo link enviado pela Xcorphion, seu e-mail pode ser cadastrado abaixo.
-            </P>
+          <Section id="como-participar" title={t('study.sec4Title')}>
+            <P>{t('study.sec4p1')}</P>
 
             {verifying ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '28px 0', color: 'rgba(255,255,255,0.35)' }}>
                 <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
                 <div style={{ width: 16, height: 16, border: '2px solid rgba(255,255,255,0.1)', borderTopColor: '#8B0000', borderRadius: '50%', animation: 'spin 0.7s linear infinite', flexShrink: 0 }} />
-                <span style={{ fontFamily: F.inter, fontSize: 14 }}>Verificando participação...</span>
+                <span style={{ fontFamily: F.inter, fontSize: 14 }}>{t('study.verifying')}</span>
               </div>
             ) : eligible === false ? (
               <div style={{ padding: '28px 32px', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12, background: 'rgba(255,255,255,0.02)', marginBottom: 32 }}>
                 <p style={{ fontFamily: F.inter, fontSize: 15, color: 'rgba(255,255,255,0.45)', margin: 0, lineHeight: 1.6 }}>
-                  {ineligibleReason === 'no_code' && 'Para entrar na lista, acesse esta página pelo link enviado ao final da Sessão 1 da pesquisa.'}
-                  {ineligibleReason === 'not_found' && 'Código de participante não encontrado. Verifique o link recebido.'}
-                  {ineligibleReason === 'session_not_completed' && 'A Sessão 1 ainda não foi concluída. Finalize a sessão e retorne pelo link.'}
-                  {ineligibleReason === 'not_engaged' && 'Seu perfil de participação não está elegível para esta etapa.'}
-                  {ineligibleReason === 'inactive' && 'Seu perfil de participação está inativo.'}
-                  {(ineligibleReason === 'server_error' || ineligibleReason === 'unknown') && 'Não foi possível verificar sua participação. Tente novamente em instantes.'}
+                  {ineligibleReason === 'no_code' && t('study.ineligibleNoCode')}
+                  {ineligibleReason === 'not_found' && t('study.ineligibleNotFound')}
+                  {ineligibleReason === 'session_not_completed' && t('study.ineligibleSessionNotCompleted')}
+                  {ineligibleReason === 'not_engaged' && t('study.ineligibleNotEngaged')}
+                  {ineligibleReason === 'inactive' && t('study.ineligibleInactive')}
+                  {(ineligibleReason === 'server_error' || ineligibleReason === 'unknown') && t('study.ineligibleServerError')}
                 </p>
               </div>
             ) : eligible === true && status === 'success' ? (
@@ -301,7 +287,7 @@ export default function StudyPage() {
                 }}
               >
                 <p style={{ fontFamily: F.inter, fontSize: 15, color: 'rgba(255,255,255,0.8)', margin: 0, lineHeight: 1.6 }}>
-                  Você está na lista. Quando a sessão abrir, o link chegará em <strong style={{ color: 'white' }}>{email}</strong>.
+                  {t('study.waitlistSuccess')} <strong style={{ color: 'white' }}>{email}</strong>.
                 </p>
               </motion.div>
             ) : eligible === true && status === 'duplicate' ? (
@@ -318,7 +304,7 @@ export default function StudyPage() {
                 }}
               >
                 <p style={{ fontFamily: F.inter, fontSize: 15, color: 'rgba(255,255,255,0.5)', margin: 0 }}>
-                  Esse e-mail já está cadastrado.
+                  {t('study.waitlistDuplicate')}
                 </p>
               </motion.div>
             ) : eligible === true ? (
@@ -364,7 +350,7 @@ export default function StudyPage() {
                     onMouseEnter={e => { if (status !== 'loading') e.currentTarget.style.background = '#9e0000'; }}
                     onMouseLeave={e => e.currentTarget.style.background = '#8B0000'}
                   >
-                    {status === 'loading' ? 'Aguarde...' : 'Entrar na lista'}
+                    {status === 'loading' ? t('study.waitlistLoading') : t('study.waitlistJoin')}
                   </button>
                 </div>
                 {status === 'error' && (
@@ -376,11 +362,11 @@ export default function StudyPage() {
             ) : null}
 
             <P style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>
-              Ao se inscrever você concorda com os{' '}
+              {t('study.termsAgreement')}{' '}
               <Link href="/terms" style={{ color: 'rgba(255,255,255,0.55)', textDecoration: 'underline', textUnderlineOffset: 3 }}>
-                termos de uso da pesquisa
+                {t('study.termsLink')}
               </Link>
-              . Nenhum dado é coletado antes da sua sessão de coleta.
+              . {t('study.termsNoData')}
             </P>
           </Section>
 
@@ -451,10 +437,10 @@ export default function StudyPage() {
               {/* Header */}
               <div style={{ marginBottom: 32 }}>
                 <h2 style={{ fontFamily: F.space, fontWeight: 700, fontSize: 24, letterSpacing: '-0.03em', color: 'white', marginBottom: 10, lineHeight: 1.2 }}>
-                  Como você quer ser chamado?
+                  {t('study.modalTitle')}
                 </h2>
                 <p style={{ fontFamily: F.inter, fontSize: 14, color: 'rgba(255,255,255,0.4)', lineHeight: 1.65, margin: 0 }}>
-                  Para entrar na waitlist do OMMΩ é necessário completar a Sessão 1 da pesquisa. Seu nome identifica seu perfil — nenhum outro dado de identidade é coletado neste momento.
+                  {t('study.modalDesc')}
                 </p>
               </div>
 
@@ -463,7 +449,7 @@ export default function StudyPage() {
                 <input
                   ref={nameInputRef}
                   type="text"
-                  placeholder="Seu nome"
+                  placeholder={t('study.modalPlaceholder')}
                   value={participantName}
                   onChange={e => { setParticipantName(e.target.value); setRegisterError(''); }}
                   onKeyDown={e => e.key === 'Enter' && handleRegister()}
@@ -489,7 +475,6 @@ export default function StudyPage() {
                 )}
               </div>
 
-
               {/* Submit */}
               <button
                 onClick={handleRegister}
@@ -513,24 +498,24 @@ export default function StudyPage() {
                   <>
                     <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
                     <div style={{ width: 14, height: 14, border: '2px solid rgba(255,255,255,0.2)', borderTopColor: 'white', borderRadius: '50%', animation: 'spin 0.7s linear infinite', flexShrink: 0 }} />
-                    Criando perfil...
+                    {t('study.modalCreating')}
                   </>
                 ) : (
                   <>
-                    Participar
+                    {t('study.modalParticipate')}
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
                   </>
                 )}
               </button>
 
               <p style={{ fontFamily: F.inter, fontSize: 11, color: 'rgba(255,255,255,0.2)', textAlign: 'center', marginTop: 20, marginBottom: 0, lineHeight: 1.6 }}>
-                Ao prosseguir você concorda com os{' '}
+                {t('study.modalTerms')}{' '}
                 <Link href="/terms" style={{ color: 'rgba(255,255,255,0.4)', textDecoration: 'underline', textUnderlineOffset: 3 }}>
-                  termos de uso
+                  {t('study.modalTermsLink')}
                 </Link>
                 {'. '}
                 <Link href="/study#privacidade" style={{ color: 'rgba(255,255,255,0.4)', textDecoration: 'underline', textUnderlineOffset: 3 }}>
-                  Metodologia e privacidade
+                  {t('study.modalMethodology')}
                 </Link>
                 .
               </p>

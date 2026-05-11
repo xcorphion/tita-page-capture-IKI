@@ -1,17 +1,19 @@
 import { useState } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
+import { useTranslation } from '../../../../src/hooks/useTranslation';
 
 const F = {
   space: "'Space Grotesk', sans-serif",
   inter: "'Inter', sans-serif",
 };
 
-const CONSENT_TEXT = 'SIM, EU ACEITO';
-
 export default function ResearchFinishPage() {
   const router = useRouter();
   const { respondentId } = router.query;
+  const { t, ti } = useTranslation();
+
+  const CONSENT_TEXT = t('finish.consentText');
 
   const [step, setStep]               = useState('consent');
   const [consentInput, setConsentInput] = useState('');
@@ -38,7 +40,7 @@ export default function ResearchFinishPage() {
   const handleSend = async () => {
     if (!respondentId || !email.trim() || step === 'sending') return;
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      setEmailError('E-mail inválido.');
+      setEmailError(t('finish.emailInvalid'));
       return;
     }
     setEmailError('');
@@ -58,11 +60,11 @@ export default function ResearchFinishPage() {
         setStep('sent');
       } else {
         const data = await res.json().catch(() => ({}));
-        setSendError(data.error || 'Erro ao enviar. Tente novamente.');
+        setSendError(data.error || t('finish.emailError'));
         setStep('email');
       }
     } catch {
-      setSendError('Erro de conexão.');
+      setSendError(t('finish.connectionError'));
       setStep('email');
     }
   };
@@ -80,7 +82,7 @@ export default function ResearchFinishPage() {
   const handleInvite = async () => {
     if (!respondentId || !inviteEmail.trim() || inviteStep === 'sending') return;
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inviteEmail.trim())) {
-      setInviteError('E-mail inválido.');
+      setInviteError(t('finish.inviteInvalid'));
       return;
     }
     setInviteError('');
@@ -95,11 +97,11 @@ export default function ResearchFinishPage() {
         setInviteStep('sent');
       } else {
         const data = await res.json().catch(() => ({}));
-        setInviteError(data.error || 'Erro ao enviar. Tente novamente.');
+        setInviteError(data.error || t('finish.inviteError'));
         setInviteStep('error');
       }
     } catch {
-      setInviteError('Erro de conexão.');
+      setInviteError(t('finish.inviteConnectionError'));
       setInviteStep('error');
     }
   };
@@ -110,7 +112,7 @@ export default function ResearchFinishPage() {
   return (
     <>
       <Head>
-        <title>Sessão concluída — Xcorphion</title>
+        <title>{t('finish.pageTitle')}</title>
       </Head>
       <style jsx global>{`
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -137,46 +139,50 @@ export default function ResearchFinishPage() {
           </div>
 
           <h1 style={{ fontFamily: F.space, fontWeight: 800, fontSize: 'clamp(24px, 4vw, 34px)', letterSpacing: '-0.03em', lineHeight: 1.1, color: 'white', marginBottom: 16 }}>
-            {step === 'sent' ? 'Link enviado.' : 'Sua essência foi capturada.'}
+            {step === 'sent' ? t('finish.titleSent') : t('finish.titleDefault')}
           </h1>
 
           <p style={{ fontFamily: F.inter, fontWeight: 300, fontSize: 15, color: 'rgba(255,255,255,0.45)', lineHeight: 1.75, marginBottom: 40, maxWidth: 380, margin: '0 auto 40px' }}>
             {step === 'sent'
-              ? <>Enviamos o link para <strong style={{ color: 'rgba(255,255,255,0.7)', fontWeight: 400 }}>{email}</strong>. Quando a Sessão 2 abrir, você será notificado.</>
-              : 'Obrigado pela entrega e autenticidade. Cadastre seu e-mail para receber o link da Sessão 2.'}
+              ? <>{ti('finish.descSent', { email }).split(email).map((part, i, arr) =>
+                  i < arr.length - 1
+                    ? <span key={i}>{part}<strong style={{ color: 'rgba(255,255,255,0.7)', fontWeight: 400 }}>{email}</strong></span>
+                    : <span key={i}>{part}</span>
+                )}</>
+              : t('finish.descDefault')}
           </p>
 
           <div style={{ width: 40, height: 1, background: 'linear-gradient(to right, transparent, rgba(255,255,255,0.12), transparent)', margin: '0 auto 36px' }} />
 
           {step === 'consent' && (
             <div style={{ textAlign: 'left' }}>
-              <p style={{ fontFamily: F.inter, fontSize: 12, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 10 }}>Consentimento de uso de e-mail</p>
+              <p style={{ fontFamily: F.inter, fontSize: 12, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 10 }}>{t('finish.consentLabel')}</p>
               <p style={{ fontFamily: F.inter, fontSize: 14, color: 'rgba(255,255,255,0.45)', lineHeight: 1.7, marginBottom: 20 }}>
-                Ao cadastrar seu e-mail, você autoriza a Xcorphion a usá-lo exclusivamente para comunicações relacionadas a esta pesquisa. Para confirmar, digite exatamente:
+                {t('finish.consentDesc')}
               </p>
               <div style={{ fontFamily: F.inter, fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.75)', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '10px 16px', letterSpacing: '0.06em', textAlign: 'center', marginBottom: 16, userSelect: 'none' }}>
                 {CONSENT_TEXT}
               </div>
               <input
-                type="text" placeholder="Digite aqui" value={consentInput}
+                type="text" placeholder={t('finish.consentPlaceholder')} value={consentInput}
                 onChange={e => setConsentInput(e.target.value)}
                 onPaste={handlePaste}
                 onKeyDown={e => e.key === 'Enter' && handleConsentSubmit()}
                 autoComplete="off" spellCheck={false}
                 style={{ ...inputBase, marginBottom: 8, borderColor: consentInput.length > 0 && !consentValid ? 'rgba(200,80,80,0.4)' : consentValid ? 'rgba(120,200,120,0.35)' : 'rgba(255,255,255,0.1)' }}
               />
-              {pasteBlocked && <p style={{ fontFamily: F.inter, fontSize: 12, color: 'rgba(200,100,60,0.9)', marginBottom: 8 }}>Não é permitido colar. Digite manualmente.</p>}
+              {pasteBlocked && <p style={{ fontFamily: F.inter, fontSize: 12, color: 'rgba(200,100,60,0.9)', marginBottom: 8 }}>{t('finish.consentPasteBlocked')}</p>}
               <button onClick={handleConsentSubmit} disabled={!consentValid} style={{ width: '100%', fontFamily: F.inter, fontWeight: 500, fontSize: 14, color: 'white', background: consentValid ? '#8B0000' : 'rgba(139,0,0,0.3)', border: 'none', borderRadius: 10, padding: '13px', marginTop: 8, cursor: consentValid ? 'pointer' : 'default', boxShadow: consentValid ? '0 0 20px rgba(139,0,0,0.22)' : 'none', transition: 'background 0.2s, box-shadow 0.2s' }} onMouseEnter={e => { if (consentValid) e.currentTarget.style.background = '#9e0000'; }} onMouseLeave={e => { if (consentValid) e.currentTarget.style.background = '#8B0000'; }}>
-                Confirmar consentimento
+                {t('finish.consentConfirm')}
               </button>
             </div>
           )}
 
           {(step === 'email' || step === 'sending') && (
             <div style={{ textAlign: 'left' }}>
-              <p style={{ fontFamily: F.inter, fontSize: 12, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 10 }}>Seu e-mail</p>
+              <p style={{ fontFamily: F.inter, fontSize: 12, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 10 }}>{t('finish.emailLabel')}</p>
               <input
-                type="email" placeholder="voce@exemplo.com" value={email}
+                type="email" placeholder={t('finish.emailPlaceholder')} value={email}
                 onChange={e => { setEmail(e.target.value); setEmailError(''); }}
                 onKeyDown={e => e.key === 'Enter' && handleSend()}
                 disabled={step === 'sending'}
@@ -186,9 +192,9 @@ export default function ResearchFinishPage() {
               {sendError && <p style={{ fontFamily: F.inter, fontSize: 12, color: 'rgba(200,80,80,0.9)', marginBottom: 12 }}>{sendError}</p>}
               <button onClick={handleSend} disabled={step === 'sending' || !email.trim()} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontFamily: F.inter, fontWeight: 500, fontSize: 14, color: 'white', background: step === 'sending' || !email.trim() ? 'rgba(139,0,0,0.35)' : '#8B0000', border: 'none', borderRadius: 10, padding: '13px', cursor: step === 'sending' || !email.trim() ? 'default' : 'pointer', boxShadow: step === 'sending' ? 'none' : '0 0 20px rgba(139,0,0,0.22)', transition: 'background 0.2s' }} onMouseEnter={e => { if (step === 'email' && email.trim()) e.currentTarget.style.background = '#9e0000'; }} onMouseLeave={e => { if (step === 'email') e.currentTarget.style.background = email.trim() ? '#8B0000' : 'rgba(139,0,0,0.35)'; }}>
                 {step === 'sending' ? (
-                  <><div style={{ width: 14, height: 14, border: '2px solid rgba(255,255,255,0.2)', borderTopColor: 'white', borderRadius: '50%', animation: 'spin 0.7s linear infinite', flexShrink: 0 }} />Enviando...</>
+                  <><div style={{ width: 14, height: 14, border: '2px solid rgba(255,255,255,0.2)', borderTopColor: 'white', borderRadius: '50%', animation: 'spin 0.7s linear infinite', flexShrink: 0 }} />{t('finish.emailSending')}</>
                 ) : (
-                  <>Enviar link<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg></>
+                  <>{t('finish.emailSend')}<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg></>
                 )}
               </button>
             </div>
@@ -197,23 +203,29 @@ export default function ResearchFinishPage() {
           {step === 'sent' && (
             <>
               <a href={studyLink} style={{ display: 'inline-flex', alignItems: 'center', gap: 10, fontFamily: F.inter, fontWeight: 500, fontSize: 14, color: 'white', background: '#8B0000', padding: '13px 32px', borderRadius: 8, textDecoration: 'none', boxShadow: '0 0 28px rgba(139,0,0,0.22)', transition: 'background 0.2s, box-shadow 0.2s, transform 0.15s' }} onMouseEnter={e => { e.currentTarget.style.background = '#9e0000'; e.currentTarget.style.boxShadow = '0 0 48px rgba(139,0,0,0.42)'; e.currentTarget.style.transform = 'translateY(-1px)'; }} onMouseLeave={e => { e.currentTarget.style.background = '#8B0000'; e.currentTarget.style.boxShadow = '0 0 28px rgba(139,0,0,0.22)'; e.currentTarget.style.transform = 'none'; }}>
-                Entrar na lista de espera agora
+                {t('finish.sentCta')}
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
               </a>
 
               <div style={{ marginTop: 40, textAlign: 'left' }}>
                 <div style={{ width: 40, height: 1, background: 'linear-gradient(to right, transparent, rgba(255,255,255,0.12), transparent)', margin: '0 auto 36px' }} />
-                <p style={{ fontFamily: F.inter, fontSize: 12, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 10 }}>Convidar um amigo</p>
+                <p style={{ fontFamily: F.inter, fontSize: 12, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 10 }}>{t('finish.inviteLabel')}</p>
                 {inviteStep === 'sent' ? (
-                  <p style={{ fontFamily: F.inter, fontSize: 14, color: 'rgba(255,255,255,0.55)', lineHeight: 1.75 }}>Convite enviado para <strong style={{ color: 'rgba(255,255,255,0.75)', fontWeight: 400 }}>{inviteEmail}</strong>.</p>
+                  <p style={{ fontFamily: F.inter, fontSize: 14, color: 'rgba(255,255,255,0.55)', lineHeight: 1.75 }}>
+                    {ti('finish.inviteSent', { email: inviteEmail }).split(inviteEmail).map((part, i, arr) =>
+                      i < arr.length - 1
+                        ? <span key={i}>{part}<strong style={{ color: 'rgba(255,255,255,0.75)', fontWeight: 400 }}>{inviteEmail}</strong></span>
+                        : <span key={i}>{part}</span>
+                    )}
+                  </p>
                 ) : (
                   <>
                     <p style={{ fontFamily: F.inter, fontSize: 14, color: 'rgba(255,255,255,0.4)', lineHeight: 1.7, marginBottom: 16 }}>
-                      Indique alguém que você acredita que teria algo a contribuir. O convite chega por e-mail.
+                      {t('finish.inviteDesc')}
                     </p>
                     <input
                       type="email"
-                      placeholder="email do amigo"
+                      placeholder={t('finish.invitePlaceholder')}
                       value={inviteEmail}
                       onChange={e => { setInviteEmail(e.target.value); setInviteError(''); setInviteStep('idle'); }}
                       onKeyDown={e => e.key === 'Enter' && handleInvite()}
@@ -223,8 +235,8 @@ export default function ResearchFinishPage() {
                     {inviteError && <p style={{ fontFamily: F.inter, fontSize: 12, color: 'rgba(200,80,80,0.9)', marginBottom: 10 }}>{inviteError}</p>}
                     <button onClick={handleInvite} disabled={inviteStep === 'sending' || !inviteEmail.trim()} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontFamily: F.inter, fontWeight: 500, fontSize: 14, color: 'white', background: inviteStep === 'sending' || !inviteEmail.trim() ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '12px', cursor: inviteStep === 'sending' || !inviteEmail.trim() ? 'default' : 'pointer', transition: 'background 0.2s' }} onMouseEnter={e => { if (inviteStep !== 'sending' && inviteEmail.trim()) e.currentTarget.style.background = 'rgba(255,255,255,0.15)'; }} onMouseLeave={e => { if (inviteStep !== 'sending') e.currentTarget.style.background = inviteEmail.trim() ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.08)'; }}>
                       {inviteStep === 'sending' ? (
-                        <><div style={{ width: 13, height: 13, border: '2px solid rgba(255,255,255,0.2)', borderTopColor: 'white', borderRadius: '50%', animation: 'spin 0.7s linear infinite', flexShrink: 0 }} />Enviando...</>
-                      ) : 'Enviar convite'}
+                        <><div style={{ width: 13, height: 13, border: '2px solid rgba(255,255,255,0.2)', borderTopColor: 'white', borderRadius: '50%', animation: 'spin 0.7s linear infinite', flexShrink: 0 }} />{t('finish.inviteSending')}</>
+                      ) : t('finish.inviteBtn')}
                     </button>
                   </>
                 )}
@@ -235,7 +247,7 @@ export default function ResearchFinishPage() {
           {(step === 'consent' || step === 'email' || step === 'sending') && (
             <div style={{ marginTop: 28 }}>
               <a href={studyLink} style={{ fontFamily: F.inter, fontSize: 11, fontWeight: 500, color: 'rgba(255,255,255,0.18)', letterSpacing: '0.2em', textTransform: 'uppercase', textDecoration: 'none', transition: 'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.45)'} onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.18)'}>
-                Acessar agora sem e-mail →
+                {t('finish.skipEmail')}
               </a>
             </div>
           )}
@@ -243,7 +255,7 @@ export default function ResearchFinishPage() {
           {step === 'sent' && (
             <div style={{ marginTop: 24 }}>
               <button onClick={() => router.push('/')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: F.inter, fontSize: 10, fontWeight: 500, color: 'rgba(255,255,255,0.18)', letterSpacing: '0.3em', textTransform: 'uppercase', padding: '8px 0', transition: 'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.45)'} onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.18)'}>
-                Retornar ao Início
+                {t('finish.returnHome')}
               </button>
             </div>
           )}

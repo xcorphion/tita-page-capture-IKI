@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { useTranslation } from '../../src/hooks/useTranslation';
 
 const F = {
   space: "'Space Grotesk', sans-serif",
@@ -11,6 +12,7 @@ const F = {
 
 export default function StudyWelcome() {
   const router = useRouter();
+  const { t } = useTranslation();
   const { code } = router.query;
   const [copied, setCopied] = useState(false);
 
@@ -27,7 +29,7 @@ export default function StudyWelcome() {
   return (
     <>
       <Head>
-        <title>Bem-vindo à pesquisa — Xcorphion</title>
+        <title>{t('welcome.pageTitle')}</title>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -51,7 +53,7 @@ export default function StudyWelcome() {
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               <path d="M19 12H5M12 19l-7-7 7-7" />
             </svg>
-            Sobre a pesquisa
+            {t('welcome.back')}
           </Link>
           <span style={{ fontFamily: F.space, fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.18)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
             Xcorphion Research
@@ -91,7 +93,7 @@ export default function StudyWelcome() {
               letterSpacing: '-0.03em', lineHeight: 1.1,
               color: 'white', marginBottom: 20,
             }}>
-              Tudo pronto.
+              {t('welcome.title')}
             </h1>
 
             <p style={{
@@ -99,7 +101,7 @@ export default function StudyWelcome() {
               color: 'rgba(255,255,255,0.5)', lineHeight: 1.7,
               marginBottom: 48, maxWidth: 440, margin: '0 auto 48px',
             }}>
-              Seu perfil foi criado. A Sessão 1 já está liberada — você vai escrever livremente em resposta a uma pergunta sobre uma decisão que tomou. O ritmo das suas teclas é o dado que importa.
+              {t('welcome.desc')}
             </p>
 
             {/* Code block */}
@@ -110,7 +112,7 @@ export default function StudyWelcome() {
               marginBottom: 32,
             }}>
               <p style={{ fontFamily: F.inter, fontSize: 11, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 16 }}>
-                Seu código de acesso
+                {t('welcome.codeLabel')}
               </p>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, marginBottom: 16 }}>
                 <span style={{
@@ -137,18 +139,18 @@ export default function StudyWelcome() {
                   {copied ? (
                     <>
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M20 6L9 17l-5-5" /></svg>
-                      Copiado
+                      {t('welcome.copied')}
                     </>
                   ) : (
                     <>
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-                      Copiar
+                      {t('welcome.copy')}
                     </>
                   )}
                 </button>
               </div>
               <p style={{ fontFamily: F.inter, fontSize: 13, color: 'rgba(255,255,255,0.25)', margin: 0, lineHeight: 1.6 }}>
-                Guarde este código — ele é o seu acesso para todas as sessões.
+                {t('welcome.codeNote')}
               </p>
             </div>
 
@@ -167,7 +169,7 @@ export default function StudyWelcome() {
               onMouseEnter={e => { e.currentTarget.style.background = '#9e0000'; e.currentTarget.style.boxShadow = '0 0 48px rgba(139,0,0,0.45)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
               onMouseLeave={e => { e.currentTarget.style.background = '#8B0000'; e.currentTarget.style.boxShadow = '0 0 28px rgba(139,0,0,0.25)'; e.currentTarget.style.transform = 'none'; }}
             >
-              Iniciar Sessão 1
+              {t('welcome.startSession')}
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
             </a>
 

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
+import { useTranslation } from '../src/hooks/useTranslation';
 
 const F = {
   space: "'Space Grotesk', sans-serif",
@@ -19,6 +20,7 @@ function detectPhysicalKeyboard() {
 export default function ConectPage() {
   const router = useRouter();
   const inputRef = useRef(null);
+  const { t, ti } = useTranslation();
 
   const [code, setCode] = useState('');
   const [screen, setScreen] = useState('input'); // input | loading | checking | valid | invalid_device | error
@@ -59,16 +61,13 @@ export default function ConectPage() {
 
       if (!data.valid) {
         setScreen('input');
-        if (data.reason === 'invalid_code')
-          setErrorMsg('Código não encontrado. Verifique e tente novamente.');
-        else if (data.reason === 'blocked')
-          setErrorMsg('Acesso não disponível. Entre em contato com a equipe da pesquisa.');
-        else if (data.reason === 'completed')
-          setErrorMsg('Você já completou todas as sessões disponíveis. Obrigado pela participação.');
-        else if (data.reason === 'rate_limited')
-          setErrorMsg('Muitas tentativas. Aguarde alguns minutos.');
-        else
-          setErrorMsg('Erro ao verificar. Tente novamente.');
+        const reasonMap = {
+          invalid_code: t('conect.errInvalidCode'),
+          blocked: t('conect.errBlocked'),
+          completed: t('conect.errCompleted'),
+          rate_limited: t('conect.errRateLimited'),
+        };
+        setErrorMsg(reasonMap[data.reason] || t('conect.errGeneric'));
         return;
       }
 
@@ -78,7 +77,7 @@ export default function ConectPage() {
       setScreen('checking');
     } catch {
       setScreen('input');
-      setErrorMsg('Erro de conexão. Verifique sua internet e tente novamente.');
+      setErrorMsg(t('conect.errConnection'));
     }
   };
 
@@ -92,7 +91,7 @@ export default function ConectPage() {
   return (
     <>
       <Head>
-        <title>Retomar Participação — Xcorphion</title>
+        <title>{t('conect.pageTitle')}</title>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -119,7 +118,7 @@ export default function ConectPage() {
           padding: '0 clamp(16px, 4vw, 40px)', height: 56, flexShrink: 0,
         }}>
           <span style={{ fontFamily: F.space, fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.18)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-            Xcorphion Research
+            {t('conect.header')}
           </span>
         </header>
 
@@ -135,17 +134,17 @@ export default function ConectPage() {
               </div>
 
               <h1 style={{ fontFamily: F.space, fontWeight: 700, fontSize: 'clamp(22px, 3.5vw, 30px)', letterSpacing: '-0.03em', color: 'white', marginBottom: 12, lineHeight: 1.2 }}>
-                Retome sua participação
+                {t('conect.inputTitle')}
               </h1>
               <p style={{ fontFamily: F.inter, fontSize: 15, color: 'rgba(255,255,255,0.4)', lineHeight: 1.7, fontWeight: 300, marginBottom: 36 }}>
-                Para prosseguir com a pesquisa neste equipamento, insira o código que você recebeu.
+                {t('conect.inputDesc')}
               </p>
 
               <div style={{ marginBottom: errorMsg ? 12 : 24 }}>
                 <input
                   ref={inputRef}
                   type="text"
-                  placeholder="Ex: AB3X7K"
+                  placeholder={t('conect.inputPlaceholder')}
                   value={code}
                   maxLength={6}
                   onChange={e => { setCode(e.target.value.toUpperCase()); setErrorMsg(''); }}
@@ -191,11 +190,11 @@ export default function ConectPage() {
                 {screen === 'loading' ? (
                   <>
                     <div style={{ width: 14, height: 14, border: '2px solid rgba(255,255,255,0.2)', borderTopColor: 'white', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
-                    Verificando...
+                    {t('conect.verifying')}
                   </>
                 ) : (
                   <>
-                    Verificar código
+                    {t('conect.verifyBtn')}
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
                   </>
                 )}
@@ -214,7 +213,7 @@ export default function ConectPage() {
                 </svg>
               </div>
               <p style={{ fontFamily: F.inter, fontSize: 14, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.04em', fontWeight: 300 }}>
-                Verificando elegibilidade de equipamento...
+                {t('conect.checkingLabel')}
               </p>
             </div>
           )}
@@ -227,10 +226,12 @@ export default function ConectPage() {
                 </svg>
               </div>
               <h2 style={{ fontFamily: F.space, fontWeight: 700, fontSize: 26, letterSpacing: '-0.03em', color: 'white', marginBottom: 10, lineHeight: 1.2 }}>
-                Equipamento válido
+                {t('conect.validTitle')}
               </h2>
               <p style={{ fontFamily: F.inter, fontSize: 16, color: 'rgba(255,255,255,0.45)', fontWeight: 300, lineHeight: 1.6, marginBottom: 36 }}>
-                Boa pesquisa{respondentNum != null ? `, respondente n° ${respondentNum}` : ''}.
+                {ti('conect.validDesc', {
+                  respondentPart: respondentNum != null ? ti('conect.validRespondent', { n: respondentNum }) : '',
+                })}
               </p>
               <a
                 href={`/study/IKI/${participantCode}`}
@@ -246,7 +247,7 @@ export default function ConectPage() {
                 onMouseEnter={e => { e.currentTarget.style.background = '#9e0000'; e.currentTarget.style.boxShadow = '0 0 48px rgba(139,0,0,0.45)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
                 onMouseLeave={e => { e.currentTarget.style.background = '#8B0000'; e.currentTarget.style.boxShadow = '0 0 28px rgba(139,0,0,0.25)'; e.currentTarget.style.transform = 'none'; }}
               >
-                Iniciar pesquisa
+                {t('conect.startResearch')}
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
               </a>
             </div>
@@ -260,10 +261,10 @@ export default function ConectPage() {
                 </svg>
               </div>
               <h2 style={{ fontFamily: F.space, fontWeight: 700, fontSize: 24, letterSpacing: '-0.025em', color: 'white', marginBottom: 12, lineHeight: 1.2 }}>
-                Equipamento não válido
+                {t('conect.invalidTitle')}
               </h2>
               <p style={{ fontFamily: F.inter, fontSize: 15, color: 'rgba(255,255,255,0.4)', fontWeight: 300, lineHeight: 1.7, marginBottom: 32 }}>
-                Este dispositivo não possui teclado físico. Acesse a pesquisa de um computador, notebook ou tablet com teclado conectado.
+                {t('conect.invalidDesc')}
               </p>
               <button
                 onClick={handleRetry}
@@ -278,7 +279,7 @@ export default function ConectPage() {
                 onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.22)'; e.currentTarget.style.color = 'rgba(255,255,255,0.7)'; }}
                 onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = 'rgba(255,255,255,0.5)'; }}
               >
-                Tentar em outro dispositivo
+                {t('conect.invalidRetry')}
               </button>
             </div>
           )}

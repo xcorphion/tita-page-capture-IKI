@@ -105,7 +105,7 @@ export default function Footer() {
           <Col label={t('footer.colCompany')}>
             <NavLink href="/#section-manifesto">{t('footer.manifesto')}</NavLink>
             <NavLink href="/sobre" isNext tag={t('footer.soon')}>{t('footer.about')}</NavLink>
-            <NavLink href="/contact" isNext tag={t('footer.soon')}>{t('footer.contact')}</NavLink>
+            <NavLink href="mailto:support@xcorphion.online">{t('footer.contact')}</NavLink>
           </Col>
 
         </div>

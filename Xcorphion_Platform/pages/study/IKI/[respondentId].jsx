@@ -1,10 +1,12 @@
 import Head from 'next/head';
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/router';
+import { useTranslation } from '../../../src/hooks/useTranslation';
 
 export default function IKIResearchPage() {
     const router = useRouter();
     const { respondentId } = router.query;
+    const { t, ti } = useTranslation();
 
     const [status, setStatus] = useState('loading');
     const [step, setStep] = useState('consent');
@@ -87,7 +89,7 @@ export default function IKIResearchPage() {
         }, 1000);
 
         return () => { clearInterval(batchInterval); clearInterval(wpmIntervalRef.current); clearTimeout(emaTimeoutRef.current); };
-    }, [respondentId]);
+    }, [respondentId]); // eslint-disable-line react-hooks/exhaustive-deps
 
     // E06: when equipment modal appears, send connect code by email and display it on screen.
     // connect_code is NOT fetched from the initial GET /api/participant — it comes here
@@ -109,7 +111,6 @@ export default function IKIResearchPage() {
         setEmaValence(50); setEmaArousal(50);
         setVTouched(false); setATouched(false);
         emaValenceRef.current = 50; emaArousalRef.current = 50;
-        // Auto-submit after 5 min — textarea is disabled while EMA is open so charCount is stable.
         const id = setTimeout(() => handleEmaSubmitCore(emaValenceRef.current, emaArousalRef.current), 5 * 60_000);
         emaTimeoutRef.current = id;
         return () => clearTimeout(id);
@@ -152,7 +153,6 @@ export default function IKIResearchPage() {
             const data = await res.json();
             sessionIdRef.current = data.session_id;
             sessionTokenRef.current = data.session_token;
-            // On resumption use server_now_ms so timestamp_abs_ms stays correct for new events.
             sessionStartEpochMsRef.current = data.resumed ? data.server_now_ms : data.session_start_epoch_ms;
             sessionStartHighResRef.current = performance.now();
             setPromptText(data.prompt_text);
@@ -163,8 +163,6 @@ export default function IKIResearchPage() {
     };
 
     const runJitterBenchmark = async () => {
-        // 12 probes × 200 ms = ~2.4 s nominal. AbortController caps total time at 5 s.
-        // Returns null on timeout or insufficient samples — session/start accepts null jitter.
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000);
         try {
@@ -191,8 +189,6 @@ export default function IKIResearchPage() {
     const handleWritingKey = (e) => {
         if (showEma || showEnd) return;
 
-        // keydown → IKI pipeline (fase 1: inter-keystroke intervals)
-        // keyup   → dwell time / flight time pipeline (fase 2: not yet implemented)
         const timestamp_rel_ms = Math.round(e.nativeEvent.timeStamp - sessionStartHighResRef.current);
         const event = {
             event_type: e.type,
@@ -287,7 +283,7 @@ export default function IKIResearchPage() {
             startSession(1);
         } catch (e) {
             console.error(e);
-            setOnboardingError('Erro ao salvar perfil. Verifique sua conexão e tente novamente.');
+            setOnboardingError(t('iki.onboardingError'));
         }
     };
 
@@ -353,8 +349,8 @@ export default function IKIResearchPage() {
                 <div style={{ width: 52, height: 52, borderRadius: '50%', border: '1px solid rgba(139,0,0,0.35)', background: 'rgba(139,0,0,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', boxShadow: '0 0 28px rgba(139,0,0,0.12)' }}>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8B0000" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
                 </div>
-                <h2 style={{ fontFamily: F.space, fontWeight: 700, fontSize: 24, color: 'white', marginBottom: 12, letterSpacing: '-0.025em' }}>Pesquisa concluída</h2>
-                <p style={{ fontFamily: F.inter, fontSize: 15, color: 'rgba(255,255,255,0.4)', lineHeight: 1.7, fontWeight: 300 }}>Você já completou todas as sessões disponíveis. Obrigado pela sua participação.</p>
+                <h2 style={{ fontFamily: F.space, fontWeight: 700, fontSize: 24, color: 'white', marginBottom: 12, letterSpacing: '-0.025em' }}>{t('iki.completedTitle')}</h2>
+                <p style={{ fontFamily: F.inter, fontSize: 15, color: 'rgba(255,255,255,0.4)', lineHeight: 1.7, fontWeight: 300 }}>{t('iki.completedDesc')}</p>
             </div>
         </div>
     );
@@ -367,8 +363,8 @@ export default function IKIResearchPage() {
                         <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
                     </svg>
                 </div>
-                <h2 style={{ fontFamily: F.space, fontWeight: 700, fontSize: 22, color: 'white', marginBottom: 12, letterSpacing: '-0.025em' }}>Acesso indisponível</h2>
-                <p style={{ fontFamily: F.inter, fontSize: 14, color: 'rgba(255,255,255,0.35)', lineHeight: 1.7, fontWeight: 300 }}>Este acesso não está disponível no momento. Entre em contato com quem te convidou para a pesquisa.</p>
+                <h2 style={{ fontFamily: F.space, fontWeight: 700, fontSize: 22, color: 'white', marginBottom: 12, letterSpacing: '-0.025em' }}>{t('iki.blockedTitle')}</h2>
+                <p style={{ fontFamily: F.inter, fontSize: 14, color: 'rgba(255,255,255,0.35)', lineHeight: 1.7, fontWeight: 300 }}>{t('iki.blockedDesc')}</p>
             </div>
         </div>
     );
@@ -376,15 +372,21 @@ export default function IKIResearchPage() {
     if (status === 'locked' || status === 'unauthorized') return (
         <div style={{ minHeight: '100vh', background: '#080808', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 40 }}>
             <div style={{ textAlign: 'center', maxWidth: 440 }}>
-                <p style={{ fontFamily: F.inter, fontSize: 14, color: 'rgba(255,255,255,0.35)', fontWeight: 300 }}>Acesso não autorizado ou perfil bloqueado.</p>
+                <p style={{ fontFamily: F.inter, fontSize: 14, color: 'rgba(255,255,255,0.35)', fontWeight: 300 }}>{t('iki.unauthorizedDesc')}</p>
             </div>
         </div>
     );
 
+    const consentItems = [
+        { num: '01', label: t('iki.consent01Label'), text: t('iki.consent01Text') },
+        { num: '02', label: t('iki.consent02Label'), text: t('iki.consent02Text') },
+        { num: '03', label: t('iki.consent03Label'), text: t('iki.consent03Text') },
+    ];
+
     return (
         <>
             <Head>
-                <title>Pesquisa Somática — Xcorphion</title>
+                <title>{t('iki.pageTitle')}</title>
             </Head>
             <style jsx global>{`
                 input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 2px; background: rgba(255,255,255,0.12); border-radius: 2px; outline: none; cursor: pointer; }
@@ -406,19 +408,15 @@ export default function IKIResearchPage() {
                                 </svg>
                             </div>
                             <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: 24, letterSpacing: '-0.025em', color: 'white', marginBottom: 8, lineHeight: 1.2 }}>
-                                Termo de Consentimento
+                                {t('iki.consentTitle')}
                             </h2>
                             <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 14, color: 'rgba(255,255,255,0.35)', fontWeight: 300 }}>
-                                Leia atentamente antes de prosseguir
+                                {t('iki.consentSubtitle')}
                             </p>
                         </div>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
-                            {[
-                                { num: '01', label: 'Coleta e Uso', text: 'Este protocolo registra a cadência temporal de sua digitação (IKIs). Estes dados serão utilizados em experimentos científicos e no treinamento de modelos de Inteligência Artificial.' },
-                                { num: '02', label: 'Anonimização e Retenção', text: 'Seus dados são processados através de um hash criptográfico irreversível e permanecerão armazenados em nossos servidores por um período de 5 anos para fins de pesquisa e validação estatística.' },
-                                { num: '03', label: 'Direitos e Exclusão', text: 'Sua participação é voluntária. Em conformidade com a LGPD, você possui o direito de solicitar a exclusão definitiva de seus registros de nossa base de dados a qualquer momento através dos canais de suporte da Xcorphion.' },
-                            ].map(item => (
+                            {consentItems.map(item => (
                                 <div key={item.num} style={{ display: 'flex', gap: 16, alignItems: 'flex-start', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12, padding: '16px 20px' }}>
                                     <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 9, fontWeight: 600, color: '#8B0000', background: 'rgba(139,0,0,0.1)', border: '1px solid rgba(139,0,0,0.22)', borderRadius: 4, padding: '3px 7px', letterSpacing: '0.08em', flexShrink: 0, marginTop: 2 }}>
                                         {item.num}
@@ -432,7 +430,7 @@ export default function IKIResearchPage() {
                         </div>
 
                         <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 12, color: 'rgba(255,255,255,0.25)', textAlign: 'center', marginBottom: 24, lineHeight: 1.6 }}>
-                            Termos completos em{' '}
+                            {t('iki.consentTermsNote')}{' '}
                             <a href={`${process.env.NEXT_PUBLIC_PLATFORM_URL || 'https://xcorphion.online'}/terms`} target="_blank" rel="noopener noreferrer" style={{ color: 'rgba(255,255,255,0.45)', textDecoration: 'underline', textUnderlineOffset: 3 }}>
                                 xcorphion.online/terms
                             </a>
@@ -444,7 +442,7 @@ export default function IKIResearchPage() {
                             onMouseEnter={e => { e.currentTarget.style.background = '#9e0000'; e.currentTarget.style.boxShadow = '0 0 48px rgba(139,0,0,0.42)'; }}
                             onMouseLeave={e => { e.currentTarget.style.background = '#8B0000'; e.currentTarget.style.boxShadow = '0 0 28px rgba(139,0,0,0.22)'; }}
                         >
-                            Aceito e desejo continuar
+                            {t('iki.consentAccept')}
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
                         </button>
                     </div>
@@ -458,15 +456,15 @@ export default function IKIResearchPage() {
                                     <rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M8 12h.01M12 12h.01M16 12h.01M7 16h10"/>
                                 </svg>
                             </div>
-                            <h2 style={{ fontFamily: F.space, fontWeight: 700, fontSize: 24, letterSpacing: '-0.025em', color: 'white', marginBottom: 8, lineHeight: 1.2 }}>Velocidade de Digitação</h2>
+                            <h2 style={{ fontFamily: F.space, fontWeight: 700, fontSize: 24, letterSpacing: '-0.025em', color: 'white', marginBottom: 8, lineHeight: 1.2 }}>{t('iki.wpmTitle')}</h2>
                             <p style={{ fontFamily: F.inter, fontSize: 14, color: 'rgba(255,255,255,0.35)', fontWeight: 300 }}>
-                                Escreva a frase abaixo o mais rápido e preciso que conseguir.<br/>O cronômetro começa na primeira tecla.
+                                {t('iki.wpmSubtitle')}
                             </p>
                         </div>
 
                         <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12, padding: '20px 24px', marginBottom: 16 }}>
                             <p style={{ fontFamily: F.inter, fontSize: 14, color: 'rgba(255,255,255,0.55)', lineHeight: 1.75, fontStyle: 'italic', fontWeight: 300, margin: 0 }}>
-                                "A técnica de Keystroke Dynamics estuda o ritmo individual de digitação. Cada pessoa possui um ritmo, uma pressão e um padrão de escrita. É isso que a Xcorphion está compreendendo."
+                                {t('iki.wpmQuote')}
                             </p>
                         </div>
 
@@ -476,11 +474,11 @@ export default function IKIResearchPage() {
                             style={{ width: '100%', height: 140, display: 'block', fontFamily: F.inter, fontSize: 15, color: 'white', fontWeight: 300, background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, padding: '16px 20px', outline: 'none', resize: 'none', lineHeight: 1.7, transition: 'border-color 0.2s', marginBottom: 16 }}
                             onFocus={e => e.currentTarget.style.borderColor = 'rgba(139,0,0,0.45)'}
                             onBlur={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'}
-                            placeholder="Comece a digitar..."
+                            placeholder={t('iki.wpmPlaceholder')}
                         />
 
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span style={{ fontFamily: F.space, fontSize: 10, fontWeight: 600, color: '#8B0000', letterSpacing: '0.16em', textTransform: 'uppercase' }}>Tempo: {wpmTimer}s</span>
+                            <span style={{ fontFamily: F.space, fontSize: 10, fontWeight: 600, color: '#8B0000', letterSpacing: '0.16em', textTransform: 'uppercase' }}>{ti('iki.wpmTimer', { s: wpmTimer })}</span>
                             <span style={{ fontFamily: F.space, fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.25)', letterSpacing: '0.16em', textTransform: 'uppercase' }}>{wpmValue} WPM</span>
                         </div>
                         {onboardingError && (
@@ -497,8 +495,8 @@ export default function IKIResearchPage() {
                                     <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
                                 </svg>
                                 <div style={{ flex: 1 }}>
-                                    <p style={{ fontFamily: F.space, fontSize: 12, fontWeight: 600, color: 'rgba(255,200,0,0.7)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 4 }}>Sessão Retomada</p>
-                                    <p style={{ fontFamily: F.inter, fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.65, fontWeight: 300 }}>Esta sessão foi interrompida anteriormente. Para melhores resultados, escreva sem interrupções a partir daqui.</p>
+                                    <p style={{ fontFamily: F.space, fontSize: 12, fontWeight: 600, color: 'rgba(255,200,0,0.7)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 4 }}>{t('iki.resumeWarningTitle')}</p>
+                                    <p style={{ fontFamily: F.inter, fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.65, fontWeight: 300 }}>{t('iki.resumeWarningDesc')}</p>
                                 </div>
                                 <button onClick={() => setResumeWarning(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.2)', fontSize: 18, lineHeight: 1, flexShrink: 0 }}>✕</button>
                             </div>
@@ -509,8 +507,8 @@ export default function IKIResearchPage() {
                                     <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
                                 </svg>
                                 <div style={{ flex: 1 }}>
-                                    <p style={{ fontFamily: F.space, fontSize: 12, fontWeight: 600, color: '#8B0000', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 4 }}>Instabilidade de Hardware Detectada</p>
-                                    <p style={{ fontFamily: F.inter, fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.65, fontWeight: 300 }}>Seu dispositivo apresenta oscilações de latência. Para resultados acadêmicos precisos, sugerimos trocar para um computador com conexão estável.</p>
+                                    <p style={{ fontFamily: F.space, fontSize: 12, fontWeight: 600, color: '#8B0000', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 4 }}>{t('iki.jitterWarningTitle')}</p>
+                                    <p style={{ fontFamily: F.inter, fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.65, fontWeight: 300 }}>{t('iki.jitterWarningDesc')}</p>
                                 </div>
                                 <button onClick={() => setJitterWarning(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.2)', fontSize: 18, lineHeight: 1, flexShrink: 0 }}>✕</button>
                             </div>
@@ -530,36 +528,36 @@ export default function IKIResearchPage() {
                             style={{ width: '100%', height: 'calc(55vh + 80px)', display: 'block', fontFamily: F.inter, fontSize: 18, fontWeight: 300, color: 'rgba(255,255,255,0.72)', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '28px 32px', outline: 'none', resize: 'none', lineHeight: 1.82, transition: 'border-color 0.2s', boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.2)', opacity: (showEma || showEnd) ? 0.4 : 1 }}
                             onFocus={e => e.currentTarget.style.borderColor = 'rgba(139,0,0,0.35)'}
                             onBlur={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'}
-                            placeholder="Escreva livremente..."
+                            placeholder={t('iki.writingPlaceholder')}
                         />
 
                         <div style={{ textAlign: 'right', marginTop: 10 }}>
                             <span style={{ fontFamily: F.space, fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.18)', letterSpacing: '0.18em', textTransform: 'uppercase' }}>
-                                {charCount} caracteres coletados
+                                {ti('iki.charCount', { n: charCount })}
                             </span>
                         </div>
 
                         {showEma && (
                             <div style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(0,0,0,0.95)', backdropFilter: 'blur(14px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
                                 <div style={{ width: '100%', maxWidth: 340, background: '#070707', border: '1px solid rgba(255,255,255,0.08)', padding: '44px 40px', borderRadius: 24, boxShadow: '0 32px 80px rgba(0,0,0,0.7)' }}>
-                                    <p style={{ fontFamily: F.inter, fontSize: 10, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.12em', textTransform: 'uppercase', textAlign: 'center', marginBottom: 36 }}>Estado atual</p>
+                                    <p style={{ fontFamily: F.inter, fontSize: 10, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.12em', textTransform: 'uppercase', textAlign: 'center', marginBottom: 36 }}>{t('iki.emaState')}</p>
                                     <div style={{ marginBottom: 36 }}>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: F.inter, fontSize: 9, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 16 }}>
-                                            <span>Muito Negativo</span><span>Muito Positivo</span>
+                                            <span>{t('iki.emaNegative')}</span><span>{t('iki.emaPositive')}</span>
                                         </div>
                                         <input type="range" min="0" max="100" value={emaValence}
                                             onChange={e => { const n = Number(e.target.value); setEmaValence(n); setVTouched(true); emaValenceRef.current = n; }} />
-                                        {!vTouched && <p style={{ fontFamily: F.inter, fontSize: 10, color: 'rgba(139,0,0,0.55)', textAlign: 'center', marginTop: 10, letterSpacing: '0.08em' }}>mova o controle</p>}
+                                        {!vTouched && <p style={{ fontFamily: F.inter, fontSize: 10, color: 'rgba(139,0,0,0.55)', textAlign: 'center', marginTop: 10, letterSpacing: '0.08em' }}>{t('iki.emaMoveControl')}</p>}
                                     </div>
                                     <div style={{ marginBottom: 40 }}>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: F.inter, fontSize: 9, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 16 }}>
-                                            <span>Muito Calmo</span><span>Muito Agitado</span>
+                                            <span>{t('iki.emaCalm')}</span><span>{t('iki.emaAgitated')}</span>
                                         </div>
                                         <input type="range" min="0" max="100" value={emaArousal}
                                             onChange={e => { const n = Number(e.target.value); setEmaArousal(n); setATouched(true); emaArousalRef.current = n; }} />
-                                        {!aTouched && <p style={{ fontFamily: F.inter, fontSize: 10, color: 'rgba(139,0,0,0.55)', textAlign: 'center', marginTop: 10, letterSpacing: '0.08em' }}>mova o controle</p>}
+                                        {!aTouched && <p style={{ fontFamily: F.inter, fontSize: 10, color: 'rgba(139,0,0,0.55)', textAlign: 'center', marginTop: 10, letterSpacing: '0.08em' }}>{t('iki.emaMoveControl')}</p>}
                                     </div>
-                                    <button onClick={handleEmaSubmit} style={{ width: '100%', fontFamily: F.inter, fontWeight: 500, fontSize: 13, color: 'white', background: '#8B0000', border: 'none', borderRadius: 10, padding: '14px 24px', cursor: 'pointer', letterSpacing: '0.06em', boxShadow: '0 0 24px rgba(139,0,0,0.22)', transition: 'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = '#9e0000'} onMouseLeave={e => e.currentTarget.style.background = '#8B0000'}>Continuar</button>
+                                    <button onClick={handleEmaSubmit} style={{ width: '100%', fontFamily: F.inter, fontWeight: 500, fontSize: 13, color: 'white', background: '#8B0000', border: 'none', borderRadius: 10, padding: '14px 24px', cursor: 'pointer', letterSpacing: '0.06em', boxShadow: '0 0 24px rgba(139,0,0,0.22)', transition: 'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = '#9e0000'} onMouseLeave={e => e.currentTarget.style.background = '#8B0000'}>{t('iki.emaContinue')}</button>
                                 </div>
                             </div>
                         )}
@@ -569,9 +567,9 @@ export default function IKIResearchPage() {
                                 <div style={{ width: '100%', maxWidth: 480 }}>
                                     {endStep === 'rating' && (
                                         <div className="step-enter">
-                                            <span style={{ display: 'block', fontFamily: F.inter, fontSize: 10, color: '#8B0000', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 20 }}>Sessão concluída</span>
-                                            <h3 style={{ fontFamily: F.space, fontWeight: 700, fontSize: 'clamp(20px, 3vw, 28px)', color: 'white', letterSpacing: '-0.025em', lineHeight: 1.3, marginBottom: 8 }}>Seu relato foi salvo.</h3>
-                                            <p style={{ fontFamily: F.inter, fontSize: 15, color: 'rgba(255,255,255,0.4)', fontWeight: 300, marginBottom: 40, lineHeight: 1.6 }}>Como você avalia a qualidade desta sessão?</p>
+                                            <span style={{ display: 'block', fontFamily: F.inter, fontSize: 10, color: '#8B0000', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 20 }}>{t('iki.endRatingLabel')}</span>
+                                            <h3 style={{ fontFamily: F.space, fontWeight: 700, fontSize: 'clamp(20px, 3vw, 28px)', color: 'white', letterSpacing: '-0.025em', lineHeight: 1.3, marginBottom: 8 }}>{t('iki.endRatingTitle')}</h3>
+                                            <p style={{ fontFamily: F.inter, fontSize: 15, color: 'rgba(255,255,255,0.4)', fontWeight: 300, marginBottom: 40, lineHeight: 1.6 }}>{t('iki.endRatingDesc')}</p>
                                             <div style={{ display: 'flex', justifyContent: 'center', gap: 12 }}>
                                                 {[1, 2, 3, 4, 5].map(r => (
                                                     <button key={r}
@@ -586,11 +584,11 @@ export default function IKIResearchPage() {
                                     )}
                                     {endStep === 'genuine' && (
                                         <div className="step-enter">
-                                            <span style={{ display: 'block', fontFamily: F.inter, fontSize: 10, color: '#8B0000', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 20 }}>Última pergunta</span>
-                                            <h3 style={{ fontFamily: F.space, fontWeight: 700, fontSize: 'clamp(20px, 3vw, 28px)', color: 'white', letterSpacing: '-0.025em', lineHeight: 1.3, marginBottom: 40 }}>Você estava realmente engajado com essa pesquisa?</h3>
+                                            <span style={{ display: 'block', fontFamily: F.inter, fontSize: 10, color: '#8B0000', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 20 }}>{t('iki.endGenuineLabel')}</span>
+                                            <h3 style={{ fontFamily: F.space, fontWeight: 700, fontSize: 'clamp(20px, 3vw, 28px)', color: 'white', letterSpacing: '-0.025em', lineHeight: 1.3, marginBottom: 40 }}>{t('iki.endGenuineTitle')}</h3>
                                             <div style={{ display: 'flex', gap: 12 }}>
-                                                <button onClick={() => handleFinalSubmit(true)} style={{ flex: 1, fontFamily: F.inter, fontWeight: 500, fontSize: 14, color: 'white', background: '#8B0000', border: 'none', borderRadius: 10, padding: '15px', cursor: 'pointer', boxShadow: '0 0 24px rgba(139,0,0,0.22)', transition: 'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = '#9e0000'} onMouseLeave={e => e.currentTarget.style.background = '#8B0000'}>Sim</button>
-                                                <button onClick={() => handleFinalSubmit(false)} style={{ flex: 1, fontFamily: F.inter, fontWeight: 400, fontSize: 14, color: 'rgba(255,255,255,0.55)', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '15px', cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.22)'; e.currentTarget.style.color = 'rgba(255,255,255,0.8)'; }} onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = 'rgba(255,255,255,0.55)'; }}>Não</button>
+                                                <button onClick={() => handleFinalSubmit(true)} style={{ flex: 1, fontFamily: F.inter, fontWeight: 500, fontSize: 14, color: 'white', background: '#8B0000', border: 'none', borderRadius: 10, padding: '15px', cursor: 'pointer', boxShadow: '0 0 24px rgba(139,0,0,0.22)', transition: 'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = '#9e0000'} onMouseLeave={e => e.currentTarget.style.background = '#8B0000'}>{t('iki.endGenuineYes')}</button>
+                                                <button onClick={() => handleFinalSubmit(false)} style={{ flex: 1, fontFamily: F.inter, fontWeight: 400, fontSize: 14, color: 'rgba(255,255,255,0.55)', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '15px', cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.22)'; e.currentTarget.style.color = 'rgba(255,255,255,0.8)'; }} onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = 'rgba(255,255,255,0.55)'; }}>{t('iki.endGenuineNo')}</button>
                                             </div>
                                         </div>
                                     )}
@@ -610,17 +608,14 @@ export default function IKIResearchPage() {
                             </svg>
                         </div>
                         <h2 style={{ fontFamily: F.space, fontWeight: 700, fontSize: 22, color: 'white', letterSpacing: '-0.025em', marginBottom: 14, lineHeight: 1.25 }}>
-                            Participação registrada!
+                            {t('iki.equipmentTitle')}
                         </h2>
                         <p style={{ fontFamily: F.inter, fontSize: 15, color: 'rgba(255,255,255,0.45)', lineHeight: 1.7, fontWeight: 300, marginBottom: 32 }}>
-                            Seu equipamento não é válido para realizar a pesquisa.<br/>
-                            Troque de aparelho e tente novamente em 5 minutos.
+                            {t('iki.equipmentDesc')}
                         </p>
                         <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', marginBottom: 32 }} />
                         <p style={{ fontFamily: F.inter, fontSize: 13, color: 'rgba(255,255,255,0.3)', lineHeight: 1.65, marginBottom: 20 }}>
-                            Para um acesso mais rápido, acesse{' '}
-                            <span style={{ color: 'rgba(255,255,255,0.55)' }}>xcorphion.online/conect</span>{' '}
-                            e digite o código abaixo:
+                            {t('iki.equipmentHint')}
                         </p>
                         {connectCode && (
                             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 14, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, padding: '18px 28px' }}>
@@ -630,9 +625,9 @@ export default function IKIResearchPage() {
                                 <button
                                     onClick={() => navigator.clipboard?.writeText(connectCode)}
                                     style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, padding: '6px 10px', cursor: 'pointer', color: 'rgba(255,255,255,0.4)', fontSize: 11, fontFamily: F.inter }}
-                                    title="Copiar"
+                                    title={t('iki.equipmentCopy')}
                                 >
-                                    copiar
+                                    {t('iki.equipmentCopy')}
                                 </button>
                             </div>
                         )}

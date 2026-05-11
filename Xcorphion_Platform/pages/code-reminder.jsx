@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
+import { useTranslation } from '../src/hooks/useTranslation';
 
 const F = {
   space: "'Space Grotesk', sans-serif",
@@ -8,6 +9,7 @@ const F = {
 };
 
 export default function CodeReminderPage() {
+  const { t, ti } = useTranslation();
   const [email, setEmail]   = useState('');
   const [step, setStep]     = useState('idle'); // idle | sending | done
   const [error, setError]   = useState('');
@@ -15,7 +17,7 @@ export default function CodeReminderPage() {
   const handleSubmit = async () => {
     if (!email.trim() || step === 'sending') return;
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      setError('E-mail inválido.');
+      setError(t('codeReminder.formInvalid'));
       return;
     }
     setError('');
@@ -28,7 +30,7 @@ export default function CodeReminderPage() {
       });
       setStep('done');
     } catch {
-      setError('Erro de conexão. Tente novamente.');
+      setError(t('codeReminder.formConnection'));
       setStep('idle');
     }
   };
@@ -36,7 +38,7 @@ export default function CodeReminderPage() {
   return (
     <>
       <Head>
-        <title>Recuperar código — Xcorphion</title>
+        <title>{t('codeReminder.pageTitle')}</title>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -55,32 +57,36 @@ export default function CodeReminderPage() {
 
           <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: F.inter, fontSize: 12, color: 'rgba(255,255,255,0.3)', textDecoration: 'none', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 48, transition: 'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.65)'} onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.3)'}>
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
-            Início
+            {t('codeReminder.home')}
           </Link>
 
-          <p style={{ fontFamily: F.inter, fontSize: 11, color: '#8B0000', letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 16 }}>Xcorphion Research</p>
+          <p style={{ fontFamily: F.inter, fontSize: 11, color: '#8B0000', letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 16 }}>{t('codeReminder.brand')}</p>
 
           {step === 'done' ? (
             <>
-              <h1 style={{ fontFamily: F.space, fontWeight: 700, fontSize: 'clamp(22px, 4vw, 30px)', letterSpacing: '-0.03em', lineHeight: 1.15, marginBottom: 20 }}>E-mail enviado.</h1>
+              <h1 style={{ fontFamily: F.space, fontWeight: 700, fontSize: 'clamp(22px, 4vw, 30px)', letterSpacing: '-0.03em', lineHeight: 1.15, marginBottom: 20 }}>{t('codeReminder.doneTitle')}</h1>
               <p style={{ fontFamily: F.inter, fontSize: 15, color: 'rgba(255,255,255,0.5)', lineHeight: 1.75, marginBottom: 32 }}>
-                Se houver uma conta vinculada a <strong style={{ color: 'rgba(255,255,255,0.75)', fontWeight: 400 }}>{email}</strong>, você receberá o código de participante em breve.
+                {ti('codeReminder.doneDesc', { email }).split(email).map((part, i, arr) =>
+                  i < arr.length - 1
+                    ? <span key={i}>{part}<strong style={{ color: 'rgba(255,255,255,0.75)', fontWeight: 400 }}>{email}</strong></span>
+                    : <span key={i}>{part}</span>
+                )}
               </p>
               <button onClick={() => { setEmail(''); setStep('idle'); }} style={{ fontFamily: F.inter, fontWeight: 500, fontSize: 13, color: 'rgba(255,255,255,0.4)', background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '10px 20px', cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.75)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'; }} onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.4)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}>
-                Tentar outro e-mail
+                {t('codeReminder.doneTryAnother')}
               </button>
             </>
           ) : (
             <>
-              <h1 style={{ fontFamily: F.space, fontWeight: 700, fontSize: 'clamp(22px, 4vw, 30px)', letterSpacing: '-0.03em', lineHeight: 1.15, marginBottom: 16 }}>Esqueceu seu código?</h1>
+              <h1 style={{ fontFamily: F.space, fontWeight: 700, fontSize: 'clamp(22px, 4vw, 30px)', letterSpacing: '-0.03em', lineHeight: 1.15, marginBottom: 16 }}>{t('codeReminder.formTitle')}</h1>
               <p style={{ fontFamily: F.inter, fontSize: 15, color: 'rgba(255,255,255,0.45)', lineHeight: 1.75, marginBottom: 36 }}>
-                Digite o e-mail usado no cadastro. Se houver uma conta vinculada, enviaremos seu código de participante.
+                {t('codeReminder.formDesc')}
               </p>
 
               <div style={{ marginBottom: 16 }}>
                 <input
                   type="email"
-                  placeholder="seu@email.com"
+                  placeholder={t('codeReminder.formPlaceholder')}
                   value={email}
                   onChange={e => { setEmail(e.target.value); setError(''); }}
                   onKeyDown={e => e.key === 'Enter' && handleSubmit()}
@@ -116,8 +122,8 @@ export default function CodeReminderPage() {
                 onMouseLeave={e => { e.currentTarget.style.background = step === 'sending' || !email.trim() ? 'rgba(139,0,0,0.4)' : '#8B0000'; }}
               >
                 {step === 'sending' ? (
-                  <><div style={{ width: 14, height: 14, border: '2px solid rgba(255,255,255,0.2)', borderTopColor: 'white', borderRadius: '50%', animation: 'spin 0.7s linear infinite', flexShrink: 0 }} />Enviando...</>
-                ) : 'Enviar código'}
+                  <><div style={{ width: 14, height: 14, border: '2px solid rgba(255,255,255,0.2)', borderTopColor: 'white', borderRadius: '50%', animation: 'spin 0.7s linear infinite', flexShrink: 0 }} />{t('codeReminder.formSending')}</>
+                ) : t('codeReminder.formSend')}
               </button>
             </>
           )}

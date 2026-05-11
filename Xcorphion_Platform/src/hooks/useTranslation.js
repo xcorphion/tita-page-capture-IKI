@@ -20,5 +20,12 @@ export function useTranslation() {
     return val ?? key;
   }
 
-  return { t, locale };
+  // ti: translate with variable interpolation — ti('key', { name: 'Alice' })
+  function ti(key, vars = {}) {
+    const str = t(key);
+    if (typeof str !== 'string') return key;
+    return str.replace(/\{(\w+)\}/g, (_, k) => (k in vars ? vars[k] : `{${k}}`));
+  }
+
+  return { t, ti, locale };
 }

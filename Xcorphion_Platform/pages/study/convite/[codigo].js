@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Head from 'next/head';
 import { motion } from 'framer-motion';
 import { connectToDatabase } from '../../../lib/mongodb';
+import { useTranslation } from '../../../src/hooks/useTranslation';
 
 const F = {
   space: "'Space Grotesk', sans-serif",
@@ -21,11 +22,11 @@ const fonts = (
   </>
 );
 
-function Shell({ children, platformUrl }) {
+function Shell({ children, platformUrl, backLabel }) {
   return (
     <>
       <Head>
-        <title>Sessão de Pesquisa — Xcorphion</title>
+        <title>Research Session — Xcorphion</title>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         {fonts}
         <style>{`
@@ -45,7 +46,7 @@ function Shell({ children, platformUrl }) {
             onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.28)'; }}
           >
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
-            Sobre a pesquisa
+            {backLabel}
           </a>
           <span style={{ fontFamily: F.space, fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.14em', textTransform: 'uppercase' }}>Xcorphion</span>
           <div style={{ width: 120 }} />
@@ -79,11 +80,11 @@ function StatusIcon({ type }) {
   );
 }
 
-function SessionLabel({ number }) {
+function SessionLabel({ label }) {
   return (
     <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.04, ease }} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 18 }}>
       <div style={{ width: 4, height: 4, borderRadius: '50%', background: '#8B0000', boxShadow: '0 0 7px rgba(139,0,0,0.9)', flexShrink: 0 }} />
-      <span style={{ fontFamily: F.space, fontSize: 10, fontWeight: 600, color: '#8B0000', letterSpacing: '0.16em', textTransform: 'uppercase' }}>Sessão {number} · de 3</span>
+      <span style={{ fontFamily: F.space, fontSize: 10, fontWeight: 600, color: '#8B0000', letterSpacing: '0.16em', textTransform: 'uppercase' }}>{label}</span>
     </motion.div>
   );
 }
@@ -114,7 +115,7 @@ function DescriptionCard({ lines }) {
   );
 }
 
-function CodeBlock({ code }) {
+function CodeBlock({ code, codeLabel, codeNote, copyLabel, copiedLabel }) {
   const [copied, setCopied] = useState(false);
   const handleCopy = () => {
     if (!code) return;
@@ -123,16 +124,16 @@ function CodeBlock({ code }) {
   return (
     <div style={{ background: 'rgba(0,0,0,0.45)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, marginBottom: 28, overflow: 'hidden' }}>
       <div style={{ padding: '11px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span style={{ fontFamily: F.space, fontSize: 10, fontWeight: 600, color: '#8B0000', letterSpacing: '0.14em', textTransform: 'uppercase' }}>Código de acesso</span>
+        <span style={{ fontFamily: F.space, fontSize: 10, fontWeight: 600, color: '#8B0000', letterSpacing: '0.14em', textTransform: 'uppercase' }}>{codeLabel}</span>
         <button onClick={handleCopy} style={{ background: copied ? 'rgba(139,0,0,0.1)' : 'rgba(255,255,255,0.04)', border: `1px solid ${copied ? 'rgba(139,0,0,0.28)' : 'rgba(255,255,255,0.08)'}`, borderRadius: 6, padding: '5px 11px', cursor: 'pointer', transition: 'all 0.18s', display: 'flex', alignItems: 'center', gap: 5, fontFamily: F.inter, fontSize: 11, color: copied ? '#8B0000' : 'rgba(255,255,255,0.32)', letterSpacing: '0.03em' }} onMouseEnter={e => { if (!copied) { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = 'rgba(255,255,255,0.65)'; } }} onMouseLeave={e => { if (!copied) { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.color = 'rgba(255,255,255,0.32)'; } }}>
-          {copied ? <><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M20 6L9 17l-5-5" /></svg>Copiado</> : <><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" /><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" /></svg>Copiar</>}
+          {copied ? <><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M20 6L9 17l-5-5" /></svg>{copiedLabel}</> : <><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" /><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" /></svg>{copyLabel}</>}
         </button>
       </div>
       <div style={{ padding: '26px 24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <span style={{ fontFamily: F.inter, fontSize: 'clamp(26px, 5vw, 36px)', fontWeight: 600, letterSpacing: '0.28em', color: 'white' }}>{code || '—'}</span>
       </div>
       <div style={{ padding: '10px 24px 14px', borderTop: '1px solid rgba(255,255,255,0.04)', textAlign: 'center' }}>
-        <span style={{ fontFamily: F.inter, fontSize: 11, color: 'rgba(255,255,255,0.18)', letterSpacing: '0.02em' }}>Guarde este código — ele é o seu acesso para todas as sessões.</span>
+        <span style={{ fontFamily: F.inter, fontSize: 11, color: 'rgba(255,255,255,0.18)', letterSpacing: '0.02em' }}>{codeNote}</span>
       </div>
     </div>
   );
@@ -148,15 +149,16 @@ function CTAButton({ href, label }) {
 }
 
 export default function Convite({ participant, error, blocked, platformUrl }) {
-  const wrap = (content) => <Shell platformUrl={platformUrl}>{content}</Shell>;
+  const { t, ti } = useTranslation();
+  const wrap = (content) => <Shell platformUrl={platformUrl} backLabel={t('convite.back')}>{content}</Shell>;
 
   if (blocked) {
     return wrap(
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease }} style={{ maxWidth: 420, width: '100%', textAlign: 'center' }}>
         <StatusIcon type="lock" />
-        <StateLabel>Acesso indisponível</StateLabel>
-        <h1 style={{ fontFamily: F.space, fontWeight: 700, fontSize: 'clamp(22px, 3vw, 28px)', letterSpacing: '-0.03em', color: 'white', marginBottom: 14 }}>Este link não está disponível.</h1>
-        <p style={{ fontFamily: F.inter, fontWeight: 300, fontSize: 15, color: 'rgba(255,255,255,0.38)', lineHeight: 1.75 }}>Entre em contato com quem te convidou para a pesquisa.</p>
+        <StateLabel>{t('convite.blockedStateLabel')}</StateLabel>
+        <h1 style={{ fontFamily: F.space, fontWeight: 700, fontSize: 'clamp(22px, 3vw, 28px)', letterSpacing: '-0.03em', color: 'white', marginBottom: 14 }}>{t('convite.blockedTitle')}</h1>
+        <p style={{ fontFamily: F.inter, fontWeight: 300, fontSize: 15, color: 'rgba(255,255,255,0.38)', lineHeight: 1.75 }}>{t('convite.blockedDesc')}</p>
       </motion.div>
     );
   }
@@ -165,9 +167,9 @@ export default function Convite({ participant, error, blocked, platformUrl }) {
     return wrap(
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease }} style={{ maxWidth: 420, width: '100%', textAlign: 'center' }}>
         <StatusIcon type="lock" />
-        <StateLabel>Acesso negado</StateLabel>
-        <h1 style={{ fontFamily: F.space, fontWeight: 700, fontSize: 'clamp(22px, 3vw, 28px)', letterSpacing: '-0.03em', color: 'white', marginBottom: 14 }}>Código não encontrado</h1>
-        <p style={{ fontFamily: F.inter, fontWeight: 300, fontSize: 15, color: 'rgba(255,255,255,0.38)', lineHeight: 1.75 }}>Verifique o link recebido ou entre em contato com quem te convidou para a pesquisa.</p>
+        <StateLabel>{t('convite.errorStateLabel')}</StateLabel>
+        <h1 style={{ fontFamily: F.space, fontWeight: 700, fontSize: 'clamp(22px, 3vw, 28px)', letterSpacing: '-0.03em', color: 'white', marginBottom: 14 }}>{t('convite.errorTitle')}</h1>
+        <p style={{ fontFamily: F.inter, fontWeight: 300, fontSize: 15, color: 'rgba(255,255,255,0.38)', lineHeight: 1.75 }}>{t('convite.errorDesc')}</p>
       </motion.div>
     );
   }
@@ -176,10 +178,10 @@ export default function Convite({ participant, error, blocked, platformUrl }) {
     return wrap(
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease }} style={{ maxWidth: 420, width: '100%', textAlign: 'center' }}>
         <StatusIcon type="check" />
-        <StateLabel>Participação concluída</StateLabel>
-        <h1 style={{ fontFamily: F.space, fontWeight: 700, fontSize: 'clamp(22px, 3vw, 28px)', letterSpacing: '-0.03em', color: 'white', marginBottom: 14 }}>Obrigado pela sua contribuição.</h1>
+        <StateLabel>{t('convite.doneStateLabel')}</StateLabel>
+        <h1 style={{ fontFamily: F.space, fontWeight: 700, fontSize: 'clamp(22px, 3vw, 28px)', letterSpacing: '-0.03em', color: 'white', marginBottom: 14 }}>{t('convite.doneTitle')}</h1>
         <p style={{ fontFamily: F.inter, fontWeight: 300, fontSize: 15, color: 'rgba(255,255,255,0.38)', lineHeight: 1.75 }}>
-          {participant.participant_name}, sua participação foi concluída com sucesso.
+          {ti('convite.doneDesc', { name: participant.participant_name })}
         </p>
       </motion.div>
     );
@@ -198,15 +200,21 @@ export default function Convite({ participant, error, blocked, platformUrl }) {
     return wrap(
       <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease }} style={{ maxWidth: 500, width: '100%', textAlign: 'center' }}>
         <StatusIcon type="clock" />
-        <StateLabel>Aguardando liberação</StateLabel>
+        <StateLabel>{t('convite.waitingStateLabel')}</StateLabel>
         <motion.h1 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.14, ease }} style={{ fontFamily: F.space, fontWeight: 800, fontSize: 'clamp(26px, 4vw, 36px)', letterSpacing: '-0.03em', lineHeight: 1.1, color: 'white', marginBottom: 14 }}>
-          Sessão {waitingSession} em breve.
+          {ti('convite.waitingTitle', { n: waitingSession })}
         </motion.h1>
         <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6, delay: 0.22, ease }} style={{ fontFamily: F.inter, fontWeight: 300, fontSize: 15, color: 'rgba(255,255,255,0.4)', lineHeight: 1.75, marginBottom: 36 }}>
-          {participant_name}, você não precisa fazer nada agora. Quando a próxima sessão for liberada, este link continuará funcionando.
+          {ti('convite.waitingDesc', { name: participant_name })}
         </motion.p>
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3, ease }}>
-          <CodeBlock code={participant_code} />
+          <CodeBlock
+            code={participant_code}
+            codeLabel={t('convite.codeLabel')}
+            codeNote={t('convite.codeNote')}
+            copyLabel={t('convite.copy')}
+            copiedLabel={t('convite.copied')}
+          />
         </motion.div>
       </motion.div>
     );
@@ -218,34 +226,34 @@ export default function Convite({ participant, error, blocked, platformUrl }) {
 
   if (participant.session_1_status === 'LIBERADA') {
     sessionNumber = 1;
-    title = 'Você foi convidado para participar de uma pesquisa.';
+    title = t('convite.session1Title');
     bodyLines = [
-      `${participant_name}, ${referrer_name} te indicou para uma pesquisa acadêmica sobre como as pessoas escrevem quando tomam decisões importantes.`,
-      'Não é um teste. Não existe resposta certa ou errada.',
-      'Você vai escrever livremente sobre uma decisão real que viveu — e enquanto escreve, o ritmo das suas teclas será registrado de forma anônima. Nada mais.',
-      'Esta é a Sessão 1 de 3. Cada sessão leva entre 8 e 15 minutos e pode ser feita em dias diferentes.',
+      ti('convite.session1Body0', { name: participant_name, referrer: referrer_name }),
+      t('convite.session1Body1'),
+      t('convite.session1Body2'),
+      t('convite.session1Body3'),
     ];
   } else if (participant.session_2_status === 'LIBERADA') {
     sessionNumber = 2;
-    title = 'Sessão 2 — Você está de volta.';
+    title = t('convite.session2Title');
     bodyLines = [
-      `${participant_name}, obrigado por completar a primeira sessão.`,
-      `${referrer_name} acreditou que você teria algo valioso a contribuir — e você confirmou isso.`,
-      'Esta é a Sessão 2 de 3. O formato é idêntico ao da primeira: escreva livremente, sem pressão, em um ambiente silencioso.',
+      ti('convite.session2Body0', { name: participant_name }),
+      ti('convite.session2Body1', { referrer: referrer_name }),
+      t('convite.session2Body2'),
     ];
   } else if (participant.session_3_status === 'LIBERADA') {
     sessionNumber = 3;
-    title = 'Sessão 3 — A etapa final.';
+    title = t('convite.session3Title');
     bodyLines = [
-      `${participant_name}, você chegou à última sessão.`,
-      `Esta pesquisa só existe porque pessoas como você, indicadas por ${referrer_name}, aceitaram dedicar tempo a algo que ainda está sendo construído.`,
-      'Depois desta sessão, sua participação estará completa. Os dados coletados — sempre anônimos — vão alimentar um modelo que tenta entender como o corpo responde enquanto a mente decide.',
+      ti('convite.session3Body0', { name: participant_name }),
+      ti('convite.session3Body1', { referrer: referrer_name }),
+      t('convite.session3Body2'),
     ];
   }
 
   return wrap(
     <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease }} style={{ maxWidth: 600, width: '100%' }}>
-      <SessionLabel number={sessionNumber} />
+      <SessionLabel label={ti('convite.sessionLabel', { n: sessionNumber })} />
       <motion.h1 initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.65, delay: 0.1, ease }} style={{ fontFamily: F.space, fontWeight: 800, fontSize: 'clamp(26px, 4vw, 42px)', letterSpacing: '-0.03em', lineHeight: 1.1, color: 'white', marginBottom: 28 }}>
         {title}
       </motion.h1>
@@ -253,8 +261,14 @@ export default function Convite({ participant, error, blocked, platformUrl }) {
         <DescriptionCard lines={bodyLines} />
       </motion.div>
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.28, ease }}>
-        <CodeBlock code={participant_code} />
-        <CTAButton href={session_link} label={`Iniciar Sessão ${sessionNumber}`} />
+        <CodeBlock
+          code={participant_code}
+          codeLabel={t('convite.codeLabel')}
+          codeNote={t('convite.codeNote')}
+          copyLabel={t('convite.copy')}
+          copiedLabel={t('convite.copied')}
+        />
+        <CTAButton href={session_link} label={ti('convite.startSession', { n: sessionNumber })} />
       </motion.div>
     </motion.div>
   );
