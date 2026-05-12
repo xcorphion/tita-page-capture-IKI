@@ -27,7 +27,7 @@ const CSP = [
   `script-src 'self'${isDev ? " 'unsafe-eval'" : ''}`,
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com",
-  "img-src 'self' data: blob:",
+  "img-src 'self' data: blob: https:",
   "connect-src 'self'",
   "worker-src blob:",
   "frame-src 'self'",

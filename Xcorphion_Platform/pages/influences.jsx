@@ -16,6 +16,50 @@ const AUTHORS = [
   { id: 'hinton',  num: '05', label: 'Geoffrey Hinton' },
 ];
 
+const DEFAULT_IMGS = {
+  damasio: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTmKjUeZK1oSaeYl4aWsIboh8igdmN77G06Ag&s',
+  russell: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQVh4odkNSzpbmEDG5bFxt4345QyauYFXi3joLKO8CK2w&s',
+  picard:  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTbnbSsqijicNi2fin-7RGxqui454u5wX1m9WTj6cixM6zF7mvSFcAyXkV_-RQx-IlBg6ekD1KnZH9i34UKzR0KODhMbc9CrmqR0L1mqyZZDg&s=10',
+  vaswani: 'https://assets.bwbx.io/images/users/iqjWHBFdfxIU/i2Q1XWfCwbj0/v1/-1x-1.webp',
+  hinton:  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRVfg34WBGo-g870qasPXvp9NBtsUARYha4iF_hT_J3vw&s',
+};
+
+const DEFAULT_WORKS = {
+  damasio: [
+    { href: 'https://www.penguinrandomhouse.com/books/340745/descartes-error-by-antonio-damasio/', hrefLabel: 'Adquirir' },
+    { href: 'https://www.penguinrandomhouse.com/books/340737/the-feeling-of-what-happens-by-antonio-damasio/', hrefLabel: 'Adquirir' },
+    { href: 'https://www.penguinrandomhouse.com/books/340735/looking-for-spinoza-by-antonio-damasio/', hrefLabel: 'Adquirir' },
+    { href: 'https://www.penguinrandomhouse.com/books/93565/self-comes-to-mind-by-antonio-damasio/', hrefLabel: 'Adquirir' },
+    { href: 'https://www.penguinrandomhouse.com/books/573255/the-strange-order-of-things-by-antonio-damasio/', hrefLabel: 'Adquirir' },
+    { href: 'https://www.penguinrandomhouse.com/books/646060/feeling-knowing-by-antonio-damasio/', hrefLabel: 'Adquirir' },
+    { href: 'https://royalsocietypublishing.org/doi/10.1098/rstb.1996.0118', hrefLabel: 'Artigo' },
+  ],
+  russell: [
+    { href: 'https://psycnet.apa.org/record/1980-23793-001', hrefLabel: 'Artigo · APA' },
+    { href: 'https://psycnet.apa.org/record/2003-05387-002', hrefLabel: 'Artigo · APA' },
+    { href: 'https://psycnet.apa.org/record/1994-42988-001', hrefLabel: 'Artigo · APA' },
+    { href: 'https://www.guilford.com/books/The-Psychological-Construction-of-Emotion/Barrett-Russell/9781462516971', hrefLabel: 'Adquirir' },
+  ],
+  picard: [
+    { href: 'https://mitpress.mit.edu/9780262661157/affective-computing/', hrefLabel: 'Adquirir · MIT Press' },
+    { href: 'https://affect.media.mit.edu/pdfs/07.picard-healey.pdf', hrefLabel: 'Artigo (PDF)' },
+    { href: 'https://link.springer.com/article/10.1007/BF01261679', hrefLabel: 'Artigo' },
+    { href: 'https://affect.media.mit.edu/pdfs/97.picard-et-al-affective-wearables.pdf', hrefLabel: 'Artigo (PDF)' },
+  ],
+  vaswani: [
+    { href: 'https://arxiv.org/abs/1706.03762', hrefLabel: 'arXiv (gratuito)' },
+    { href: 'https://arxiv.org/abs/1802.05751', hrefLabel: 'arXiv' },
+    { href: 'https://arxiv.org/abs/1807.03819', hrefLabel: 'arXiv' },
+  ],
+  hinton: [
+    { href: 'https://www.nature.com/articles/323533a0', hrefLabel: 'Nature' },
+    { href: 'https://papers.nips.cc/paper_files/paper/2012/hash/c399862d3b9d6b76c8436e924a68c45b-Abstract.html', hrefLabel: 'NeurIPS' },
+    { href: 'https://jmlr.org/papers/v15/srivastava14a.html', hrefLabel: 'JMLR (gratuito)' },
+    { href: 'https://arxiv.org/abs/2212.13345', hrefLabel: 'arXiv (gratuito)' },
+    { href: 'https://www.nobelprize.org/prizes/physics/2024/hinton/facts/', hrefLabel: 'Página oficial' },
+  ],
+};
+
 const SectionBadge = ({ num }) => (
   <span style={{
     display: 'inline-flex', alignItems: 'center',
@@ -211,6 +255,20 @@ const WorkCard = ({ title, year, venue, desc, href, hrefLabel }) => (
 export default function InfluencesPage() {
   const [activeId, setActiveId] = useState('');
   const observerRef = useRef(null);
+  const [cfg, setCfg] = useState(null);
+
+  useEffect(() => {
+    fetch('/api/influences-config')
+      .then(r => r.json())
+      .then(data => { if (data.config) setCfg(data.config); })
+      .catch(() => {});
+  }, []);
+
+  const img = (id) => cfg?.authors?.[id]?.img ?? DEFAULT_IMGS[id];
+  const wl  = (id, i) => ({
+    href: cfg?.authors?.[id]?.works?.[i]?.href ?? DEFAULT_WORKS[id][i].href,
+    hrefLabel: cfg?.authors?.[id]?.works?.[i]?.hrefLabel ?? DEFAULT_WORKS[id][i].hrefLabel,
+  });
 
   useEffect(() => {
     const sections = document.querySelectorAll('[data-section]');
@@ -307,13 +365,6 @@ export default function InfluencesPage() {
 
               {/* Hero */}
               <div style={{ padding: '72px 0 56px' }}>
-                <span style={{
-                  fontFamily: F.inter, fontSize: 11,
-                  color: '#8B0000', letterSpacing: '0.12em',
-                  textTransform: 'uppercase', display: 'block', marginBottom: 20,
-                }}>
-                  Xcorphion Research Unit · Fundações Científicas
-                </span>
                 <h1 style={{
                   fontFamily: F.space, fontWeight: 800,
                   fontSize: 'clamp(26px, 3.5vw, 42px)',
@@ -338,7 +389,7 @@ export default function InfluencesPage() {
                   name="António Damásio"
                   years="n. 25 fev. 1944 · Lisboa, Portugal"
                   affiliation="USC Brain and Creativity Institute · Cátedra David Dornsife de Neurociências"
-                  img="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTmKjUeZK1oSaeYl4aWsIboh8igdmN77G06Ag&s"
+                  img={img('damasio')}
                   epithet="«A razão não opera independente da emoção — os pacientes de Damásio provaram isso antes de qualquer teoria.»"
                 />
 
@@ -359,56 +410,49 @@ export default function InfluencesPage() {
                   year="1994"
                   venue="Putnam / Penguin"
                   desc="Ataca o dualismo cartesiano usando casos clínicos de lesão pré-frontal. Formula pela primeira vez, de forma sistemática, a Hipótese do Marcador Somático. Mais de 28.000 citações no Google Scholar."
-                  href="https://www.penguinrandomhouse.com/books/340745/descartes-error-by-antonio-damasio/"
-                  hrefLabel="Adquirir"
+                  {...wl('damasio', 0)}
                 />
                 <WorkCard
                   title="The Feeling of What Happens: Body and Emotion in the Making of Consciousness"
                   year="1999"
                   venue="Harcourt"
                   desc="Distingue três camadas — emoção (processo automático), sentimento (representação mental da emoção) e consciência (o self que percebe o sentimento). Propõe que sentir é sempre sentir algo que acontece ao corpo. Mais de 12.000 citações."
-                  href="https://www.penguinrandomhouse.com/books/340737/the-feeling-of-what-happens-by-antonio-damasio/"
-                  hrefLabel="Adquirir"
+                  {...wl('damasio', 1)}
                 />
                 <WorkCard
                   title="Looking for Spinoza: Joy, Sorrow and the Feeling Brain"
                   year="2003"
                   venue="Harcourt"
                   desc="Encontra em Spinoza (1632–1677) um precursor da neurobiologia dos afetos. Define com rigor a distinção entre emoção (programa automático e público do organismo) e sentimento (experiência subjetiva e privada). Mais de 8.000 citações."
-                  href="https://www.penguinrandomhouse.com/books/340735/looking-for-spinoza-by-antonio-damasio/"
-                  hrefLabel="Adquirir"
+                  {...wl('damasio', 2)}
                 />
                 <WorkCard
                   title="Self Comes to Mind: Constructing the Conscious Brain"
                   year="2010"
                   venue="Pantheon"
                   desc="Propõe três camadas do self: proto-self, self central e self autobiográfico. Argumenta que a consciência emerge do tronco encefálico, não do neocórtex — colocando o corpo no centro da experiência subjetiva. Mais de 5.000 citações."
-                  href="https://www.penguinrandomhouse.com/books/93565/self-comes-to-mind-by-antonio-damasio/"
-                  hrefLabel="Adquirir"
+                  {...wl('damasio', 3)}
                 />
                 <WorkCard
                   title="The Strange Order of Things: Life, Feeling and the Making of Cultures"
                   year="2018"
                   venue="Pantheon"
                   desc="Propõe que sentimentos são instrumentos homeostáticos presentes desde formas de vida unicelulares e que a cultura humana emerge como resposta coletiva à necessidade de regular o bem-estar. Mais de 3.000 citações."
-                  href="https://www.penguinrandomhouse.com/books/573255/the-strange-order-of-things-by-antonio-damasio/"
-                  hrefLabel="Adquirir"
+                  {...wl('damasio', 4)}
                 />
                 <WorkCard
                   title="Feeling & Knowing: Making Minds Conscious"
                   year="2021"
                   venue="Pantheon"
                   desc="Obra de maturidade. Consolida teses sobre consciência, sentimento e homeostase. Argumenta que a interoceptividade — sentir o próprio estado interno — é a origem evolutiva de toda experiência subjetiva."
-                  href="https://www.penguinrandomhouse.com/books/646060/feeling-knowing-by-antonio-damasio/"
-                  hrefLabel="Adquirir"
+                  {...wl('damasio', 5)}
                 />
                 <WorkCard
                   title="The Somatic Marker Hypothesis and the Possible Functions of the Prefrontal Cortex"
                   year="1996"
                   venue="Philosophical Transactions of the Royal Society B"
                   desc="Artigo fundacional da hipótese do marcador somático. Apresenta o Iowa Gambling Task como paradigma experimental. Mais de 4.500 citações."
-                  href="https://royalsocietypublishing.org/doi/10.1098/rstb.1996.0118"
-                  hrefLabel="Artigo"
+                  {...wl('damasio', 6)}
                 />
               </div>
 
@@ -421,7 +465,7 @@ export default function InfluencesPage() {
                   name="James A. Russell"
                   years="Los Angeles, Califórnia, EUA"
                   affiliation="Boston College · Emotion Development Lab · Professor titular de Psicologia"
-                  img="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQVh4odkNSzpbmEDG5bFxt4345QyauYFXi3joLKO8CK2w&s"
+                  img={img('russell')}
                   epithet="«Qualquer estado emocional pode ser localizado num espaço bidimensional de valência e arousal. Essa geometria é o que o OMMΩ usa para escutar o que os dedos dizem.»"
                 />
 
@@ -442,32 +486,28 @@ export default function InfluencesPage() {
                   year="1980"
                   venue="Journal of Personality and Social Psychology"
                   desc="O artigo mais citado de Russell e um dos mais citados em psicologia emocional. Propõe que estados afetivos são posições num espaço circular onde os eixos são valência (prazer–desprazer) e ativação (alta–baixa excitação). Mais de 25.000 citações."
-                  href="https://psycnet.apa.org/record/1980-23793-001"
-                  hrefLabel="Artigo · APA"
+                  {...wl('russell', 0)}
                 />
                 <WorkCard
                   title="Core Affect and the Psychological Construction of Emotion"
                   year="2003"
                   venue="Psychological Review"
                   desc="Distingue core affect — estado neurofisiológico contínuo, sempre presente — do conceito pleno de emoção. Emoções não são detectadas pelo organismo: são construídas por ele. Mais de 6.000 citações."
-                  href="https://psycnet.apa.org/record/2003-05387-002"
-                  hrefLabel="Artigo · APA"
+                  {...wl('russell', 1)}
                 />
                 <WorkCard
                   title="Is There Universal Recognition of Emotion from Facial Expression? A Review"
                   year="1994"
                   venue="Psychological Bulletin"
                   desc="Revisão crítica dos estudos de Ekman sobre universalidade. Demonstra que metodologias de escolha forçada inflavam artificialmente as taxas de reconhecimento. Marco metodológico da área. Mais de 3.500 citações."
-                  href="https://psycnet.apa.org/record/1994-42988-001"
-                  hrefLabel="Artigo · APA"
+                  {...wl('russell', 2)}
                 />
                 <WorkCard
                   title="The Psychological Construction of Emotion"
                   year="2014"
                   venue="Guilford Press · co-editado com Lisa Feldman Barrett"
                   desc="Volume coletivo que sintetiza décadas de construtivismo psicológico das emoções. Defende que emoções não são módulos inatos do cérebro, mas construções que dependem de linguagem, cultura e contexto. Referência para pesquisadores com modelos computacionais de afeto."
-                  href="https://www.guilford.com/books/The-Psychological-Construction-of-Emotion/Barrett-Russell/9781462516971"
-                  hrefLabel="Adquirir"
+                  {...wl('russell', 3)}
                 />
               </div>
 
@@ -480,7 +520,7 @@ export default function InfluencesPage() {
                   name="Rosalind W. Picard"
                   years="n. 1962, EUA"
                   affiliation="MIT Media Lab · Cátedra Grover M. Hermann · Fundadora: Affectiva & Empatica"
-                  img="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTbnbSsqijicNi2fin-7RGxqui454u5wX1m9WTj6cixM6zF7mvSFcAyXkV_-RQx-IlBg6ekD1KnZH9i34UKzR0KODhMbc9CrmqR0L1mqyZZDg&s=10"
+                  img={img('picard')}
                   epithet="«Se a emoção é essencial para a cognição humana, por que os computadores são completamente cegos a ela?»"
                 />
 
@@ -501,32 +541,28 @@ export default function InfluencesPage() {
                   year="1997"
                   venue="MIT Press"
                   desc="O livro fundador do campo. Argumenta que computadores precisam reconhecer, compreender e — de forma limitada — expressar emoções para interagir naturalmente com humanos. Deu origem à conferência ACII, à revista IEEE Transactions on Affective Computing e a uma sociedade profissional."
-                  href="https://mitpress.mit.edu/9780262661157/affective-computing/"
-                  hrefLabel="Adquirir · MIT Press"
+                  {...wl('picard', 0)}
                 />
                 <WorkCard
                   title="Recognizing Stress from Keystroke and Mouse Patterns"
                   year="2007"
                   venue="Picard & Healey · IEEE"
                   desc="Demonstra que o padrão de uso do teclado e do mouse correlaciona-se com medidas fisiológicas de estresse. Uma das primeiras demonstrações empíricas de que keystroke dynamics carregam sinal afetivo — citação direta da genealogia do OMMΩ IKI."
-                  href="https://affect.media.mit.edu/pdfs/07.picard-healey.pdf"
-                  hrefLabel="Artigo (PDF)"
+                  {...wl('picard', 1)}
                 />
                 <WorkCard
                   title="Toward an Affective User Interface: Motivation and Theory"
                   year="2000"
                   venue="Personal and Ubiquitous Computing"
                   desc="Articula os princípios de design para interfaces que reconhecem e respondem ao estado emocional do usuário: sem invasão de privacidade, resposta contextualmente adequada, transparência sobre inferências."
-                  href="https://link.springer.com/article/10.1007/BF01261679"
-                  hrefLabel="Artigo"
+                  {...wl('picard', 2)}
                 />
                 <WorkCard
                   title="Affective Wearables"
                   year="1997"
                   venue="Personal and Ubiquitous Computing"
                   desc="Proposta de vestíveis que monitoram continuamente sinais fisiológicos correlacionados com estados emocionais. Antecipou em décadas os smartwatches modernos com sensores biométricos."
-                  href="https://affect.media.mit.edu/pdfs/97.picard-et-al-affective-wearables.pdf"
-                  hrefLabel="Artigo (PDF)"
+                  {...wl('picard', 3)}
                 />
               </div>
 
@@ -539,7 +575,7 @@ export default function InfluencesPage() {
                   name="Vaswani · Shazeer · Parmar · Uszkoreit · Jones · Gomez · Kaiser · Polosukhin"
                   years="Google Brain / Google Research · Universidade de Toronto — 2017"
                   affiliation="Autores do Transformer — a arquitetura sobre a qual toda a IA generativa moderna foi construída"
-                  img="https://assets.bwbx.io/images/users/iqjWHBFdfxIU/i2Q1XWfCwbj0/v1/-1x-1.webp"
+                  img={img('vaswani')}
                   epithet="«Atenção é tudo que você precisa — e esse paper sustenta o GPT, o BERT, o LLaMA e o OMMΩ.»"
                 />
 
@@ -560,24 +596,21 @@ export default function InfluencesPage() {
                   year="2017"
                   venue="NeurIPS · Google Brain"
                   desc="O paper fundador do Transformer. Mais de 93.000 citações — um dos mais citados em toda a história da ciência da computação. Toda a IA generativa moderna foi construída sobre esta arquitetura."
-                  href="https://arxiv.org/abs/1706.03762"
-                  hrefLabel="arXiv (gratuito)"
+                  {...wl('vaswani', 0)}
                 />
                 <WorkCard
                   title="Image Transformer"
                   year="2018"
                   venue="ICML · Parmar et al."
                   desc="Extensão do Transformer para geração de imagens, demonstrando que a arquitetura generaliza além de texto — antecipando o Vision Transformer (ViT)."
-                  href="https://arxiv.org/abs/1802.05751"
-                  hrefLabel="arXiv"
+                  {...wl('vaswani', 1)}
                 />
                 <WorkCard
                   title="Universal Transformers"
                   year="2018"
                   venue="ICLR · Dehghani et al., com Kaiser e Shazeer"
                   desc="Propõe Transformers com número adaptativo de passos de processamento, aproximando a arquitetura de máquinas de Turing universais."
-                  href="https://arxiv.org/abs/1807.03819"
-                  hrefLabel="arXiv"
+                  {...wl('vaswani', 2)}
                 />
               </div>
 
@@ -590,7 +623,7 @@ export default function InfluencesPage() {
                   name="Geoffrey E. Hinton"
                   years="n. 6 dez. 1947 · Wimbledon, Londres"
                   affiliation="Universidade de Toronto · ex-Google Brain · Nobel de Física 2024 · Prêmio Turing 2018"
-                  img="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRVfg34WBGo-g870qasPXvp9NBtsUARYha4iF_hT_J3vw&s"
+                  img={img('hinton')}
                   epithet="«Bisneto de George Boole. Cinco décadas convicto quando o mundo não estava. Agora o mundo está e ele se preocupa.»"
                 />
 
@@ -611,40 +644,35 @@ export default function InfluencesPage() {
                   year="1986"
                   venue="Nature · com Rumelhart e Williams"
                   desc="Popularizou o backpropagation como algoritmo de treinamento para redes neurais multicamadas. A base de praticamente todo o deep learning treinado desde então. Mais de 27.000 citações."
-                  href="https://www.nature.com/articles/323533a0"
-                  hrefLabel="Nature"
+                  {...wl('hinton', 0)}
                 />
                 <WorkCard
                   title="ImageNet Classification with Deep Convolutional Neural Networks (AlexNet)"
                   year="2012"
                   venue="NeurIPS · com Krizhevsky e Sutskever"
                   desc="O paper da AlexNet. Iniciou o boom do deep learning e transformou o setor tecnológico. Mais de 110.000 citações — um dos mais citados em toda a história da computação."
-                  href="https://papers.nips.cc/paper_files/paper/2012/hash/c399862d3b9d6b76c8436e924a68c45b-Abstract.html"
-                  hrefLabel="NeurIPS"
+                  {...wl('hinton', 1)}
                 />
                 <WorkCard
                   title="Dropout: A Simple Way to Prevent Neural Networks from Overfitting"
                   year="2014"
                   venue="JMLR · com Srivastava et al."
                   desc="Introdução do dropout como técnica de regularização. Simples e extremamente eficaz: neurônios são desativados aleatoriamente durante o treinamento. Mais de 50.000 citações."
-                  href="https://jmlr.org/papers/v15/srivastava14a.html"
-                  hrefLabel="JMLR (gratuito)"
+                  {...wl('hinton', 2)}
                 />
                 <WorkCard
                   title="The Forward-Forward Algorithm: Some Preliminary Investigations"
                   year="2022"
                   venue="arXiv"
                   desc="Substitui backpropagation por dois passes forward: um com dados reais (positivos) e um com dados negativos. Aprende localmente, camada por camada, sem coordenação global — biologicamente mais plausível e a inspiração direta do algoritmo PFF usado no OMMΩ."
-                  href="https://arxiv.org/abs/2212.13345"
-                  hrefLabel="arXiv (gratuito)"
+                  {...wl('hinton', 3)}
                 />
                 <WorkCard
                   title="Nobel Prize in Physics 2024 — Geoffrey Hinton"
                   year="2024"
                   venue="The Royal Swedish Academy of Sciences"
                   desc="Prêmio Nobel de Física 2024, compartilhado com John Hopfield, pelo desenvolvimento de métodos que habilitaram o aprendizado de máquina com redes neurais artificiais."
-                  href="https://www.nobelprize.org/prizes/physics/2024/hinton/facts/"
-                  hrefLabel="Página oficial"
+                  {...wl('hinton', 4)}
                 />
               </div>
 
