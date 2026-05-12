@@ -97,7 +97,7 @@ export default function Footer() {
           {/* ── Pesquisa ──────────────────────── */}
           <Col label={t('footer.colResearch')}>
             <NavLink href="/study" isNext>{t('footer.ourResearch')}</NavLink>
-            <NavLink href="/study" isNext>{t('footer.damasio')}</NavLink>
+            <NavLink href="/influences" isNext>{t('footer.damasio')}</NavLink>
             <NavLink href="/study" isNext>{t('footer.participate')}</NavLink>
           </Col>
 
