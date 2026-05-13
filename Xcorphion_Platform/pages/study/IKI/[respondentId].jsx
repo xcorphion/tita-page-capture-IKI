@@ -294,7 +294,7 @@ export default function IKIResearchPage() {
 
     const handleEmaSubmitCore = async (v, a) => {
         clearTimeout(emaTimeoutRef.current);
-        const rel_ts = Date.now() - sessionStartEpochMsRef.current;
+        const rel_ts = Math.round(performance.now() - sessionStartHighResRef.current);
         try {
             const res = await fetch('/api/ema', {
                 method: 'POST',
