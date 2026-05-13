@@ -151,6 +151,11 @@ export default function IKIResearchPage() {
                 })
             });
             const data = await res.json();
+            if (!res.ok) {
+                console.error('session/start error:', res.status, data);
+                setStatus('unauthorized');
+                return;
+            }
             sessionIdRef.current = data.session_id;
             sessionTokenRef.current = data.session_token;
             sessionStartEpochMsRef.current = data.resumed ? data.server_now_ms : data.session_start_epoch_ms;
@@ -291,7 +296,7 @@ export default function IKIResearchPage() {
         clearTimeout(emaTimeoutRef.current);
         const rel_ts = Date.now() - sessionStartEpochMsRef.current;
         try {
-            await fetch('/api/ema', {
+            const res = await fetch('/api/ema', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -303,6 +308,10 @@ export default function IKIResearchPage() {
                     prompt_index: currentPromptIndexRef.current
                 })
             });
+            if (!res.ok) {
+                const errData = await res.json().catch(() => ({}));
+                console.error('EMA error:', res.status, errData, { session_id: sessionIdRef.current, rel_ts, v, a, prompt_index: currentPromptIndexRef.current, charCount });
+            }
             setShowEma(false);
             emasInCurrentSegmentRef.current++;
             if (emasInCurrentSegmentRef.current >= 3) {
