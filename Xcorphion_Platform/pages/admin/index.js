@@ -21,6 +21,8 @@ export default function AdminPanel() {
   const [error, setError]               = useState('');
   const [statusFilter, setStatusFilter] = useState('TODOS');
   const [copiedCode, setCopiedCode]     = useState(null);
+  const [blocklist, setBlocklist]       = useState(null);
+  const [blocklistLoading, setBlocklistLoading] = useState(false);
 
   const fetchParticipants = async (pwd) => {
     try {
@@ -52,6 +54,32 @@ export default function AdminPanel() {
       setCopiedCode(code);
       setTimeout(() => setCopiedCode(null), 1800);
     });
+  };
+
+  const fetchBlocklist = async () => {
+    setBlocklistLoading(true);
+    try {
+      const res = await fetch('/api/admin/ip-blocklist', {
+        headers: { 'x-admin-password': password },
+      });
+      const data = await res.json();
+      setBlocklist(data.ips || []);
+    } catch { setBlocklist([]); }
+    finally { setBlocklistLoading(false); }
+  };
+
+  const removeIp = async (ip) => {
+    if (!confirm(`Remover ${ip} da blocklist?`)) return;
+    try {
+      const res = await fetch('/api/admin/ip-blocklist', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json', 'x-admin-password': password },
+        body: JSON.stringify({ ip }),
+      });
+      const data = await res.json();
+      if (data.ok) setBlocklist(prev => prev.filter(d => d.ip !== ip));
+      else alert('Erro ao remover IP');
+    } catch { alert('Erro de conexão'); }
   };
 
   const handleAction = async (participant_code, action, participant) => {
@@ -213,6 +241,53 @@ export default function AdminPanel() {
             )}
           </tbody>
         </table>
+      </div>
+
+      <div style={{ padding: '0 40px 60px' }}>
+        <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 32 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+            <span style={{ fontFamily: F.inter, fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>IP Blocklist</span>
+            <button
+              onClick={blocklist === null ? fetchBlocklist : () => setBlocklist(null)}
+              style={{ fontFamily: F.inter, fontSize: 11, fontWeight: 500, color: 'rgba(255,255,255,0.5)', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, padding: '5px 12px', cursor: 'pointer', transition: 'all 0.15s' }}
+            >
+              {blocklist === null ? 'Ver blocklist' : 'Ocultar'}
+            </button>
+          </div>
+
+          {blocklistLoading && (
+            <p style={{ fontFamily: F.inter, fontSize: 13, color: 'rgba(255,255,255,0.25)' }}>Carregando...</p>
+          )}
+
+          {blocklist !== null && !blocklistLoading && (
+            blocklist.length === 0
+              ? <p style={{ fontFamily: F.inter, fontSize: 13, color: 'rgba(255,255,255,0.2)' }}>Nenhum IP bloqueado.</p>
+              : (
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr>
+                      {['IP', 'Bloqueado em', 'Origem (participant_id)', 'País', ''].map(h => (
+                        <th key={h} style={{ fontFamily: F.inter, fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.1em', textTransform: 'uppercase', padding: '10px 14px', textAlign: 'left', borderBottom: '1px solid rgba(255,255,255,0.06)', whiteSpace: 'nowrap' }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {blocklist.map(doc => (
+                      <tr key={doc._id} style={{ transition: 'background 0.15s' }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.015)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                        <td style={{ fontFamily: F.space, fontSize: 13, fontWeight: 600, color: 'white', padding: '10px 14px', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>{doc.ip}</td>
+                        <td style={{ fontFamily: F.inter, fontSize: 12, color: 'rgba(255,255,255,0.4)', padding: '10px 14px', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>{doc.blocked_at ? new Date(doc.blocked_at).toLocaleString('pt-BR') : '—'}</td>
+                        <td style={{ fontFamily: F.inter, fontSize: 11, color: 'rgba(255,255,255,0.3)', padding: '10px 14px', borderBottom: '1px solid rgba(255,255,255,0.04)', maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{doc.source_participant_id || '—'}</td>
+                        <td style={{ fontFamily: F.inter, fontSize: 12, color: 'rgba(255,255,255,0.4)', padding: '10px 14px', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>{doc.geo?.country || '—'}</td>
+                        <td style={{ padding: '10px 14px', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                          <button onClick={() => removeIp(doc.ip)} style={{ fontFamily: F.inter, fontSize: 11, fontWeight: 500, color: 'rgba(200,80,80,0.8)', background: 'rgba(200,80,80,0.06)', border: '1px solid rgba(200,80,80,0.15)', borderRadius: 6, padding: '4px 10px', cursor: 'pointer', transition: 'all 0.15s' }}>Remover</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )
+          )}
+        </div>
       </div>
     </div>
   );
