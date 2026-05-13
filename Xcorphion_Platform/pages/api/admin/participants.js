@@ -96,7 +96,7 @@ export default async function handler(req, res) {
                     { participant_id: participant_code },
                     {
                         $set: setFields,
-                        $unset: { blocked_at: '', admin_deactivated: '', cleanup_complete: '' },
+                        $unset: { blocked_at: '', admin_deactivated: '', cleanup_complete: '', inactivated_at: '', admin_inactivated: '' },
                     }
                 );
 
@@ -107,7 +107,12 @@ export default async function handler(req, res) {
                         source_participant_id: participant_code,
                     });
                 }
-            } else if (action === 'deactivate') {
+            } else if (action === 'inactivate') {
+                await participants.updateOne(
+                    { participant_id: participant_code },
+                    { $set: { status: PARTICIPANT_STATUS.INATIVO, inactivated_at: new Date(), admin_inactivated: true } }
+                );
+            } else if (action === 'block') {
                 const participant = await participants.findOne({ participant_id: participant_code });
                 if (!participant) {
                     return res.status(404).json({ error: 'Participante não encontrado' });

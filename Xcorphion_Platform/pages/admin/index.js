@@ -12,7 +12,7 @@ const inputStyle = {
   transition: 'border-color 0.2s',
 };
 
-const STATUS_OPTIONS = ['TODOS', 'ATIVO', 'BLOQUEADO'];
+const STATUS_OPTIONS = ['TODOS', 'ATIVO', 'INATIVO', 'BLOQUEADO'];
 
 export default function AdminPanel() {
   const [password, setPassword]         = useState('');
@@ -55,26 +55,29 @@ export default function AdminPanel() {
   };
 
   const handleAction = async (participant_code, action, participant) => {
-    if (action === 'deactivate') {
+    const name = participant.participant_name || participant.participant_code;
+    if (action === 'block') {
       const hasData = (participant.sessions_completed > 0)
         || participant.session_1_status === 'CONCLUIDA'
         || participant.session_2_status === 'CONCLUIDA'
         || participant.session_3_status === 'CONCLUIDA'
         || participant.onboarding_complete;
-      const name = participant.participant_name || participant.participant_code;
       if (hasData) {
         const ok = confirm(
           `⚠️ ATENÇÃO — ${name} tem dados registrados.\n\n` +
           `Isso vai deletar permanentemente:\n` +
           `• Todos os eventos de digitação\n` +
           `• Todas as respostas EMA\n` +
-          `• Todas as sessões\n\n` +
-          `Digite OK para confirmar.`
+          `• Todas as sessões\n` +
+          `• E bloquear o IP do participante\n\n` +
+          `Clique OK para confirmar.`
         );
         if (!ok) return;
       } else {
-        if (!confirm(`Desativar ${name}?`)) return;
+        if (!confirm(`Bloquear ${name}? Isso bloqueará o IP e apagará os dados.`)) return;
       }
+    } else if (action === 'inactivate') {
+      if (!confirm(`Inativar ${name}?\n\nO acesso à pesquisa será bloqueado, mas os dados serão preservados e o IP não será bloqueado.`)) return;
     } else {
       if (!confirm('Tem certeza?')) return;
     }
@@ -159,7 +162,10 @@ export default function AdminPanel() {
                 <td style={tdStyle}>{p.participant_name || '—'}</td>
                 <td style={tdStyle}>{p.referrer_name || '—'}</td>
                 <td style={tdStyle}>
-                  <span style={{ display: 'inline-block', fontFamily: F.inter, fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', padding: '3px 8px', borderRadius: 4, color: p.status === 'ATIVO' ? 'rgba(120,200,120,0.9)' : p.status === 'BLOQUEADO' ? 'rgba(255,255,255,0.3)' : 'rgba(200,80,80,0.9)', background: p.status === 'ATIVO' ? 'rgba(120,200,120,0.08)' : p.status === 'BLOQUEADO' ? 'rgba(255,255,255,0.04)' : 'rgba(200,80,80,0.08)', border: `1px solid ${p.status === 'ATIVO' ? 'rgba(120,200,120,0.2)' : p.status === 'BLOQUEADO' ? 'rgba(255,255,255,0.1)' : 'rgba(200,80,80,0.2)'}` }}>{p.status}</span>
+                  <span style={{ display: 'inline-block', fontFamily: F.inter, fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', padding: '3px 8px', borderRadius: 4,
+                    color: p.status === 'ATIVO' ? 'rgba(120,200,120,0.9)' : p.status === 'INATIVO' ? 'rgba(220,140,60,0.9)' : p.status === 'BLOQUEADO' ? 'rgba(255,255,255,0.3)' : 'rgba(200,80,80,0.9)',
+                    background: p.status === 'ATIVO' ? 'rgba(120,200,120,0.08)' : p.status === 'INATIVO' ? 'rgba(220,140,60,0.08)' : p.status === 'BLOQUEADO' ? 'rgba(255,255,255,0.04)' : 'rgba(200,80,80,0.08)',
+                    border: `1px solid ${p.status === 'ATIVO' ? 'rgba(120,200,120,0.2)' : p.status === 'INATIVO' ? 'rgba(220,140,60,0.2)' : p.status === 'BLOQUEADO' ? 'rgba(255,255,255,0.1)' : 'rgba(200,80,80,0.2)'}` }}>{p.status}</span>
                 </td>
                 {[
                   { status: p.session_1_status, eng: p.session_1_engagement, devMismatch: false, ipMismatch: false },
@@ -190,9 +196,12 @@ export default function AdminPanel() {
                       <button onClick={() => handleAction(p.participant_id, 'authorize_s3', p)} style={{ fontFamily: F.inter, fontSize: 11, fontWeight: 500, color: 'rgba(120,200,120,0.9)', background: 'rgba(120,200,120,0.08)', border: '1px solid rgba(120,200,120,0.2)', borderRadius: 6, padding: '5px 10px', cursor: 'pointer', transition: 'all 0.15s' }}>Lib. S3</button>
                     )}
                     {p.status === 'ATIVO' && (
-                      <button onClick={() => handleAction(p.participant_id, 'deactivate', p)} style={{ fontFamily: F.inter, fontSize: 11, fontWeight: 500, color: 'rgba(200,80,80,0.9)', background: 'rgba(200,80,80,0.06)', border: '1px solid rgba(200,80,80,0.18)', borderRadius: 6, padding: '5px 10px', cursor: 'pointer', transition: 'all 0.15s' }}>Desativar</button>
+                      <button onClick={() => handleAction(p.participant_id, 'inactivate', p)} style={{ fontFamily: F.inter, fontSize: 11, fontWeight: 500, color: 'rgba(220,140,60,0.9)', background: 'rgba(220,140,60,0.06)', border: '1px solid rgba(220,140,60,0.18)', borderRadius: 6, padding: '5px 10px', cursor: 'pointer', transition: 'all 0.15s' }}>Inativar</button>
                     )}
-                    {p.status === 'BLOQUEADO' && (
+                    {p.status === 'ATIVO' && (
+                      <button onClick={() => handleAction(p.participant_id, 'block', p)} style={{ fontFamily: F.inter, fontSize: 11, fontWeight: 500, color: 'rgba(200,80,80,0.9)', background: 'rgba(200,80,80,0.06)', border: '1px solid rgba(200,80,80,0.18)', borderRadius: 6, padding: '5px 10px', cursor: 'pointer', transition: 'all 0.15s' }}>Bloquear</button>
+                    )}
+                    {(p.status === 'BLOQUEADO' || p.status === 'INATIVO') && (
                       <button onClick={() => handleAction(p.participant_id, 'reactivate', p)} style={{ fontFamily: F.inter, fontSize: 11, fontWeight: 500, color: 'rgba(100,160,255,0.9)', background: 'rgba(100,160,255,0.06)', border: '1px solid rgba(100,160,255,0.18)', borderRadius: 6, padding: '5px 10px', cursor: 'pointer', transition: 'all 0.15s' }}>Reativar</button>
                     )}
                   </div>

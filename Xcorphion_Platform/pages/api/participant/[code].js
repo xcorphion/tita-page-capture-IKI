@@ -90,6 +90,7 @@ export default async function handler(req, res) {
         const doc = await participants.findOne({ participant_code: code });
         if (!doc) return res.status(404).json({ error: 'Convite não encontrado.' });
         if (doc.status === PARTICIPANT_STATUS.BLOQUEADO) return res.status(403).json({ error: 'BLOQUEADO' });
+        if (doc.status === PARTICIPANT_STATUS.INATIVO) return res.status(403).json({ error: 'INATIVO' });
 
         if (ip && ip !== 'unknown') {
             const blocked = await db.collection('ip_blocklist').findOne({ ip });
