@@ -45,11 +45,27 @@ export default function StudyPage() {
   const [registerStatus, setRegisterStatus] = useState('idle'); // idle | loading | error
   const [registerError, setRegisterError] = useState('');
 
+  const openOrResume = async () => {
+    try {
+      const stored = localStorage.getItem('xcorphion_code');
+      if (stored) {
+        const code = stored.trim().toUpperCase();
+        const res = await fetch(`/api/participant/${encodeURIComponent(code)}`);
+        if (res.ok) { router.push(`/study/IKI/${code}`); return; }
+        localStorage.removeItem('xcorphion_code');
+      }
+    } catch {}
+    setParticipantName('');
+    setRegisterError('');
+    setRegisterStatus('idle');
+    setShowModal(true);
+  };
+
   useEffect(() => {
     if (!router.isReady) return;
     if (router.query.start === '1') {
-      setShowModal(true);
       router.replace('/study', undefined, { shallow: true });
+      openOrResume();
       return;
     }
     const code = typeof router.query.code === 'string' ? router.query.code.trim().toUpperCase() : '';
@@ -103,6 +119,7 @@ export default function StudyPage() {
         setRegisterError(data.error || t('study.modalGenericError'));
         return;
       }
+      localStorage.setItem('xcorphion_code', data.code);
       router.push(`/study/welcome?code=${data.code}`);
     } catch {
       setRegisterStatus('error');
@@ -192,7 +209,7 @@ export default function StudyPage() {
             </p>
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
               <button
-                onClick={() => { setParticipantName(''); setRegisterError(''); setRegisterStatus('idle'); setShowModal(true); }}
+                onClick={openOrResume}
                 style={{
                   display: 'inline-flex', alignItems: 'center', gap: 8,
                   fontFamily: F.inter, fontWeight: 500, fontSize: 14,

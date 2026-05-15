@@ -69,9 +69,11 @@ export default function IKIResearchPage() {
                 } else if (data.locked) {
                     setStatus('locked');
                 } else if (data.sessions_completed === 0 && !data.onboarding_complete) {
+                    localStorage.setItem('xcorphion_code', respondentId);
                     setStatus('ready');
                     setStep('consent');
                 } else {
+                    localStorage.setItem('xcorphion_code', respondentId);
                     setStatus('ready');
                     startSession(data.next_prompt_id || 1);
                 }
