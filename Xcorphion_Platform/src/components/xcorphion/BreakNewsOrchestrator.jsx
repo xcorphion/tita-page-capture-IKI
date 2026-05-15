@@ -62,7 +62,7 @@ const BreakNewsOrchestrator = () => {
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#8B0000]"></div>
                     </div>
                 ) : articles.length === 0 ? (
-                    <div className="px-8 text-white/40 italic font-inter py-10">{t('breaknews.noArticles')}</div>
+                    <div className="max-w-6xl mx-auto px-4 md:px-8 text-white/40 italic font-inter py-10">{t('breaknews.noArticles')}</div>
                 ) : (
                     <div className="relative">
                         {/* Carrossel full-width, cards saem da tela */}
