@@ -1,3 +1,13 @@
 node_modules/
 .env
+.env.local
 .next/
+.venv/
+*.pyc
+__pycache__/
+fix_duplicates.js
+fix_duplicates.mjs
+dados_*.json
+ohana_*.json
+tita_export.json
+iki_granularity_analysis.py
