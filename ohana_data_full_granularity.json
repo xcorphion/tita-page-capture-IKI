@@ -1,0 +1,29 @@
+{
+  "participant_id": "OHANA_DATA_FULL",
+  "granularity_analysis": [
+    {
+      "level": "character",
+      "n_points": 1786,
+      "r_valence": -0.0119,
+      "p_valence": 0.6158,
+      "r_arousal": 0.0155,
+      "p_arousal": 0.5136
+    },
+    {
+      "level": "word",
+      "n_points": 388,
+      "r_valence": 0.0197,
+      "p_valence": 0.699,
+      "r_arousal": 0.003,
+      "p_arousal": 0.9525
+    },
+    {
+      "level": "sentence",
+      "n_points": 78,
+      "r_valence": 0.0017,
+      "p_valence": 0.9885,
+      "r_arousal": 0.0177,
+      "p_arousal": 0.8777
+    }
+  ]
+}

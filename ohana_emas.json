@@ -1,0 +1,101 @@
+[
+    {
+        "_id": "69f60f7bf9756979dea23244",
+        "session_id": "50ffc90e-1309-4211-8362-a519accea964",
+        "participant_id": "01785dd52323c3d6b368d665623f9ea2ffc16f9304e01509b368276510ce75f9",
+        "prompt_index": 0,
+        "character_count": 192,
+        "valence": 35,
+        "arousal": 63,
+        "timestamp_rel_ms": 86730,
+        "created_at": "2026-05-02T14:51:39.595Z"
+    },
+    {
+        "_id": "69f61116f9756979dea233eb",
+        "session_id": "50ffc90e-1309-4211-8362-a519accea964",
+        "participant_id": "01785dd52323c3d6b368d665623f9ea2ffc16f9304e01509b368276510ce75f9",
+        "prompt_index": 0,
+        "character_count": 390,
+        "valence": 38,
+        "arousal": 60,
+        "timestamp_rel_ms": 498049,
+        "created_at": "2026-05-02T14:58:30.698Z"
+    },
+    {
+        "_id": "69f61155f9756979dea2359e",
+        "session_id": "50ffc90e-1309-4211-8362-a519accea964",
+        "participant_id": "01785dd52323c3d6b368d665623f9ea2ffc16f9304e01509b368276510ce75f9",
+        "prompt_index": 0,
+        "character_count": 578,
+        "valence": 61,
+        "arousal": 24,
+        "timestamp_rel_ms": 560841,
+        "created_at": "2026-05-02T14:59:33.496Z"
+    },
+    {
+        "_id": "69f61198f9756979dea23745",
+        "session_id": "50ffc90e-1309-4211-8362-a519accea964",
+        "participant_id": "01785dd52323c3d6b368d665623f9ea2ffc16f9304e01509b368276510ce75f9",
+        "prompt_index": 1,
+        "character_count": 770,
+        "valence": 63,
+        "arousal": 33,
+        "timestamp_rel_ms": 628313,
+        "created_at": "2026-05-02T15:00:40.957Z"
+    },
+    {
+        "_id": "69f611d3f9756979dea238f3",
+        "session_id": "50ffc90e-1309-4211-8362-a519accea964",
+        "participant_id": "01785dd52323c3d6b368d665623f9ea2ffc16f9304e01509b368276510ce75f9",
+        "prompt_index": 1,
+        "character_count": 961,
+        "valence": 63,
+        "arousal": 33,
+        "timestamp_rel_ms": 686881,
+        "created_at": "2026-05-02T15:01:39.531Z"
+    },
+    {
+        "_id": "69f61212f9756979dea23a96",
+        "session_id": "50ffc90e-1309-4211-8362-a519accea964",
+        "participant_id": "01785dd52323c3d6b368d665623f9ea2ffc16f9304e01509b368276510ce75f9",
+        "prompt_index": 1,
+        "character_count": 1157,
+        "valence": 67,
+        "arousal": 34,
+        "timestamp_rel_ms": 749513,
+        "created_at": "2026-05-02T15:02:42.165Z"
+    },
+    {
+        "_id": "69f61258f9756979dea23c3f",
+        "session_id": "50ffc90e-1309-4211-8362-a519accea964",
+        "participant_id": "01785dd52323c3d6b368d665623f9ea2ffc16f9304e01509b368276510ce75f9",
+        "prompt_index": 2,
+        "character_count": 1353,
+        "valence": 37,
+        "arousal": 60,
+        "timestamp_rel_ms": 819665,
+        "created_at": "2026-05-02T15:03:52.323Z"
+    },
+    {
+        "_id": "69f61297f9756979dea23de2",
+        "session_id": "50ffc90e-1309-4211-8362-a519accea964",
+        "participant_id": "01785dd52323c3d6b368d665623f9ea2ffc16f9304e01509b368276510ce75f9",
+        "prompt_index": 2,
+        "character_count": 1551,
+        "valence": 37,
+        "arousal": 61,
+        "timestamp_rel_ms": 883225,
+        "created_at": "2026-05-02T15:04:55.876Z"
+    },
+    {
+        "_id": "69f612dbf9756979dea23f9f",
+        "session_id": "50ffc90e-1309-4211-8362-a519accea964",
+        "participant_id": "01785dd52323c3d6b368d665623f9ea2ffc16f9304e01509b368276510ce75f9",
+        "prompt_index": 2,
+        "character_count": 1736,
+        "valence": 64,
+        "arousal": 41,
+        "timestamp_rel_ms": 951321,
+        "created_at": "2026-05-02T15:06:03.977Z"
+    }
+]
