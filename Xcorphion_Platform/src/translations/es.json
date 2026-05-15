@@ -105,7 +105,8 @@
     "modalParticipate": "Participar",
     "modalTerms": "Al continuar aceptas los",
     "modalTermsLink": "términos de uso",
-    "modalMethodology": "Metodología y privacidad"
+    "modalMethodology": "Metodología y privacidad",
+    "referrerBanner": "{name} te invitó a esta investigación"
   },
   "welcome": {
     "pageTitle": "Bienvenido a la investigación — Xcorphion",
@@ -230,6 +231,10 @@
     "inviteBtn": "Enviar invitación",
     "inviteError": "Error al enviar. Inténtalo de nuevo.",
     "inviteConnectionError": "Error de conexión.",
+    "inviteAnother": "Invitar a otra persona",
+    "inviteLinkLabel": "O comparte tu enlace de referido",
+    "inviteLinkCopy": "Copiar enlace",
+    "inviteLinkCopied": "¡Copiado!",
     "skipEmail": "Acceder ahora sin correo electrónico →",
     "returnHome": "Volver al Inicio"
   },

@@ -105,7 +105,8 @@
     "modalParticipate": "Participar",
     "modalTerms": "Ao prosseguir você concorda com os",
     "modalTermsLink": "termos de uso",
-    "modalMethodology": "Metodologia e privacidade"
+    "modalMethodology": "Metodologia e privacidade",
+    "referrerBanner": "{name} te convidou para esta pesquisa"
   },
   "welcome": {
     "pageTitle": "Bem-vindo à pesquisa — Xcorphion",
@@ -230,6 +231,10 @@
     "inviteBtn": "Enviar convite",
     "inviteError": "Erro ao enviar. Tente novamente.",
     "inviteConnectionError": "Erro de conexão.",
+    "inviteAnother": "Convidar outra pessoa",
+    "inviteLinkLabel": "Ou compartilhe seu link de indicação",
+    "inviteLinkCopy": "Copiar link",
+    "inviteLinkCopied": "Copiado!",
     "skipEmail": "Acessar agora sem e-mail →",
     "returnHome": "Retornar ao Início"
   },

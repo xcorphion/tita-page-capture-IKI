@@ -21,9 +21,11 @@ export default function ResearchFinishPage() {
   const [email, setEmail]             = useState('');
   const [emailError, setEmailError]   = useState('');
   const [sendError, setSendError]     = useState('');
-  const [inviteEmail, setInviteEmail] = useState('');
-  const [inviteStep, setInviteStep]   = useState('idle'); // idle | sending | sent | error
-  const [inviteError, setInviteError] = useState('');
+  const [inviteEmail, setInviteEmail]       = useState('');
+  const [inviteStep, setInviteStep]         = useState('idle'); // idle | sending | sent | error
+  const [inviteError, setInviteError]       = useState('');
+  const [invitesLocalCount, setInvitesLocalCount] = useState(0);
+  const [linkCopied, setLinkCopied]         = useState(false);
 
   const consentValid = consentInput === CONSENT_TEXT;
 
@@ -95,6 +97,7 @@ export default function ResearchFinishPage() {
       });
       if (res.ok) {
         setInviteStep('sent');
+        setInvitesLocalCount(c => c + 1);
       } else {
         const data = await res.json().catch(() => ({}));
         setInviteError(data.error || t('finish.inviteError'));
@@ -108,6 +111,14 @@ export default function ResearchFinishPage() {
 
   const platformUrl = process.env.NEXT_PUBLIC_PLATFORM_URL || 'https://xcorphion.online';
   const studyLink = respondentId ? `${platformUrl}/study?code=${respondentId}` : '#';
+  const referralLink = respondentId ? `${platformUrl}/study?referrer=${respondentId}` : '#';
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(referralLink).then(() => {
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2000);
+    });
+  };
 
   return (
     <>
@@ -211,13 +222,25 @@ export default function ResearchFinishPage() {
                 <div style={{ width: 40, height: 1, background: 'linear-gradient(to right, transparent, rgba(255,255,255,0.12), transparent)', margin: '0 auto 36px' }} />
                 <p style={{ fontFamily: F.inter, fontSize: 12, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 10 }}>{t('finish.inviteLabel')}</p>
                 {inviteStep === 'sent' ? (
-                  <p style={{ fontFamily: F.inter, fontSize: 14, color: 'rgba(255,255,255,0.55)', lineHeight: 1.75 }}>
-                    {ti('finish.inviteSent', { email: inviteEmail }).split(inviteEmail).map((part, i, arr) =>
-                      i < arr.length - 1
-                        ? <span key={i}>{part}<strong style={{ color: 'rgba(255,255,255,0.75)', fontWeight: 400 }}>{inviteEmail}</strong></span>
-                        : <span key={i}>{part}</span>
+                  <>
+                    <p style={{ fontFamily: F.inter, fontSize: 14, color: 'rgba(255,255,255,0.55)', lineHeight: 1.75 }}>
+                      {ti('finish.inviteSent', { email: inviteEmail }).split(inviteEmail).map((part, i, arr) =>
+                        i < arr.length - 1
+                          ? <span key={i}>{part}<strong style={{ color: 'rgba(255,255,255,0.75)', fontWeight: 400 }}>{inviteEmail}</strong></span>
+                          : <span key={i}>{part}</span>
+                      )}
+                    </p>
+                    {invitesLocalCount < 3 && (
+                      <button
+                        onClick={() => { setInviteStep('idle'); setInviteEmail(''); setInviteError(''); }}
+                        style={{ background: 'none', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '10px 20px', cursor: 'pointer', fontFamily: F.inter, fontSize: 13, color: 'rgba(255,255,255,0.4)', transition: 'all 0.2s', marginTop: 16 }}
+                        onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.22)'; e.currentTarget.style.color = 'rgba(255,255,255,0.7)'; }}
+                        onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = 'rgba(255,255,255,0.4)'; }}
+                      >
+                        {t('finish.inviteAnother')}
+                      </button>
                     )}
-                  </p>
+                  </>
                 ) : (
                   <>
                     <p style={{ fontFamily: F.inter, fontSize: 14, color: 'rgba(255,255,255,0.4)', lineHeight: 1.7, marginBottom: 16 }}>
@@ -240,6 +263,21 @@ export default function ResearchFinishPage() {
                     </button>
                   </>
                 )}
+              </div>
+
+              {/* Link copiável de indicação */}
+              <div style={{ marginTop: 32, textAlign: 'left' }}>
+                <div style={{ width: 40, height: 1, background: 'linear-gradient(to right, transparent, rgba(255,255,255,0.12), transparent)', margin: '0 auto 28px' }} />
+                <p style={{ fontFamily: F.inter, fontSize: 12, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 14 }}>{t('finish.inviteLinkLabel')}</p>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: '10px 14px' }}>
+                  <span style={{ fontFamily: F.inter, fontSize: 12, color: 'rgba(255,255,255,0.35)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{referralLink}</span>
+                  <button
+                    onClick={handleCopyLink}
+                    style={{ flexShrink: 0, background: linkCopied ? 'rgba(139,0,0,0.12)' : 'rgba(255,255,255,0.06)', border: `1px solid ${linkCopied ? 'rgba(139,0,0,0.3)' : 'rgba(255,255,255,0.1)'}`, borderRadius: 6, padding: '6px 12px', cursor: 'pointer', fontFamily: F.inter, fontSize: 11, color: linkCopied ? '#8B0000' : 'rgba(255,255,255,0.45)', transition: 'all 0.2s', whiteSpace: 'nowrap' }}
+                  >
+                    {linkCopied ? t('finish.inviteLinkCopied') : t('finish.inviteLinkCopy')}
+                  </button>
+                </div>
               </div>
             </>
           )}

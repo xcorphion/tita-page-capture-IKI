@@ -27,7 +27,7 @@ const P = ({ children, style }) => (
 
 export default function StudyPage() {
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, ti } = useTranslation();
   const nameInputRef = useRef(null);
 
   // --- Waitlist flow (for existing session-1 participants) ---
@@ -44,6 +44,7 @@ export default function StudyPage() {
   const [participantName, setParticipantName] = useState('');
   const [registerStatus, setRegisterStatus] = useState('idle'); // idle | loading | error
   const [registerError, setRegisterError] = useState('');
+  const [referrerName, setReferrerName] = useState('');
 
   const openOrResume = async () => {
     try {
@@ -81,6 +82,16 @@ export default function StudyPage() {
       .catch(() => { setEligible(false); setIneligibleReason('server_error'); })
       .finally(() => setVerifying(false));
   }, [router.isReady, router.query.code, router.query.start]);
+
+  useEffect(() => {
+    if (!router.isReady) return;
+    const ref = typeof router.query.referrer === 'string' ? router.query.referrer.trim().toUpperCase() : '';
+    if (!ref) return;
+    fetch(`/api/referrer-name?code=${encodeURIComponent(ref)}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data?.name) setReferrerName(data.name); })
+      .catch(() => {});
+  }, [router.isReady, router.query.referrer]);
 
   useEffect(() => {
     if (!showModal) return;
@@ -187,6 +198,14 @@ export default function StudyPage() {
           </span>
           <div style={{ width: 72 }} />
         </header>
+
+        {referrerName && (
+          <div style={{ background: 'rgba(139,0,0,0.08)', borderBottom: '1px solid rgba(139,0,0,0.15)', padding: '10px clamp(16px, 4vw, 40px)', textAlign: 'center' }}>
+            <span style={{ fontFamily: F.inter, fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>
+              {ti('study.referrerBanner', { name: referrerName })}
+            </span>
+          </div>
+        )}
 
         {/* Hero */}
         <div style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', padding: 'clamp(48px, 8vw, 88px) clamp(16px, 4vw, 40px) clamp(48px, 8vw, 80px)' }}>
