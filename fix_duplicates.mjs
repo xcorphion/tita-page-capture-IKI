@@ -1,6 +1,7 @@
 import { MongoClient } from 'mongodb';
 
-const URI = 'mongodb+srv://titauseradmin:Joaozinho%2417@clustertita.t59bntv.mongodb.net/Research_System?retryWrites=true&w=majority&appName=ClusterTita';
+import 'dotenv/config';
+const URI = process.env.MONGODB_URI;
 
 const client = new MongoClient(URI);
 await client.connect();
