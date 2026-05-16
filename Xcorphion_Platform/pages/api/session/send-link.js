@@ -4,7 +4,7 @@ import { tplSessionLink, tplWelcome } from '../../../lib/emailTemplates';
 import { rateLimit } from '../../../lib/rateLimit';
 import { SESSION_STATUS } from '../../../lib/schema';
 
-const CONSENT_TEXT = 'SIM, EU ACEITO';
+const VALID_CONSENT_TEXTS = new Set(['SIM, EU ACEITO', 'YES, I ACCEPT', 'SÍ, ACEPTO']);
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
@@ -14,7 +14,7 @@ export default async function handler(req, res) {
 
   const { participant_code, email, consent_text } = req.body || {};
 
-  if (consent_text !== CONSENT_TEXT)
+  if (!VALID_CONSENT_TEXTS.has(consent_text))
     return res.status(400).json({ error: 'Consentimento inválido.' });
 
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()))
@@ -43,20 +43,15 @@ export default async function handler(req, res) {
     const studyLink = `${platformUrl}/study?code=${code}`;
     const sessionLink = `${platformUrl}/study/IKI/${code}`;
     const isFirstTime = !participant.contact_email;
+    const locale = participant.locale || 'pt';
 
-    await sendMail({
-      to: email.trim(),
-      subject: 'Seu acesso à pesquisa OMMΩ — Xcorphion',
-      html: tplSessionLink({ code, studyLink }),
-    });
+    const e03 = tplSessionLink({ code, studyLink, locale });
+    await sendMail({ to: email.trim(), subject: e03.subject, html: e03.html });
 
     // E01: boas-vindas com o código — enviado na primeira vez que o email é registrado
     if (isFirstTime) {
-      await sendMail({
-        to: email.trim(),
-        subject: 'Bem-vindo à pesquisa OMMΩ — Xcorphion',
-        html: tplWelcome({ name: participant.participant_name, code, sessionLink }),
-      }).catch(() => {});
+      const e01 = tplWelcome({ name: participant.participant_name, code, sessionLink, locale });
+      await sendMail({ to: email.trim(), subject: e01.subject, html: e01.html }).catch(() => {});
     }
 
     return res.status(200).json({ ok: true });

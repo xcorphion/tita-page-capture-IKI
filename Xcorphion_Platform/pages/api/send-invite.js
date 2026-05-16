@@ -41,7 +41,7 @@ export default async function handler(req, res) {
     const participant_id = hashParticipantId(code);
     const participant = await db.collection('participants').findOne(
       { participant_id },
-      { projection: { participant_name: 1, session_1_status: 1, status: 1, invites_sent: 1, contact_email: 1 } }
+      { projection: { participant_name: 1, session_1_status: 1, status: 1, invites_sent: 1, contact_email: 1, locale: 1 } }
     );
 
     if (!participant || participant.status === PARTICIPANT_STATUS.BLOQUEADO)
@@ -63,11 +63,12 @@ export default async function handler(req, res) {
     const inviteLink = `${PLATFORM_URL}/study?referrer=${encodeURIComponent(code)}`;
     const safeName = stripHtml(participant.participant_name).slice(0, 80) || 'Um participante';
 
-    await sendMail({
-      to: friendEmail,
-      subject: `${safeName} te convidou para a pesquisa OMMΩ`,
-      html: tplReferralInvite({ referrerName: safeName, inviteLink }),
+    const { subject, html } = tplReferralInvite({
+      referrerName: safeName,
+      inviteLink,
+      locale: participant.locale || 'pt',
     });
+    await sendMail({ to: friendEmail, subject, html });
 
     await db.collection('participants').updateOne(
       { participant_id },

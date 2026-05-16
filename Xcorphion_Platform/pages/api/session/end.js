@@ -116,24 +116,21 @@ export default async function handler(req, res) {
         await db.collection('participants').updateOne({ participant_id }, participantUpdate);
 
         if (currentSession === 3 && participant.contact_email) {
-            sendMailSilent({
-                to: participant.contact_email,
-                subject: 'Pesquisa concluída — OMMΩ · Xcorphion',
-                html: tplResearchComplete({ name: participant.participant_name }),
+            const { subject, html } = tplResearchComplete({
+                name: participant.participant_name,
+                locale: participant.locale || 'pt',
             });
+            sendMailSilent({ to: participant.contact_email, subject, html });
         }
 
         const adminEmail = process.env.ADMIN_EMAIL;
         if (adminEmail) {
-            sendMailSilent({
-                to: adminEmail,
-                subject: `[Xcorphion] Sessão ${currentSession} concluída — ${participant.participant_code}`,
-                html: tplAdminAlert({
-                    event: `Sessão ${currentSession} concluída`,
-                    participantCode: participant.participant_code,
-                    details: `Nome: ${participant.participant_name} | Engajamento: ${engagement_genuine ? 'genuíno' : 'suspeito'}`,
-                }),
+            const { subject, html } = tplAdminAlert({
+                event: `Sessão ${currentSession} concluída`,
+                participantCode: participant.participant_code,
+                details: `Nome: ${participant.participant_name} | Engajamento: ${engagement_genuine ? 'genuíno' : 'suspeito'}`,
             });
+            sendMailSilent({ to: adminEmail, subject, html });
         }
 
         res.json({ ok: true });

@@ -43,6 +43,7 @@ export function createParticipantDoc({
   connect_code = null,
   respondent_number = null,
   contact_email = null,
+  locale = 'pt',
 }) {
   return {
     participant_id,
@@ -52,6 +53,7 @@ export function createParticipantDoc({
     connect_code,
     respondent_number,
     contact_email,
+    locale,
     status:               PARTICIPANT_STATUS.ATIVO,
     session_1_status:     SESSION_STATUS.LIBERADA,
     session_2_status:     SESSION_STATUS.AGUARDANDO,

@@ -37,7 +37,7 @@ export default async function handler(req, res) {
         { last_s2_reminder: { $lt: cutoff } },
       ],
     }, {
-      projection: { contact_email: 1, participant_name: 1, participant_code: 1 }
+      projection: { contact_email: 1, participant_name: 1, participant_code: 1, locale: 1 }
     }).toArray();
 
     // S3 reminders: participants with S3 authorized but not started/done, last reminder > 3 days ago
@@ -49,18 +49,15 @@ export default async function handler(req, res) {
         { last_s3_reminder: { $lt: cutoff } },
       ],
     }, {
-      projection: { contact_email: 1, participant_name: 1, participant_code: 1 }
+      projection: { contact_email: 1, participant_name: 1, participant_code: 1, locale: 1 }
     }).toArray();
 
     const PLATFORM_URL = process.env.NEXT_PUBLIC_PLATFORM_URL || 'https://xcorphion.online';
 
     for (const p of s2Pending) {
       const studyLink = `${PLATFORM_URL}/study?code=${p.participant_code}`;
-      sendMailSilent({
-        to: p.contact_email,
-        subject: 'Sua Sessão 2 ainda está disponível — Xcorphion',
-        html: tplSessionReminder({ name: p.participant_name, session: 2, studyLink }),
-      });
+      const { subject, html } = tplSessionReminder({ name: p.participant_name, session: 2, studyLink, locale: p.locale || 'pt' });
+      sendMailSilent({ to: p.contact_email, subject, html });
       await db.collection('participants').updateOne(
         { participant_code: p.participant_code },
         { $set: { last_s2_reminder: now } }
@@ -69,11 +66,8 @@ export default async function handler(req, res) {
 
     for (const p of s3Pending) {
       const studyLink = `${PLATFORM_URL}/study?code=${p.participant_code}`;
-      sendMailSilent({
-        to: p.contact_email,
-        subject: 'Sua Sessão 3 ainda está disponível — Xcorphion',
-        html: tplSessionReminder({ name: p.participant_name, session: 3, studyLink }),
-      });
+      const { subject, html } = tplSessionReminder({ name: p.participant_name, session: 3, studyLink, locale: p.locale || 'pt' });
+      sendMailSilent({ to: p.contact_email, subject, html });
       await db.collection('participants').updateOne(
         { participant_code: p.participant_code },
         { $set: { last_s3_reminder: now } }

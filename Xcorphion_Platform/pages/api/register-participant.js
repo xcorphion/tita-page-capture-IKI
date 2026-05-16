@@ -29,7 +29,8 @@ export default async function handler(req, res) {
   if (await rateLimit(req, { max: 5, windowMs: 10 * 60_000, bucket: 'register' }))
     return res.status(429).json({ success: false, error: 'Muitas requisições. Aguarde antes de tentar novamente.' });
 
-  const { participant_name, referrer_code } = req.body || {};
+  const { participant_name, referrer_code, locale: rawLocale } = req.body || {};
+  const locale = ['pt', 'en', 'es'].includes(rawLocale) ? rawLocale : 'pt';
 
   if (!participant_name || typeof participant_name !== 'string')
     return res.status(400).json({ success: false, error: 'Nome inválido.' });
@@ -94,7 +95,7 @@ export default async function handler(req, res) {
       const referrerId = hashParticipantId(rawRef);
       referrer = await col.findOne(
         { participant_id: referrerId, status: { $ne: PARTICIPANT_STATUS.BLOQUEADO } },
-        { projection: { participant_name: 1, contact_email: 1 } }
+        { projection: { participant_name: 1, contact_email: 1, locale: 1 } }
       );
       if (!referrer)
         return res.status(400).json({ success: false, error: 'Código de referência não encontrado.' });
@@ -111,27 +112,26 @@ export default async function handler(req, res) {
       source,
       connect_code: connectCode,
       respondent_number,
+      locale,
     }));
 
     if (source === 'referrer' && referrer?.contact_email) {
-      sendMailSilent({
-        to: referrer.contact_email,
-        subject: 'Seu convite foi aceito — Xcorphion',
-        html: tplReferralConfirmed({ referrerName: referrer.participant_name, newParticipantName: name }),
+      const { subject, html } = tplReferralConfirmed({
+        referrerName: referrer.participant_name,
+        newParticipantName: name,
+        locale: referrer.locale || 'pt',
       });
+      sendMailSilent({ to: referrer.contact_email, subject, html });
     }
 
     const adminEmail = process.env.ADMIN_EMAIL;
     if (adminEmail) {
-      sendMailSilent({
-        to: adminEmail,
-        subject: `[Xcorphion] Novo participante — ${code}`,
-        html: tplAdminAlert({
-          event: 'Novo registro',
-          participantCode: code,
-          details: `Nome: ${name} | Fonte: ${source}`,
-        }),
+      const { subject, html } = tplAdminAlert({
+        event: 'Novo registro',
+        participantCode: code,
+        details: `Nome: ${name} | Fonte: ${source}`,
       });
+      sendMailSilent({ to: adminEmail, subject, html });
     }
 
     return res.status(201).json({ success: true, code });

@@ -17,17 +17,19 @@ export default async function handler(req, res) {
     const db = await connectToDatabase();
     const participant = await db.collection('participants').findOne(
       { contact_email: email.trim().toLowerCase() },
-      { projection: { participant_name: 1, participant_code: 1 } }
+      { projection: { participant_name: 1, participant_code: 1, locale: 1 } }
     );
 
     if (participant?.participant_code) {
       const PLATFORM_URL = process.env.NEXT_PUBLIC_PLATFORM_URL || 'https://xcorphion.online';
       const sessionLink = `${PLATFORM_URL}/study?code=${participant.participant_code}`;
-      sendMailSilent({
-        to: email.trim(),
-        subject: 'Seu código de acesso — Xcorphion',
-        html: tplCodeReminder({ name: participant.participant_name, code: participant.participant_code, sessionLink }),
+      const { subject, html } = tplCodeReminder({
+        name: participant.participant_name,
+        code: participant.participant_code,
+        sessionLink,
+        locale: participant.locale || 'pt',
       });
+      sendMailSilent({ to: email.trim(), subject, html });
     }
 
     // Always respond the same to prevent email enumeration

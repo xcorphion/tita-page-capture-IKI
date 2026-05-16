@@ -47,14 +47,11 @@ export default async function handler(req, res) {
                 );
                 const p = await participants.findOne(
                     { participant_id: participant_code },
-                    { projection: { contact_email: 1, participant_name: 1, participant_code: 1 } }
+                    { projection: { contact_email: 1, participant_name: 1, participant_code: 1, locale: 1 } }
                 );
                 if (p?.contact_email) {
-                    sendMailSilent({
-                        to: p.contact_email,
-                        subject: 'Sua Sessão 2 foi liberada — Xcorphion',
-                        html: tplSessionUnlocked({ name: p.participant_name, session: 2, studyLink: `${PLATFORM_URL}/study?code=${p.participant_code}` }),
-                    });
+                    const { subject, html } = tplSessionUnlocked({ name: p.participant_name, session: 2, studyLink: `${PLATFORM_URL}/study?code=${p.participant_code}`, locale: p.locale || 'pt' });
+                    sendMailSilent({ to: p.contact_email, subject, html });
                 }
             } else if (action === 'authorize_s3') {
                 await participants.updateOne(
@@ -63,14 +60,11 @@ export default async function handler(req, res) {
                 );
                 const p = await participants.findOne(
                     { participant_id: participant_code },
-                    { projection: { contact_email: 1, participant_name: 1, participant_code: 1 } }
+                    { projection: { contact_email: 1, participant_name: 1, participant_code: 1, locale: 1 } }
                 );
                 if (p?.contact_email) {
-                    sendMailSilent({
-                        to: p.contact_email,
-                        subject: 'Sua Sessão 3 foi liberada — Xcorphion',
-                        html: tplSessionUnlocked({ name: p.participant_name, session: 3, studyLink: `${PLATFORM_URL}/study?code=${p.participant_code}` }),
-                    });
+                    const { subject, html } = tplSessionUnlocked({ name: p.participant_name, session: 3, studyLink: `${PLATFORM_URL}/study?code=${p.participant_code}`, locale: p.locale || 'pt' });
+                    sendMailSilent({ to: p.contact_email, subject, html });
                 }
             } else if (action === 'reactivate') {
                 const participant = await participants.findOne({ participant_id: participant_code });

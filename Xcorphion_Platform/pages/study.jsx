@@ -116,7 +116,7 @@ export default function StudyPage() {
     setRegisterError('');
     try {
       const referrerCode = typeof router.query.referrer === 'string' ? router.query.referrer.trim() : undefined;
-      const body = { participant_name: name };
+      const body = { participant_name: name, locale: router.locale || 'pt' };
       if (referrerCode) body.referrer_code = referrerCode;
 
       const res = await fetch('/api/register-participant', {

@@ -42,11 +42,8 @@ export default async function handler(req, res) {
       registered_at: new Date(),
     });
 
-    sendMailSilent({
-      to: email.trim(),
-      subject: 'Você está na lista — OMMΩ · Xcorphion',
-      html: tplWaitlistConfirm(),
-    });
+    const { subject, html } = tplWaitlistConfirm({ locale: participant.locale || 'pt' });
+    sendMailSilent({ to: email.trim(), subject, html });
 
     return res.status(201).json({ success: true, already: false });
   } catch (err) {

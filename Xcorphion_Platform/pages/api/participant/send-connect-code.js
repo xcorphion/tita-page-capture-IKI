@@ -17,15 +17,16 @@ export default async function handler(req, res) {
     const db = await connectToDatabase();
     const participant = await db.collection('participants').findOne(
       { participant_code: code },
-      { projection: { contact_email: 1, participant_name: 1, connect_code: 1 } }
+      { projection: { contact_email: 1, participant_name: 1, connect_code: 1, locale: 1 } }
     );
 
     if (participant?.contact_email && participant?.connect_code) {
-      sendMailSilent({
-        to: participant.contact_email,
-        subject: 'Acesse em outro dispositivo — Xcorphion',
-        html: tplConnectCode({ name: participant.participant_name, connectCode: participant.connect_code }),
+      const { subject, html } = tplConnectCode({
+        name: participant.participant_name,
+        connectCode: participant.connect_code,
+        locale: participant.locale || 'pt',
       });
+      sendMailSilent({ to: participant.contact_email, subject, html });
     }
 
     // Return the connect_code in the response so the equipment modal can display
