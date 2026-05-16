@@ -127,7 +127,7 @@ export default function Dashboard() {
             <Plot data={[{ x: plots.russell.map(p => p.v), y: plots.russell.map(p => p.a), mode: 'lines+markers+text', text: plots.russell.map((p, i) => `EMA ${i + 1}`), line: { shape: 'spline', color: '#8B0000' }, marker: { size: 10, color: plots.russell.map(p => p.char), colorscale: 'Reds' } }]} layout={plotLayout({ xTitle: 'Valência', yTitle: 'Arousal', xRange: [0, 100], yRange: [0, 100] })} style={{ width: '100%' }} config={{ responsive: true }} />
           </PlotCard>
           <PlotCard title="IKI Timeline (Escala Log) + Marcadores EMA">
-            <Plot data={[{ x: plots.timeline.ikis.map(i => i.t), y: plots.timeline.ikis.map(i => i.v), mode: 'markers', marker: { size: 2, color: 'rgba(255,255,255,0.15)' }, name: 'IKI (log1p)' }, ...plots.timeline.emas.map((ema, i) => ({ x: [ema.t, ema.t], y: [0, 10], mode: 'lines', line: { color: getQuadrantColor(ema.v, ema.a), width: 2, dash: 'dot' }, name: `EMA ${i + 1}` }))]} layout={plotLayout({ xTitle: 'Tempo Relativo (ms)', yTitle: 'log1p(IKI)', showLegend: false })} style={{ width: '100%' }} config={{ responsive: true }} />
+            <Plot data={[{ x: plots.timeline.ikis.map(i => i.t), y: plots.timeline.ikis.map(i => i.v), mode: 'markers', marker: { size: 2, color: 'rgba(255,255,255,0.15)' }, name: 'IKI (log1p)' }, ...plots.timeline.emas.map((ema, i) => ({ x: [ema.t, ema.t], y: [0, 10], mode: 'lines', line: { color: getQuadrantColor(ema.v), width: 2, dash: 'dot' }, name: `EMA ${i + 1}` }))]} layout={plotLayout({ xTitle: 'Tempo Relativo (ms)', yTitle: 'log1p(IKI)', showLegend: false })} style={{ width: '100%' }} config={{ responsive: true }} />
           </PlotCard>
           <PlotCard title="Distribuição Lognormal dos IKIs">
             <Plot data={[{ x: plots.distribution, type: 'histogram', name: 'Distribuição Real', marker: { color: 'rgba(139,0,0,0.45)' }, histnorm: 'probability density' }]} layout={plotLayout({ xTitle: 'log1p(IKI)', yTitle: 'Densidade' })} style={{ width: '100%' }} />
@@ -175,9 +175,6 @@ function MetricCard({ title, value, color = 'white', gate = '', met }) {
   );
 }
 
-function getQuadrantColor(v, a) {
-  if (v >= 50 && a >= 50) return 'rgba(220,80,80,0.8)';
-  if (v < 50 && a >= 50) return 'rgba(139,0,0,0.9)';
-  if (v < 50 && a < 50) return 'rgba(80,120,220,0.8)';
-  return 'rgba(120,200,120,0.8)';
+function getQuadrantColor(v) {
+  return v < 50 ? 'rgba(220,80,80,0.8)' : 'rgba(120,200,120,0.8)';
 }
