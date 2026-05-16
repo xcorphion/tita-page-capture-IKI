@@ -468,8 +468,11 @@ export default function IKIResearchPage() {
                                 </svg>
                             </div>
                             <h2 style={{ fontFamily: F.space, fontWeight: 700, fontSize: 24, letterSpacing: '-0.025em', color: 'white', marginBottom: 8, lineHeight: 1.2 }}>{t('iki.wpmTitle')}</h2>
-                            <p style={{ fontFamily: F.inter, fontSize: 14, color: 'rgba(255,255,255,0.35)', fontWeight: 300 }}>
+                            <p style={{ fontFamily: F.inter, fontSize: 14, color: 'rgba(255,255,255,0.35)', fontWeight: 300, marginBottom: 6 }}>
                                 {t('iki.wpmSubtitle')}
+                            </p>
+                            <p style={{ fontFamily: F.inter, fontSize: 12, color: 'rgba(255,180,0,0.65)', fontWeight: 400, letterSpacing: '0.02em' }}>
+                                {t('iki.wpmStartHint')}
                             </p>
                         </div>
 
@@ -509,7 +512,7 @@ export default function IKIResearchPage() {
                                     <p style={{ fontFamily: F.space, fontSize: 12, fontWeight: 600, color: 'rgba(255,200,0,0.7)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 4 }}>{t('iki.resumeWarningTitle')}</p>
                                     <p style={{ fontFamily: F.inter, fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.65, fontWeight: 300 }}>{t('iki.resumeWarningDesc')}</p>
                                 </div>
-                                <button onClick={() => setResumeWarning(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.2)', fontSize: 18, lineHeight: 1, flexShrink: 0 }}>✕</button>
+                                <button onClick={() => setResumeWarning(false)} style={{ background: 'none', border: '1px solid rgba(255,200,0,0.2)', borderRadius: 6, padding: '4px 10px', cursor: 'pointer', color: 'rgba(255,200,0,0.6)', fontFamily: F.inter, fontSize: 11, letterSpacing: '0.06em', flexShrink: 0 }}>{t('iki.resumeWarningDismiss')}</button>
                             </div>
                         )}
                         {jitterWarning && (
@@ -521,7 +524,7 @@ export default function IKIResearchPage() {
                                     <p style={{ fontFamily: F.space, fontSize: 12, fontWeight: 600, color: '#8B0000', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 4 }}>{t('iki.jitterWarningTitle')}</p>
                                     <p style={{ fontFamily: F.inter, fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.65, fontWeight: 300 }}>{t('iki.jitterWarningDesc')}</p>
                                 </div>
-                                <button onClick={() => setJitterWarning(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.2)', fontSize: 18, lineHeight: 1, flexShrink: 0 }}>✕</button>
+                                <button onClick={() => setJitterWarning(false)} style={{ background: 'none', border: '1px solid rgba(139,0,0,0.3)', borderRadius: 6, padding: '4px 10px', cursor: 'pointer', color: 'rgba(139,0,0,0.7)', fontFamily: F.inter, fontSize: 11, letterSpacing: '0.06em', flexShrink: 0 }}>{t('iki.jitterWarningDismiss')}</button>
                             </div>
                         )}
 
@@ -550,25 +553,29 @@ export default function IKIResearchPage() {
 
                         {showEma && (
                             <div style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(0,0,0,0.95)', backdropFilter: 'blur(14px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
-                                <div style={{ width: '100%', maxWidth: 340, background: '#070707', border: '1px solid rgba(255,255,255,0.08)', padding: '44px 40px', borderRadius: 24, boxShadow: '0 32px 80px rgba(0,0,0,0.7)' }}>
-                                    <p style={{ fontFamily: F.inter, fontSize: 10, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.12em', textTransform: 'uppercase', textAlign: 'center', marginBottom: 36 }}>{t('iki.emaState')}</p>
-                                    <div style={{ marginBottom: 36 }}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: F.inter, fontSize: 9, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 16 }}>
+                                <div style={{ width: '100%', maxWidth: 340, background: '#070707', border: '1px solid rgba(255,255,255,0.08)', padding: '40px 36px', borderRadius: 24, boxShadow: '0 32px 80px rgba(0,0,0,0.7)' }}>
+                                    <div style={{ textAlign: 'center', marginBottom: 32 }}>
+                                        <p style={{ fontFamily: F.inter, fontSize: 11, fontWeight: 600, color: '#8B0000', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6 }}>{t('iki.emaState')}</p>
+                                        <p style={{ fontFamily: F.space, fontSize: 18, fontWeight: 700, color: 'white', letterSpacing: '-0.02em', marginBottom: 6 }}>{t('iki.emaQuestion')}</p>
+                                        <p style={{ fontFamily: F.inter, fontSize: 12, color: 'rgba(255,255,255,0.3)', lineHeight: 1.5 }}>{t('iki.emaBothSliders')}</p>
+                                    </div>
+                                    <div style={{ marginBottom: 32 }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: F.inter, fontSize: 10, fontWeight: 500, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 14 }}>
                                             <span>{t('iki.emaNegative')}</span><span>{t('iki.emaPositive')}</span>
                                         </div>
                                         <input type="range" min="0" max="100" value={emaValence}
                                             onChange={e => { const n = Number(e.target.value); setEmaValence(n); setVTouched(true); emaValenceRef.current = n; }} />
-                                        {!vTouched && <p style={{ fontFamily: F.inter, fontSize: 10, color: 'rgba(139,0,0,0.55)', textAlign: 'center', marginTop: 10, letterSpacing: '0.08em' }}>{t('iki.emaMoveControl')}</p>}
+                                        {!vTouched && <p style={{ fontFamily: F.inter, fontSize: 11, color: 'rgba(255,180,0,0.7)', textAlign: 'center', marginTop: 10, letterSpacing: '0.04em' }}>← {t('iki.emaMoveControl')} →</p>}
                                     </div>
-                                    <div style={{ marginBottom: 40 }}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: F.inter, fontSize: 9, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 16 }}>
+                                    <div style={{ marginBottom: 36 }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: F.inter, fontSize: 10, fontWeight: 500, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 14 }}>
                                             <span>{t('iki.emaCalm')}</span><span>{t('iki.emaAgitated')}</span>
                                         </div>
                                         <input type="range" min="0" max="100" value={emaArousal}
                                             onChange={e => { const n = Number(e.target.value); setEmaArousal(n); setATouched(true); emaArousalRef.current = n; }} />
-                                        {!aTouched && <p style={{ fontFamily: F.inter, fontSize: 10, color: 'rgba(139,0,0,0.55)', textAlign: 'center', marginTop: 10, letterSpacing: '0.08em' }}>{t('iki.emaMoveControl')}</p>}
+                                        {!aTouched && <p style={{ fontFamily: F.inter, fontSize: 11, color: 'rgba(255,180,0,0.7)', textAlign: 'center', marginTop: 10, letterSpacing: '0.04em' }}>← {t('iki.emaMoveControl')} →</p>}
                                     </div>
-                                    <button onClick={handleEmaSubmit} style={{ width: '100%', fontFamily: F.inter, fontWeight: 500, fontSize: 13, color: 'white', background: '#8B0000', border: 'none', borderRadius: 10, padding: '14px 24px', cursor: 'pointer', letterSpacing: '0.06em', boxShadow: '0 0 24px rgba(139,0,0,0.22)', transition: 'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = '#9e0000'} onMouseLeave={e => e.currentTarget.style.background = '#8B0000'}>{t('iki.emaContinue')}</button>
+                                    <button onClick={handleEmaSubmit} style={{ width: '100%', fontFamily: F.inter, fontWeight: 600, fontSize: 13, color: 'white', background: '#8B0000', border: 'none', borderRadius: 10, padding: '14px 24px', cursor: 'pointer', letterSpacing: '0.06em', boxShadow: '0 0 24px rgba(139,0,0,0.22)', transition: 'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = '#9e0000'} onMouseLeave={e => e.currentTarget.style.background = '#8B0000'}>{t('iki.emaContinue')}</button>
                                 </div>
                             </div>
                         )}
@@ -590,6 +597,10 @@ export default function IKIResearchPage() {
                                                         onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; e.currentTarget.style.color = 'rgba(255,255,255,0.6)'; e.currentTarget.style.boxShadow = 'none'; }}
                                                     >{r}</button>
                                                 ))}
+                                            </div>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 10, padding: '0 4px' }}>
+                                                <span style={{ fontFamily: F.inter, fontSize: 10, color: 'rgba(255,255,255,0.25)', letterSpacing: '0.06em' }}>{t('iki.endRatingScaleMin')}</span>
+                                                <span style={{ fontFamily: F.inter, fontSize: 10, color: 'rgba(255,255,255,0.25)', letterSpacing: '0.06em' }}>{t('iki.endRatingScaleMax')}</span>
                                             </div>
                                         </div>
                                     )}

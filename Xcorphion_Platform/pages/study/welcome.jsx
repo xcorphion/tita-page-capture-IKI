@@ -149,7 +149,7 @@ export default function StudyWelcome() {
                   )}
                 </button>
               </div>
-              <p style={{ fontFamily: F.inter, fontSize: 13, color: 'rgba(255,255,255,0.25)', margin: 0, lineHeight: 1.6 }}>
+              <p style={{ fontFamily: F.inter, fontSize: 13, color: 'rgba(255,255,255,0.45)', margin: 0, lineHeight: 1.6 }}>
                 {t('welcome.codeNote')}
               </p>
             </div>

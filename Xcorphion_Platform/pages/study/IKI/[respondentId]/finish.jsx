@@ -18,6 +18,7 @@ export default function ResearchFinishPage() {
   const [step, setStep]               = useState('consent');
   const [consentInput, setConsentInput] = useState('');
   const [pasteBlocked, setPasteBlocked] = useState(false);
+  const [capsLockOff, setCapsLockOff] = useState(false);
   const [email, setEmail]             = useState('');
   const [emailError, setEmailError]   = useState('');
   const [sendError, setSendError]     = useState('');
@@ -167,23 +168,31 @@ export default function ResearchFinishPage() {
 
           {step === 'consent' && (
             <div style={{ textAlign: 'left' }}>
-              <p style={{ fontFamily: F.inter, fontSize: 12, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 10 }}>{t('finish.consentLabel')}</p>
-              <p style={{ fontFamily: F.inter, fontSize: 14, color: 'rgba(255,255,255,0.45)', lineHeight: 1.7, marginBottom: 20 }}>
+              <p style={{ fontFamily: F.inter, fontSize: 11, fontWeight: 600, color: '#8B0000', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 12 }}>{t('finish.consentStep')}</p>
+              <p style={{ fontFamily: F.inter, fontSize: 14, color: 'rgba(255,255,255,0.5)', lineHeight: 1.7, marginBottom: 20 }}>
                 {t('finish.consentDesc')}
               </p>
-              <div style={{ fontFamily: F.inter, fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.75)', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '10px 16px', letterSpacing: '0.06em', textAlign: 'center', marginBottom: 16, userSelect: 'none' }}>
+              <p style={{ fontFamily: F.inter, fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.7)', marginBottom: 10 }}>
+                {t('finish.consentInstruction')}
+              </p>
+              <div style={{ fontFamily: "'Courier New', monospace", fontSize: 15, fontWeight: 700, color: 'white', background: 'rgba(139,0,0,0.08)', border: '1px solid rgba(139,0,0,0.3)', borderRadius: 8, padding: '12px 16px', letterSpacing: '0.12em', textAlign: 'center', marginBottom: 12, userSelect: 'none' }}>
                 {CONSENT_TEXT}
               </div>
               <input
                 type="text" placeholder={t('finish.consentPlaceholder')} value={consentInput}
                 onChange={e => setConsentInput(e.target.value)}
                 onPaste={handlePaste}
-                onKeyDown={e => e.key === 'Enter' && handleConsentSubmit()}
+                onKeyDown={e => { setCapsLockOff(!e.getModifierState('CapsLock')); if (e.key === 'Enter') handleConsentSubmit(); }}
                 autoComplete="off" spellCheck={false}
-                style={{ ...inputBase, marginBottom: 8, borderColor: consentInput.length > 0 && !consentValid ? 'rgba(200,80,80,0.4)' : consentValid ? 'rgba(120,200,120,0.35)' : 'rgba(255,255,255,0.1)' }}
+                style={{ ...inputBase, marginBottom: 6, fontFamily: "'Courier New', monospace", letterSpacing: '0.08em', borderColor: consentInput.length > 0 && !consentValid ? 'rgba(200,80,80,0.4)' : consentValid ? 'rgba(120,200,120,0.35)' : 'rgba(255,255,255,0.1)' }}
               />
-              {pasteBlocked && <p style={{ fontFamily: F.inter, fontSize: 12, color: 'rgba(200,100,60,0.9)', marginBottom: 8 }}>{t('finish.consentPasteBlocked')}</p>}
-              <button onClick={handleConsentSubmit} disabled={!consentValid} style={{ width: '100%', fontFamily: F.inter, fontWeight: 500, fontSize: 14, color: 'white', background: consentValid ? '#8B0000' : 'rgba(139,0,0,0.3)', border: 'none', borderRadius: 10, padding: '13px', marginTop: 8, cursor: consentValid ? 'pointer' : 'default', boxShadow: consentValid ? '0 0 20px rgba(139,0,0,0.22)' : 'none', transition: 'background 0.2s, box-shadow 0.2s' }} onMouseEnter={e => { if (consentValid) e.currentTarget.style.background = '#9e0000'; }} onMouseLeave={e => { if (consentValid) e.currentTarget.style.background = '#8B0000'; }}>
+              {capsLockOff && consentInput.length > 0 && !consentValid && (
+                <p style={{ fontFamily: F.inter, fontSize: 12, color: 'rgba(255,180,0,0.85)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span>⚠</span> {t('finish.capsLockWarning')}
+                </p>
+              )}
+              {pasteBlocked && <p style={{ fontFamily: F.inter, fontSize: 12, color: 'rgba(200,100,60,0.9)', marginBottom: 6 }}>{t('finish.consentPasteBlocked')}</p>}
+              <button onClick={handleConsentSubmit} disabled={!consentValid} style={{ width: '100%', fontFamily: F.inter, fontWeight: 500, fontSize: 14, color: 'white', background: consentValid ? '#8B0000' : 'rgba(139,0,0,0.3)', border: 'none', borderRadius: 10, padding: '13px', marginTop: 10, cursor: consentValid ? 'pointer' : 'default', boxShadow: consentValid ? '0 0 20px rgba(139,0,0,0.22)' : 'none', transition: 'background 0.2s, box-shadow 0.2s' }} onMouseEnter={e => { if (consentValid) e.currentTarget.style.background = '#9e0000'; }} onMouseLeave={e => { if (consentValid) e.currentTarget.style.background = '#8B0000'; }}>
                 {t('finish.consentConfirm')}
               </button>
             </div>
@@ -191,6 +200,7 @@ export default function ResearchFinishPage() {
 
           {(step === 'email' || step === 'sending') && (
             <div style={{ textAlign: 'left' }}>
+              <p style={{ fontFamily: F.inter, fontSize: 11, fontWeight: 600, color: '#8B0000', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 12 }}>{t('finish.emailStep')}</p>
               <p style={{ fontFamily: F.inter, fontSize: 12, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 10 }}>{t('finish.emailLabel')}</p>
               <input
                 type="email" placeholder={t('finish.emailPlaceholder')} value={email}
