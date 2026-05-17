@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OMMΩ</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0a;
+      --surface: #111111;
+      --bubble-user: #1a1a2e;
+      --bubble-ai: #0f1629;
+      --border: #1e2235;
+      --text: #e8e0d4;
+      --text-dim: #7a7a8a;
+      --accent: #4a9eff;
+      --accent-dim: #1e3a5f;
+      --danger: #c0392b;
+      --danger-glow: rgba(192, 57, 43, 0.35);
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 15px;
+      overflow: hidden;
+    }
+
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    /* ── Header ─────────────────────────────────────────── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px 24px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .logo {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 22px;
+      font-weight: 400;
+      letter-spacing: 3px;
+      color: var(--text);
+    }
+
+    .logo span {
+      color: var(--accent);
+    }
+
+    .status-dot {
+      position: absolute;
+      right: 24px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #2ecc71;
+      box-shadow: 0 0 6px rgba(46, 204, 113, 0.6);
+    }
+
+    /* ── Messages ────────────────────────────────────────── */
+    #messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      scroll-behavior: smooth;
+    }
+
+    #messages::-webkit-scrollbar { width: 4px; }
+    #messages::-webkit-scrollbar-track { background: transparent; }
+    #messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .bubble-wrap {
+      display: flex;
+      flex-direction: column;
+      max-width: 72%;
+      animation: fadeUp 0.2s ease;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .bubble-wrap.user  { align-self: flex-end; align-items: flex-end; }
+    .bubble-wrap.omma  { align-self: flex-start; align-items: flex-start; }
+
+    .bubble {
+      padding: 11px 15px;
+      border-radius: 16px;
+      line-height: 1.5;
+      word-break: break-word;
+    }
+
+    .bubble-wrap.user .bubble {
+      background: var(--bubble-user);
+      border-bottom-right-radius: 4px;
+      color: #dcd8f0;
+    }
+
+    .bubble-wrap.omma .bubble {
+      background: var(--bubble-ai);
+      border: 1px solid var(--border);
+      border-bottom-left-radius: 4px;
+      color: var(--text);
+    }
+
+    .bubble audio {
+      display: block;
+      margin-top: 8px;
+      width: 240px;
+      height: 32px;
+      border-radius: 6px;
+      accent-color: var(--accent);
+    }
+
+    .sender-label {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-bottom: 3px;
+      padding: 0 4px;
+    }
+
+    /* ── Typing indicator ────────────────────────────────── */
+    .typing-bubble {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 12px 16px;
+      background: var(--bubble-ai);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      border-bottom-left-radius: 4px;
+      width: fit-content;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--text-dim);
+      animation: bounce 1.2s infinite;
+    }
+    .dot:nth-child(2) { animation-delay: 0.2s; }
+    .dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes bounce {
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+      30% { transform: translateY(-5px); opacity: 1; }
+    }
+
+    /* ── Input area ──────────────────────────────────────── */
+    #input-area {
+      padding: 14px 16px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    /* PTT row */
+    .ptt-row {
+      display: flex;
+      justify-content: center;
+    }
+
+    #ptt-btn {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      border: none;
+      background: var(--accent-dim);
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+    }
+
+    #ptt-btn svg { width: 22px; height: 22px; }
+
+    #ptt-btn:hover { background: #1e4a8a; }
+
+    #ptt-btn.recording {
+      background: var(--danger);
+      box-shadow: 0 0 0 10px var(--danger-glow);
+      transform: scale(1.08);
+    }
+
+    #ptt-btn.recording .ptt-label { display: none; }
+    #ptt-btn .ptt-rec-label { display: none; }
+    #ptt-btn.recording .ptt-rec-label { display: block; }
+
+    /* Text row */
+    .text-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    #text-input {
+      flex: 1;
+      background: #1a1a1a;
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      color: var(--text);
+      font-size: 14px;
+      padding: 10px 16px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    #text-input::placeholder { color: var(--text-dim); }
+    #text-input:focus { border-color: var(--accent-dim); }
+
+    #send-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: var(--accent);
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: opacity 0.15s;
+    }
+
+    #send-btn:hover { opacity: 0.85; }
+    #send-btn svg { width: 18px; height: 18px; }
+
+    .divider-label {
+      text-align: center;
+      font-size: 11px;
+      color: var(--text-dim);
+      position: relative;
+    }
+
+    .divider-label::before,
+    .divider-label::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      width: 36%;
+      height: 1px;
+      background: var(--border);
+    }
+    .divider-label::before { left: 0; }
+    .divider-label::after  { right: 0; }
+
+    /* ── Error toast ─────────────────────────────────────── */
+    #toast {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #c0392b;
+      color: #fff;
+      padding: 8px 18px;
+      border-radius: 20px;
+      font-size: 13px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+      z-index: 999;
+    }
+    #toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="logo">OMM<span>Ω</span></div>
+    <div class="status-dot" id="status-dot" title="Online"></div>
+  </header>
+
+  <div id="messages"></div>
+
+  <div id="input-area">
+    <div class="ptt-row">
+      <button id="ptt-btn" aria-label="Hold to talk">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 1a4 4 0 0 1 4 4v6a4 4 0 0 1-8 0V5a4 4 0 0 1 4-4z"/>
+          <path d="M19 10a7 7 0 0 1-14 0"/>
+          <line x1="12" y1="19" x2="12" y2="23"/>
+          <line x1="8"  y1="23" x2="16" y2="23"/>
+        </svg>
+        <span class="ptt-label">HOLD</span>
+        <span class="ptt-rec-label">REC</span>
+      </button>
+    </div>
+
+    <div class="divider-label">or type</div>
+
+    <div class="text-row">
+      <input id="text-input" type="text" placeholder="Type a message…" autocomplete="off" />
+      <button id="send-btn" aria-label="Send">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"/>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+  const messagesEl = document.getElementById('messages');
+  const pttBtn     = document.getElementById('ptt-btn');
+  const textInput  = document.getElementById('text-input');
+  const sendBtn    = document.getElementById('send-btn');
+  const toast      = document.getElementById('toast');
+
+  let sessionId    = localStorage.getItem('omma_session') || null;
+  let mediaRecorder = null;
+  let audioChunks   = [];
+  let isRecording   = false;
+  let isBusy        = false;
+
+  // ── Toast ──────────────────────────────────────────────
+  function showToast(msg, duration = 3000) {
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), duration);
+  }
+
+  // ── Scroll ─────────────────────────────────────────────
+  function scrollBottom() {
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  // ── Add bubble ─────────────────────────────────────────
+  // audioB64: base64 string (AI TTS response)
+  // audioBlobUrl: object URL of the user's own recording
+  function addBubble(role, text, audioB64 = null, audioBlobUrl = null) {
+    const wrap = document.createElement('div');
+    wrap.className = `bubble-wrap ${role}`;
+
+    const label = document.createElement('div');
+    label.className = 'sender-label';
+    label.textContent = role === 'user' ? 'You' : 'OMMΩ';
+    wrap.appendChild(label);
+
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+
+    if (audioBlobUrl) {
+      // User voice message: player on top, transcription below
+      const audio = document.createElement('audio');
+      audio.controls = true;
+      audio.src = audioBlobUrl;
+      bubble.appendChild(audio);
+
+      const caption = document.createElement('div');
+      caption.className = 'voice-caption';
+      caption.style.cssText = 'margin-top:6px;font-size:13px;color:var(--text-dim);';
+      caption.textContent = text;
+      bubble.appendChild(caption);
+    } else {
+      bubble.textContent = text;
+
+      if (audioB64) {
+        // AI TTS response: text on top, player below, auto-play
+        const audio = document.createElement('audio');
+        audio.controls = true;
+        const blob = base64ToBlob(audioB64, 'audio/mpeg');
+        audio.src = URL.createObjectURL(blob);
+        bubble.appendChild(audio);
+        setTimeout(() => audio.play().catch(() => {}), 100);
+      }
+    }
+
+    wrap.appendChild(bubble);
+    messagesEl.appendChild(wrap);
+    scrollBottom();
+    return wrap;
+  }
+
+  // ── Typing indicator ───────────────────────────────────
+  function showTyping() {
+    const wrap = document.createElement('div');
+    wrap.className = 'bubble-wrap omma';
+    wrap.id = 'typing';
+
+    const label = document.createElement('div');
+    label.className = 'sender-label';
+    label.textContent = 'OMMΩ';
+    wrap.appendChild(label);
+
+    const tb = document.createElement('div');
+    tb.className = 'typing-bubble';
+    tb.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+    wrap.appendChild(tb);
+    messagesEl.appendChild(wrap);
+    scrollBottom();
+    return wrap;
+  }
+
+  function removeTyping() {
+    const el = document.getElementById('typing');
+    if (el) el.remove();
+  }
+
+  // ── base64 → Blob ──────────────────────────────────────
+  function base64ToBlob(b64, type) {
+    const bin = atob(b64);
+    const buf = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
+    return new Blob([buf], { type });
+  }
+
+  // ── Send text to /chat ─────────────────────────────────
+  async function sendText(text) {
+    if (!text.trim() || isBusy) return;
+    isBusy = true;
+    addBubble('user', text);
+
+    const typing = showTyping();
+
+    try {
+      const res = await fetch('/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, session_id: sessionId }),
+        credentials: 'include',
+      });
+
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+
+      if (data.session_id) {
+        sessionId = data.session_id;
+        localStorage.setItem('omma_session', sessionId);
+      }
+
+      removeTyping();
+      addBubble('omma', data.text, data.audio_base64);
+    } catch (e) {
+      removeTyping();
+      showToast('Connection error. Try again.');
+    } finally {
+      isBusy = false;
+    }
+  }
+
+  // ── Transcribe audio → send chat ──────────────────────
+  async function processAudio(blob) {
+    if (isBusy) return;
+    isBusy = true;
+
+    const blobUrl = URL.createObjectURL(blob);
+    const userBubble = addBubble('user', '…', null, blobUrl);
+
+    const typing = showTyping();
+    const form = new FormData();
+    form.append('audio', blob, 'recording.webm');
+
+    try {
+      const transcRes = await fetch('/transcribe', {
+        method: 'POST',
+        body: form,
+        credentials: 'include',
+      });
+
+      if (!transcRes.ok) throw new Error(`Transcribe HTTP ${transcRes.status}`);
+      const { text } = await transcRes.json();
+
+      const caption = userBubble.querySelector('.voice-caption');
+      if (!text.trim()) {
+        if (caption) caption.textContent = '';
+        removeTyping();
+        showToast('No speech detected.');
+        return;
+      }
+      if (caption) caption.textContent = text;
+
+      const chatRes = await fetch('/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, session_id: sessionId }),
+        credentials: 'include',
+      });
+
+      if (!chatRes.ok) throw new Error(`Chat HTTP ${chatRes.status}`);
+      const data = await chatRes.json();
+
+      if (data.session_id) {
+        sessionId = data.session_id;
+        localStorage.setItem('omma_session', sessionId);
+      }
+
+      removeTyping();
+      addBubble('omma', data.text, data.audio_base64);
+    } catch (e) {
+      removeTyping();
+      showToast('Something went wrong. Try again.');
+    } finally {
+      isBusy = false;
+    }
+  }
+
+  // ── PTT ───────────────────────────────────────────────
+  async function startRecording() {
+    if (isRecording || isBusy) return;
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      audioChunks = [];
+      mediaRecorder = new MediaRecorder(stream);
+      mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
+      mediaRecorder.onstop = () => {
+        stream.getTracks().forEach(t => t.stop());
+        const blob = new Blob(audioChunks, { type: 'audio/webm' });
+        if (blob.size > 1000) processAudio(blob);
+        else showToast('Recording too short.');
+      };
+      mediaRecorder.start();
+      isRecording = true;
+      pttBtn.classList.add('recording');
+    } catch {
+      showToast('Microphone access denied.');
+    }
+  }
+
+  function stopRecording() {
+    if (!isRecording || !mediaRecorder) return;
+    mediaRecorder.stop();
+    isRecording = false;
+    pttBtn.classList.remove('recording');
+  }
+
+  pttBtn.addEventListener('mousedown',  e => { e.preventDefault(); startRecording(); });
+  pttBtn.addEventListener('mouseup',    e => { e.preventDefault(); stopRecording(); });
+  pttBtn.addEventListener('mouseleave', e => { if (isRecording) stopRecording(); });
+  pttBtn.addEventListener('touchstart', e => { e.preventDefault(); startRecording(); }, { passive: false });
+  pttBtn.addEventListener('touchend',   e => { e.preventDefault(); stopRecording(); }, { passive: false });
+
+  // ── Text send ─────────────────────────────────────────
+  sendBtn.addEventListener('click', () => {
+    const txt = textInput.value.trim();
+    if (txt) { sendText(txt); textInput.value = ''; }
+  });
+
+  textInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      const txt = textInput.value.trim();
+      if (txt) { sendText(txt); textInput.value = ''; }
+    }
+  });
+
+  // ── Welcome message ───────────────────────────────────
+  window.addEventListener('DOMContentLoaded', () => {
+    addBubble('omma', 'Hello. I am OMMΩ. Hold the button to speak, or type a message below.');
+  });
+</script>
+</body>
+</html>
